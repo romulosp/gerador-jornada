@@ -1,7 +1,52 @@
-.tools/
-dist/
-build/
-*.test
+# Ferramentas locais, downloads e cópia de execução do legado.
+/apps/gerador-jornada/.tools/
+
+# Executáveis, pacotes de distribuição e evidências temporárias de build.
+/apps/gerador-jornada/dist/
+/apps/gerador-jornada/build/
+
+# Binários e arquivos intermediários Go/C/Java.
 *.exe
-*.tmp
+*.exe~
+*.test
+*.dll
+*.o
+*.obj
+*.a
+*.class
+
+# Relatórios locais de testes, cobertura e profiling da aplicação.
+/apps/gerador-jornada/coverage/
+/apps/gerador-jornada/coverage*.out
+/apps/gerador-jornada/coverage*.html
+/apps/gerador-jornada/*.prof
+/apps/gerador-jornada/*.pprof
+/apps/gerador-jornada/test-results/
+
+# Cache Python das ferramentas auxiliares.
 __pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+
+# Dependências instaladas para ferramentas Node ou análise do legado.
+node_modules/
+
+# Logs, temporários de edição e arquivos auxiliares do Windows.
+*.log
+*.tmp
+*.swp
+*.swo
+*~
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Configuração local com possíveis credenciais; modelos continuam versionáveis.
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Manter versionados go.mod, go.sum, scripts, manifestos de ferramentas,
+# recursos visuais de internal/ e especificações em Markdown.
