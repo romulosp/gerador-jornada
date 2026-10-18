@@ -1,0 +1,25 @@
+.grid-header { grid-area: header; height: 65px; }
+.grid-tools { grid-area: menu; min-height: calc(100vh - 66px) }
+.grid-design { grid-area: main; min-height: calc(100vh - 66px)}
+.grid-children { grid-area: main; min-height: calc(100vh - 66px)}
+.grid-configuration { grid-area: right; min-height: calc(100vh - 66px)}
+
+.grid-container {
+  display: grid;
+  grid-template-areas:
+    'header header header'
+    'main main main';
+  background-color: #1E2129;
+  color: #BABDC6;
+  grid-template-columns: 274px minmax(800px, 1fr) 274px;
+}
+
+.grid-container-design {
+  display: grid;
+  grid-template-areas:
+    'header header header'
+    'menu main right';
+  background-color: #1E2129;
+  color: #BABDC6;
+  grid-template-columns: 274px minmax(800px, 1fr) 274px;
+}

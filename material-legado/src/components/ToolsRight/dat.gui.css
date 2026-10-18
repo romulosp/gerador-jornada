@@ -1,0 +1,43 @@
+.react-dat-gui{
+    position: relative;
+    width: 100%;
+    top: auto;
+    right: auto;
+}
+.react-dat-gui .cr
+{
+    border: none !important;
+    background-color: transparent;
+    margin-top: 10px;
+    color: rgb(186, 189, 198);
+}
+.react-dat-gui .cr:last-child{
+    margin-bottom: 10px;
+}
+.react-dat-gui .cr.color .swatch{
+    border: none;
+}
+.react-dat-gui .cr input[type=number]:hover,
+.react-dat-gui .cr input[type=text]:hover{
+    background-color: rgb(36, 41, 49);
+}
+.react-dat-gui .cr input[type=number],
+.react-dat-gui .cr input[type=text]{
+    background-color: rgb(36, 41, 49);
+    border-color: rgb(36, 41, 49);
+}
+.react-dat-gui .cr.number .slider{
+    border: none;
+    margin-right: 10px;
+    background-image:linear-gradient(90deg,#f39a00,#f39a00);
+}
+.react-dat-gui .cr.number input[type=number],
+ .react-dat-gui .cr.number input[type=text]{
+     color: #f39a00;
+ }
+
+ .react-dat-gui li.folder .title,
+ .react-dat-gui li.folder.closed .title{
+     background-color: #242931;
+     padding: 10px 10px 10px 16px;
+ }

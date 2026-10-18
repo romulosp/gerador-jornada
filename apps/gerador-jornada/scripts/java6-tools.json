@@ -1,0 +1,32 @@
+{
+  "ecj-3.33.0.jar": {
+    "license": "EPL-2.0",
+    "licenseUrl": "https://www.eclipse.org/legal/epl-2.0/",
+    "url": "https://repo.maven.apache.org/maven2/org/eclipse/jdt/ecj/3.33.0/ecj-3.33.0.jar",
+    "sha256": "f7686c4960cf70c2ebc5c500a73a8cfc04541b730c18f1c5c21329889b137f45"
+  },
+  "animal-sniffer-1.24.jar": {
+    "license": "MIT",
+    "licenseUrl": "https://spdx.org/licenses/MIT.html",
+    "url": "https://repo.maven.apache.org/maven2/org/codehaus/mojo/animal-sniffer/1.24/animal-sniffer-1.24.jar",
+    "sha256": "65d028de87134f0955e3a964fe438fc3e99e77b237a77e5e165869a8ff59db5f"
+  },
+  "animal-sniffer-annotations-1.24.jar": {
+    "license": "MIT",
+    "licenseUrl": "https://spdx.org/licenses/MIT.html",
+    "url": "https://repo.maven.apache.org/maven2/org/codehaus/mojo/animal-sniffer-annotations/1.24/animal-sniffer-annotations-1.24.jar",
+    "sha256": "c720e6e5bcbe6b2f48ded75a47bccdb763eede79d14330102e0d352e3d89ed92"
+  },
+  "asm-9.7.jar": {
+    "license": "BSD-3-Clause",
+    "licenseUrl": "https://asm.ow2.io/license.html",
+    "url": "https://repo.maven.apache.org/maven2/org/ow2/asm/asm/9.7/asm-9.7.jar",
+    "sha256": "adf46d5e34940bdf148ecdd26a9ee8eea94496a72034ff7141066b3eea5c4e9d"
+  },
+  "java16-1.1.signature": {
+    "license": "MIT",
+    "licenseUrl": "https://repo.maven.apache.org/maven2/org/codehaus/mojo/signature/signatures-parent/1.1/signatures-parent-1.1.pom",
+    "url": "https://repo.maven.apache.org/maven2/org/codehaus/mojo/signature/java16/1.1/java16-1.1.signature",
+    "sha256": "53799223a2c98dba2d0add810bed76315460df285c69e4f397ae6098f87dd619"
+  }
+}
