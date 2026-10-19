@@ -22,16 +22,16 @@
 | Screen | id, fileId, name, size, background, components | Nome não vazio; largura/altura positivas; ordem no array determina ordem na lista e na exploração PPT. |
 | Component | id, fileId, name, kind, bounds, style, properties | Nome não vazio e único na tela; kind pertence ao catálogo; propriedades têm exatamente o tipo correspondente à família. |
 | Bounds | x, y, width, height | Inteiros; x/y não negativos, largura/altura positivas e limites dentro da tela para prévia/exportação. |
-| Style | fontFamily, fontSize, textColor, fillColor, borderColor, backgroundAssetId, textAlign | Tamanho de fonte positivo; cores válidas; estilos opcionais resolvidos pelo catálogo. Capacidade Java depende de perfil. |
-| ComponentDefinition | kind, displayName, defaultBounds, propertyDefinitions, capabilities | Catálogo embutido/versionado, não editável pelo projeto; sem callbacks serializados. |
+| Style | fontFamily, fontSize, textColor, fillColor, borderColor, backgroundAssetId, textAlign | Tamanho de fonte zero mantém padrão; personalizado deve ser positivo; cores válidas; estilos opcionais resolvidos pelo catálogo. Capacidade Java depende de perfil. |
+| Definition (implementado) | kind, name, width, height | Catálogo embutido; metadados declarativos completos de propriedades/capacidades permanecem em 003-catalogo/T004 e T006. |
 | Journey | startScreenId, actions | Uma inicial existente para executar; um binding no máximo por botão e evento click. |
 | ButtonAction | sourceScreenId, sourceComponentId, kind, targetScreenId | kind `none` ou `navigate`; destino obrigatório apenas em navigate. Fonte deve ser botão da tela indicada. |
 | Scenario | id, name, startScreenId, steps | Nome não vazio; inicial existente; ordem dos steps é ordem de execução. Lista finita, sem loops implícitos. |
 | Step | id, kind, screenId, componentId, point, text, durationMs | Campos dependem de kind conforme contrato; duração estritamente positiva, intervalo 1..600000 ms. |
 | Asset | id, path, mediaType, sha256, sizeBytes | Recurso PNG/JPEG local incorporado; path interno normalizado, hash e tamanho conferidos. |
 | JavaOptions | packageName, profileId | Pacote Java válido para exportar; perfil identifica versão EFL homologada. Não armazena caminho de JAR nem JDK. |
-| Diagnostic | code, severity, message, location, target | severity error/warning; localização pode indicar tela, componente, roteiro, etapa e campo. |
-| ExportArtifact | relativePath, mediaType, sizeBytes, sha256 | Saída já validada; caminho relativo seguro. Não é parte do projeto persistido. |
+| Diagnostic (parcial) | code, severity, message, screenId, componentId | Localização completa por roteiro/etapa/propriedade e warnings continuam no contrato alvo e em 001-gerador-jornada/T030/T046. |
+| ExportArtifact (planejado) | relativePath, mediaType, sizeBytes, sha256 | Contrato alvo de resultado estruturado; tipo ainda ausente no serviço atual (001-gerador-jornada/T009/T038). Não é persistido no projeto. |
 
 Propriedades específicas de Button, Label, Title, TextField, Radio, Report e NumericKeyboard estão em [component-catalog.md](contracts/component-catalog.md). Em Go, usar structs próprias para cada família e uma variante discriminada; `map[string]any` não deve atravessar os casos de uso como modelo de domínio.
 
@@ -110,3 +110,8 @@ A aplicação pode criar um snapshot de uma única tela selecionada, sem ações
 ## FileID e identidade interna
 
 Screen.FileID/Component.FileID são nomes-base editáveis sem extensão, de 1 a 40 caracteres ASCII alfanuméricos, começando com letra. Screen exige Pnl + nome; Component não exige prefixo. FileID de tela é único no projeto e de componente na tela, sem distinguir caixa. Nomes Windows de dispositivos são inválidos. UUIDs não mudam ao editar FileID, e Name permanece Unicode. Migração de arquivo v1 preenche IDs ausentes; v2 exige valores explícitos válidos. Regras de valor ficam em screen/file_id.go; aplicação coordena colisões, sugestões e transações; adaptadores traduzem formulário, manifesto e nomes de fonte.
+
+
+## Preferências de apresentação (fora do domínio)
+
+A chave local editor.theme aceita Claro, Escuro e Azul, com Claro como fallback. É preferência de usuário gerenciada pelo adaptador Fyne, não propriedade do Projeto nem campo do manifesto. Tela cheia, visibilidade de Sair e diálogo de encerramento são estado transitório da janela. Nenhuma migração de dados ou revisão do projeto é necessária.

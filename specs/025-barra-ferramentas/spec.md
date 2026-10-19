@@ -113,3 +113,34 @@ Como autor, quero trocar de seleção ou modo e voltar ao painel sem perda ou al
 ## Botão Prévia Tela Atual — 2026-10-18
 
 - **FR-014**: Acrescentar Prévia Tela Atual ao lado de Prévia no cabeçalho, com ícone de visualização e texto visível. Prévia mantém o percurso completo do projeto; a nova ação usa a tela ativa. Desabilitar a nova ação quando não houver tela existente selecionada e atualizar seu estado na troca/remoção de tela ou projeto.
+
+## Controle de tela cheia
+
+- **FR-015**: Iniciar o editor em tela cheia por padrão com a ação Restaurar disponível. Exibir ação Tela cheia próxima à identificação do produto e mudar sua legenda para Restaurar quando ativa. No Windows, Maximizar e F12 entram no mesmo modo Fyne sem barra de título/tarefas; F12/Escape/botão retornam. Preservar acesso às ferramentas do editor, rascunho, seleção, zoom e histórico. As teclas nativas Windows são interceptadas somente na janela principal e liberadas no fechamento; fechar e minimizar mantêm o comportamento existente.
+
+**Aceitação**: com componente selecionado e nome em rascunho, entrar/sair do modo sem salvar/descartar involuntariamente, nem desmarcar o alvo. Segurar F12 não alterna repetidamente. Em modo normal, Escape continua limpando a seleção quando não houver campo focado.
+
+
+**Aceitação de FR-015 na abertura**: ao iniciar o executável atualizado, solicitar tela cheia após a exibição nativa; Restaurar deve sair para uma janela normal. A revisão visual deve conferir que não se trata apenas de maximização com barras visíveis.
+
+
+## Encerramento em tela cheia e temas do editor
+
+### User Story 3 - Encerrar e personalizar o editor (Priority: P1)
+
+Como autor, quero sair sem restaurar a janela e escolher um tema confortável, preservando o visual das telas desenhadas.
+
+**Independent Test**: abrir em tela cheia, localizar Sair, cancelar/confirmar o encerramento com alterações e alternar os três temas sem alterar o projeto.
+
+**Acceptance Scenarios**:
+
+1. **Given** tela cheia, **When** o cabeçalho é exibido, **Then** Sair está visível; após Restaurar fica oculto, reaparecendo ao entrar novamente em tela cheia.
+2. **Given** um projeto alterado, **When** Sair ou fechar pelo sistema é acionado, **Then** a mesma confirmação Sim/Não protege o documento; Não preserva a sessão, Sim encerra; não empilhar confirmações.
+3. **Given** primeira execução sem preferência válida, **When** o editor abre, **Then** usa Claro; escolher Escuro ou Azul atualiza os controles e persiste a escolha por usuário para próxima abertura.
+4. **Given** componente selecionado e propriedades em edição, **When** muda o tema, **Then** seleção, rascunho, zoom, documento, histórico, fundo e cores do projeto permanecem iguais; prévias/PPTX não adotam a paleta do editor.
+
+- **FR-016**: Exibir Sair com ícone no cabeçalho somente em tela cheia, ao lado de Restaurar. Usar o mesmo fluxo de encerramento da janela, protegendo alterações não salvas com Sim/Não e impedindo confirmações duplicadas.
+- **FR-017**: Oferecer seletor Tema com Claro, Escuro e Azul. Claro é padrão inicial e fallback para preferência desconhecida. Aplicar imediatamente à interface e salvar em preferências locais do usuário, fora do arquivo .jornada; não seguir automaticamente o tema do sistema.
+- **FR-018**: Aplicar contraste coerente a painéis, textos, cabeçalho, menus, diálogos, campos e estados de foco/seleção/desabilitado. Tema não altera dados/canvas do projeto, prévias ou exportadores. Manter os adaptadores de apresentação separados dos domínios existentes.
+
+**Success Criteria**: usuário encerra com uma ação acessível sem restaurar; três temas selecionáveis, preferência reaplicada na reabertura e nenhuma revisão do projeto causada pela troca. Homologação visual em Windows e DPI reais permanece manual.

@@ -1,12 +1,19 @@
 <!--
 Sync Impact Report
-Version change: 1.1.0 -> 1.1.1 (esclarecimento do idioma da documentação).
-Modified principles: IV. Documentação de cada elemento do código (português obrigatório).
-Added sections: nenhuma; Processo e critérios de conclusão ampliado.
+Version change: 1.1.1 -> 1.2.0 (novo princípio de sincronização e rastreabilidade por domínio).
+Modified principles: nenhum princípio removido ou enfraquecido; preservados I a VI.
+Added sections: VII. Especificações sincronizadas e rastreabilidade por domínio.
+Updated sections: Restrições e evolução; Processo e critérios de conclusão; Governance.
 Removed sections: nenhuma.
-Deferred placeholders: nenhum. Dependências externas permanecem em research.md.
-Sync impact: templates e comandos não alterados; referências estáticas à versão 1.0.0
-em documentos dependentes devem ser reconciliadas na próxima revisão desses artefatos.
+Deferred placeholders: nenhum.
+Sync impact: somente a constituição alterada; templates e comandos leem as regras em runtime.
+Follow-up documental concluído em 2026-10-19, por autorização posterior do usuário:
+spec.md/plan.md/data-model.md/tasks.md da coordenadora e dos cinco domínios reconciliados,
+com contratos, evidências e gates manuais/externos pendentes explicitados.
+Corrigidas as menções a entrega somente documental, formato atual, toolchain e caminhos
+antigos; tarefas técnicas/pendentes reconciliadas sem renumeração. A emenda por si só
+não conclui implementação nem homologação; evidências ficam em quickstart.md.
+Nota de revisão: este relatório é temporário e deve ser removido antes do commit da emenda.
 -->
 # Gerador de Jornada Constitution
 
@@ -71,9 +78,47 @@ tasks.md. Não criar índices, ADRs ou relatórios de planejamento avulsos quand
 conteúdo pertence aos artefatos existentes. Recursos necessários às skills seguem
 o formato próprio de skills, sem se tornarem artefatos adicionais da feature.
 
+### VII. Especificações sincronizadas e rastreabilidade por domínio
+
+Cada incremento deve atualizar os artefatos correspondentes à sua responsabilidade
+antes da entrega para teste: spec.md para comportamento e aceitação; plan.md para
+arquitetura e caminhos reais; data-model.md e contracts/ para dados e formatos;
+DESIGN.md para alterações visuais; tasks.md para trabalho e evidências; quickstart.md
+para revisão executável e roteiro manual. Atualizar somente os artefatos afetados,
+sem copiar regras integrais para múltiplos documentos.
+
+Projeto, Catálogo, Tela, Jornada e Demonstração mantêm seus próprios requisitos e
+backlogs. A coordenadora referencia a integração. Features de componentes e
+adaptadores, como barra, propriedades e prévia, detalham suas responsabilidades
+sem criar domínios artificiais. Preferências de tema, seleção e estado da janela
+permanecem fora das entidades e dos contratos persistidos da jornada.
+
+Toda mudança deve permitir seguir o requisito qualificado pelo caminho da feature
+até a tarefa, o código e a evidência pertinente. Ao mudar uma assinatura, caminho,
+versão de formato ou decisão técnica, corrigir as referências afetadas. Distinguir
+versão do software, formato do projeto, catálogo e constituição; valores históricos
+podem permanecer como histórico identificado, nunca como instrução vigente conflitante.
+
+Uma tarefa deve refletir seu escopo integral. Código e checks suficientes permitem
+concluir uma tarefa técnica; homologação e aprovação exigem evidências próprias.
+Se uma tarefa mistura implementação e teste manual ainda não executado, separar
+explicitamente esses trabalhos ou mantê-la aberta com seu resultado parcial.
+Não marcar tarefas em lote por existir código semelhante e não manter trabalho
+comprovadamente concluído descrito como exclusivamente futuro sem registrar a situação.
+
+Antes de declarar conformidade entre specs e implementação, revisar os requisitos,
+contratos e tarefas afetados e registrar divergências nos artefatos existentes.
+Distinguir comportamento não implementado, documentação desatualizada, teste ainda
+não executado e capacidade adiada pelo usuário. Não modificar a spec apenas para
+apagar uma lacuna funcional: mudanças de escopo precisam ter justificativa e origem
+identificadas. Essa regra evita que uma entrega pareça aprovada ou completa por
+atualização de texto sem implementação ou validação correspondente.
+
 ## Restrições e evolução
 
-- Primeira versão: sete famílias EFL, navegação explícita, roteiro finito, PPTX editável e Java fonte.
+- Escopo funcional planejado da primeira versão: sete famílias EFL, navegação explícita, roteiro finito, PPTX editável e Java fonte. Planejamento não comprova implementação ou homologação.
+- Entrega corrente: compilar somente Windows x64. Linux/macOS ficam como base de configuração e documentação para uso futuro, sem novos builds obrigatórios por incremento, conforme orientação do usuário em 2026-10-18.
+- Java/EFL permanece visível e temporariamente desabilitado por orientação do usuário. Preservar o código e as pendências de integração real; a existência do gerador não comprova compatibilidade EFL nem conclui sua homologação.
 - Fora da primeira versão: importação `.page`, integração externa, banco de negócio, colaboração simultânea, gravação de uso e compilação Java pelo editor.
 - Conteúdo de projeto é dado, nunca código executável, template arbitrário ou caminho externo a resolver automaticamente.
 - Projeto inválido pode ser preservado como rascunho quando a estrutura for legível; exportação exige validação do alvo. Dados estruturalmente corrompidos não substituem a sessão ativa.
@@ -81,9 +126,9 @@ o formato próprio de skills, sem se tornarem artefatos adicionais da feature.
 
 ## Processo e critérios de conclusão
 
-O trabalho futuro segue as oito sprints da especificação. Antes de desenvolver uma capacidade, revisar seus contratos e testes de aceitação. Antes de concluir a tarefa, verificar documentação, limites entre módulos e validação pertinente. Cada sprint produz uma demonstração e um registro de evidências com versão do editor e ambiente.
+O planejamento de referência segue as oito sprints da especificação; cada entrega deve registrar seu estado efetivo. Antes de desenvolver uma capacidade, revisar seus contratos e testes de aceitação. Antes de concluir a tarefa, verificar documentação, limites entre módulos e validação pertinente. Cada sprint produz uma demonstração e um registro de evidências com versão do editor e ambiente.
 
-Uma tarefa de implementação só pode ser marcada como concluída após existir implementação e evidência. A presente entrega documental não conclui nenhuma tarefa de código. Dependências externas ausentes devem aparecer como condições de homologação, com impacto e responsável funcional identificado, sem inventar APIs.
+Uma tarefa de implementação só pode ser marcada como concluída após existir implementação e evidência. Uma entrega exclusivamente documental não conclui tarefas de código; uma entrega com implementação deve indicar a revisão e as verificações realizadas. Dependências externas ausentes devem aparecer como condições de homologação, com impacto e responsável funcional identificado, sem inventar APIs.
 
 Separar conclusão técnica de teste manual e aprovação. Uma versão pronta para teste
 manual deve ter build ou harness utilizável, comando/caminho real e checks pertinentes
@@ -102,8 +147,14 @@ publicação, deploy, push, merge ou comunicação externa.
 
 ## Governance
 
+A revisão de conformidade deve incluir sincronização por domínio conforme o princípio
+VII, além de arquitetura, documentação em português e evidências. Constatar uma
+inconsistência exige corrigi-la no fluxo autorizado ou registrá-la como pendência
+localizável; não declarar conformidade integral enquanto houver divergências conhecidas.
+
+
 Esta constituição prevalece sobre recomendações genéricas de skills. As decisões de arquitetura e DI já foram dadas pelo usuário ao aprovar o plano; não é necessário reabri-las por instrução genérica de uma skill. Adaptações para desktop prevalecem sobre recomendações de serviços, como processos sem estado ou configuração exclusivamente por variáveis de ambiente.
 
 Alterações exigem justificativa, atualização dos contratos afetados e análise de impacto nas tarefas. Mudança incompatível de princípio incrementa versão maior; novo princípio compatível, versão menor; esclarecimento, correção. A validação é feita por revisão e checks automatizados pertinentes, sem adicionar uma etapa de aprovação por alteração rotineira.
 
-**Version**: 1.1.1 | **Ratified**: 2026-10-17 | **Last Amended**: 2026-10-17
+**Version**: 1.2.0 | **Ratified**: 2026-10-17 | **Last Amended**: 2026-10-18

@@ -21,7 +21,7 @@ Modelar telas, componentes, geometria e ordem visual com operações coesas e in
 
 ## Constitution Check
 
-Conforme princípios I/II: modelo coeso e sem adaptadores. Conforme IV/V: documentar tipos, funções, métodos, campos e variáveis e testar regras, incluindo erros. Conforme VI: sem interfaces para cada struct, DI framework, banco ou serviço externo.
+Conforme princípios I/II: modelo coeso e sem adaptadores. IV/V exigem documentação integral e testes de regras/erros; os checks atuais aprovados não substituem a revisão completa nem a matriz ainda aberta em tasks.md. Conforme VI: sem interfaces para cada struct, DI framework, banco ou serviço externo. VII: rastreabilidade reconciliada com estado parcial explícito, sem declarar o domínio aprovado.
 
 ## Project Structure
 
@@ -31,7 +31,7 @@ spec.md, plan.md, data-model.md e tasks.md. Pesquisa e contratos compartilhados 
 
 ### Source Code (apps/gerador-jornada)
 
-`internal/screen/model.go`, `operations.go`, `validation.go` e testes correspondentes; separar outros arquivos por responsabilidade se necessário. Os caminhos de código desta feature são relativos a apps/gerador-jornada; a implementação segue o backlog local.
+`internal/screen/model.go`, `selection.go`, `file_id.go` e testes; comandos em `internal/application/edit_screen.go`, `edit_selection.go` e `transform.go`; alinhamento/camadas em `internal/adapter/desktop/arrangement.go`. Os caminhos são relativos a apps/gerador-jornada. Não criar operations.go/validation.go apenas para repetir uma divisão planejada; dividir por responsabilidade quando a evolução justificar.
 
 **Structure Decision**: um pacote por domínio, sem classes centrais ou novo módulo Go.
 
@@ -45,10 +45,17 @@ Normas de formato/propriedades: [contrato compartilhado](../001-gerador-jornada/
 
 ## Validation and Integration
 
-Testar bordas, dimensões inválidas, nome duplicado, z-order, cópia de teclado, auto-referência e resize de tela sem reposicionamento oculto. Verificar caso válido, falha e preservação de estado; executar `go test ./internal/screen` somente após a implementação existir.
+Testar bordas, dimensões inválidas, nome duplicado, z-order, cópia de teclado, auto-referência e resize de tela sem reposicionamento oculto. Verificar caso válido, falha e preservação de estado; `go test ./internal/screen` já é executável; cobertura atual e casos restantes estão identificados em tasks.md, sem equiparar teste parcial à matriz completa.
 
 Integrar conforme [tasks.md](tasks.md) deste domínio e checkpoints da [feature coordenadora](../001-gerador-jornada/tasks.md). Não marcar checkpoint de integração antes dos testes de domínio.
 
 ## Complexity Tracking
 
 Sem exceção à constituição. Tipos concretos bastam para regras internas; fronteiras de IO permanecem fora deste pacote.
+
+
+## Estado reconciliado — 2026-10-18
+
+Modelo, bounds, seleção coletiva, IDs de arquivo, duplicação e remoção reversível implementados. Parte dos comandos de composição ainda é coordenada no desktop por Session.Change. A matriz completa de bordas/duplicação e todos os alinhamentos previstos ainda requerem conferência; DPI nativo permanece manual.
+
+Checks desta revisão: `scripts/check.ps1 -Jdk17 C:\Desenvolvimento\jdk-17.0.11` aprovados; escopo e evidências em [quickstart da coordenadora](../001-gerador-jornada/quickstart.md#reconciliação-documental-por-domínio--2026-10-18). Não implica teste manual nem aprovação do domínio.

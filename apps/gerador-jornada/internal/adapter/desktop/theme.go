@@ -11,10 +11,54 @@ import (
 )
 
 // jornadaTheme adapta a identidade visual sem alterar o tema global do Windows.
-type jornadaTheme struct{}
+type jornadaTheme struct {
+	// name identifica a paleta da interface, sem alterar cores do documento.
+	name string
+}
 
-// Color define superfícies claras e contraste da navegação.
-func (jornadaTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
+// Color resolve superfícies e estados da paleta escolhida, sem seguir o tema do sistema.
+func (t jornadaTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
+	if t.name == "Escuro" {
+		switch name {
+		case theme.ColorNamePrimary, theme.ColorNameFocus:
+			return rgb("#60A5FA")
+		case theme.ColorNameBackground:
+			return rgb("#111827")
+		case theme.ColorNameForeground:
+			return rgb("#F1F5F9")
+		case theme.ColorNameForegroundOnPrimary:
+			return rgb("#111827")
+		case theme.ColorNameInputBackground, theme.ColorNameMenuBackground:
+			return rgb("#1F2937")
+		case theme.ColorNameButton:
+			return rgb("#334155")
+		case theme.ColorNameDisabled:
+			return rgb("#94A3B8")
+		case theme.ColorNamePlaceHolder:
+			return rgb("#CBD5E1")
+		case theme.ColorNameSelection:
+			return rgb("#1E40AF")
+		case theme.ColorNameSeparator:
+			return rgb("#475569")
+		}
+		return theme.DefaultTheme().Color(name, theme.VariantDark)
+	}
+	if t.name == "Azul" {
+		switch name {
+		case theme.ColorNamePrimary, theme.ColorNameFocus:
+			return rgb("#174EA6")
+		case theme.ColorNameBackground:
+			return rgb("#EDF4FC")
+		case theme.ColorNameForeground:
+			return rgb("#142D4E")
+		case theme.ColorNameButton:
+			return rgb("#DCE9F8")
+		case theme.ColorNamePlaceHolder:
+			return rgb("#486581")
+		case theme.ColorNameSelection:
+			return rgb("#C9DDF5")
+		}
+	}
 	switch name {
 	case theme.ColorNamePrimary, theme.ColorNameFocus:
 		return rgb("#2563EB")
@@ -28,6 +72,8 @@ func (jornadaTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) c
 		return rgb("#E8EEF6")
 	case theme.ColorNameDisabled:
 		return rgb("#94A3B8")
+	case theme.ColorNamePlaceHolder:
+		return rgb("#64748B")
 	case theme.ColorNameSelection:
 		return rgb("#DBEAFE")
 	case theme.ColorNameSeparator:

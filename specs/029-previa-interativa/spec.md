@@ -102,3 +102,8 @@ Como autor, quero trocar de seleção ou modo e voltar ao painel sem perda ou al
 2. **Given** uma tela atual válida e outra com dimensões inválidas ou destino inexistente na jornada, **When** abrir a prévia individual, **Then** a tela atual é apresentada; a prévia do projeto mantém sua validação completa.
 3. **Given** a prévia individual aberta, **When** editar um campo e fechar, **Then** documento, tela inicial, seleção e histórico do editor permanecem iguais.
 4. **Given** nenhuma tela existente ativa, **When** consultar o cabeçalho, **Then** Prévia Tela Atual fica desabilitado.
+
+
+## Isolamento do tema do editor
+
+- **FR-011**: A paleta escolhida no editor não deve recolorir o conteúdo da prévia da jornada. Manter as primitivas com cores do modelo e isolar widgets runtime no tema claro já utilizado pela prévia. A decoração descritiva da janela pode acompanhar o tema do editor. Alternar Claro/Escuro/Azul com a prévia aberta não altera seus controles nem o snapshot. Responsabilidade do adaptador desktop, integrada a 025-barra-ferramentas/FR-018.

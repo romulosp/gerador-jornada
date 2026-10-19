@@ -193,7 +193,7 @@ Os tempos são metas futuras em Windows x64, CPU de quatro núcleos, 8 GB de RAM
 - A biblioteca EFL e exemplos funcionais do sistema hospedeiro serão fornecidos pela equipe mantenedora antes de concluir a homologação Java. Sua ausência está registrada em research.md.
 - Não há promessa de identidade pixel a pixel entre renderizadores; geometria, conteúdo, hierarquia e navegação seguem os contratos e tolerâncias de homologação.
 - Fora da primeira versão: importação `.page`, compilação Java no editor, geração Go da jornada, banco de negócio, APIs externas, multiusuário, plugins executáveis e gravação automática.
-- A entrega atual é documental. Os testes e capacidades descritos são trabalho futuro.
+- A entrega atual contém implementação em apps/gerador-jornada, testes automatizados e EXE Windows disponível para teste manual. Requisitos ainda não atendidos ou não homologados permanecem no backlog; testes verdes não constituem aprovação humana.
 - A implementação é decomposta nas features de domínio [Projeto](../002-projeto/spec.md), [Catálogo](../003-catalogo/spec.md), [Tela](../004-tela/spec.md), [Jornada](../005-jornada/spec.md) e [Demonstração](../006-demonstracao/spec.md); esta feature mantém a visão integrada e as duas saídas.
 
 ## Revisão de usabilidade e apresentação — 2026-10-18
@@ -248,7 +248,20 @@ Rastreabilidade: 004-tela/FR-010 (composição), 029-previa-interativa/FR-008–
 ## Documentação e distribuição de 64 bits — 2026-10-18
 
 - **FR-043**: Manter README completo em apps/gerador-jornada, com propósito, público, componentes/famílias/conjuntos, propriedades, atalhos, tecnologias e versões, abordagem por domínio, pré-requisitos separados de uso/build, estado real das saídas e links para specs. README da raiz deve orientar a descoberta desse guia.
-- **FR-044**: Preparar distribuição em dist para Windows amd64, Linux amd64 e macOS amd64/arm64. Usar compilação nativa CGO, Docker Linux opcional a partir do Windows e runners nativos para macOS. Cada pacote efetivamente gerado deve identificar software 1.0.0.0, plataforma, arquitetura, inventário e hashes; recusar cabeçalho incompatível e não criar artefato falso para alvo sem toolchain. Configuração/compilação não equivalem a homologação humana.
+- **FR-044**: Entregar e recompilar a distribuição corrente somente para Windows amd64 em dist. Manter Linux amd64 e macOS amd64/arm64 como base de configuração e documentação para uso futuro, sem exigir novos builds ou homologação desses alvos nesta etapa. Usar compilação nativa CGO, Docker Linux opcional a partir do Windows e runners nativos para macOS. Cada pacote efetivamente gerado deve identificar software 1.0.0.0, plataforma, arquitetura, inventário e hashes; recusar cabeçalho incompatível e não criar artefato falso para alvo sem toolchain. Configuração/compilação não equivalem a homologação humana.
 - **FR-045**: Armazenar recuperação em diretório nativo por usuário; preservar LOCALAPPDATA no Windows, respeitar XDG_CONFIG_HOME no Linux e Application Support no macOS. Não depender do diretório de execução nem inserir essas regras de plataforma nos domínios.
 
-Windows 10/11 x64 permanece a plataforma inicial. Os pacotes Linux/macOS ampliam os alvos de build; suporte final, DPI, dependências de runtime e operação em máquina limpa precisam de evidência por plataforma. MacOS usa macOS 15 como alvo inicial do bundle. Gate Java/EFL e homologação PowerPoint permanecem independentes. Fontes: T097–T100; 002-projeto/FR-007.
+Windows 10/11 x64 é o alvo da entrega corrente. Por orientação do usuário em 2026-10-18, a base Linux/macOS fica como referência futura e sua execução sai do escopo atual; suporte final, DPI, dependências de runtime e operação em máquina limpa precisam de evidência por plataforma. MacOS usa macOS 15 como alvo inicial do bundle. Gate Java/EFL e homologação PowerPoint permanecem independentes. Fontes: T097–T100; 002-projeto/FR-007.
+
+## Maximizar como tela cheia — 2026-10-18
+
+- **FR-046**: Na janela principal Windows, converter Maximizar (botão/comando nativo, incluindo duplo clique na barra) em tela cheia do editor, ocultando a decoração da janela e a barra de tarefas enquanto estiver em primeiro plano. Usar a API de tela cheia do Fyne; não esconder globalmente a barra do Windows nem alterar outras aplicações. A captura pertence somente ao adaptador desktop.
+- **FR-047**: Abrir o editor em tela cheia por padrão a cada inicialização, com Restaurar disponível, sem persistir essa escolha no projeto. Oferecer botão Tela cheia/Restaurar dentro da aplicação e alternância por F12; Escape em tela cheia retorna à janela normal. No Windows, capturar as teclas no HWND para funcionar também com propriedades focadas e evitar alternância repetida ao segurar F12. A mudança preserva documento, revisão, histórico, seleção, zoom e rascunho, sem confirmar/cancelar operações de negócio. Linux/macOS mantêm maximização nativa e usam o botão/API de tela cheia; o recebimento de teclas pelo canvas depende do foco/driver e deve ser homologado.
+
+**Aceitação**: abrir em tela cheia, usar Restaurar para obter uma janela normal, maximizar e confirmar ausência das barras do sistema; restaurar por botão/F12/Escape, repetir e conferir posição/dimensões normais e dados inalterados. Testar campo focado, monitores/DPI distintos, Alt+Tab, minimizar/fechar e projeto não salvo. Não persistir o modo em `.jornada`. Fontes: 025-barra-ferramentas/FR-015; 019-canvas-edicao/FR-011; T101–T102.
+
+
+**Sequência de abertura de FR-047**: primeiro criar/exibir a janela nativa, depois solicitar a entrada real em tela cheia pela mesma operação do F12. Não considerar maximização comum nem um indicador interno como evidência de tela cheia. Conferir ausência de decoração/barra de tarefas no teste manual Windows.
+
+
+- **FR-048**: Integrar Sair somente em tela cheia e os temas Claro (padrão), Escuro e Azul com preferência local. Responsabilidade do adaptador desktop e de 025-barra-ferramentas/FR-016–FR-018; nenhuma mudança nos modelos Projeto, Catálogo, Tela, Jornada e Demonstração ou contratos de exportação.

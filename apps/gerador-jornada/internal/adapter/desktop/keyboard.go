@@ -42,6 +42,9 @@ func (e *Editor) installShortcuts() {
 
 // handleCanvasKey aplica atalhos geométricos sem consumir teclas de campos com foco.
 func (e *Editor) handleCanvasKey(event *fyne.KeyEvent, modifiers fyne.KeyModifier) {
+	if e.Mode.handleKey(event) {
+		return
+	}
 	if e.Window.Canvas().Focused() != nil {
 		return
 	}

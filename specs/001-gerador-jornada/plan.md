@@ -15,9 +15,9 @@ Recursos originais ficam em `internal/adapter/builtinassets`, incorporados com G
 
 ## Technical Context
 
-**Language/Version**: Go 1.27.2 Windows amd64, fixado nas ferramentas locais e em go.mod; os builds seguintes reutilizam as versões registradas em .tools/versions.json. Alvo gerado: Java SE 6, classfile 50.0.
+**Language/Version**: Go 1.27.2 Windows amd64, fixado nas ferramentas locais e em go.mod; as versões e hashes de preparação Windows são fixados em scripts/toolchains-windows.json; .tools contém apenas ferramentas/cache locais. Alvo gerado: Java SE 6, classfile 50.0.
 **Primary Dependencies**: Fyne v2.8.2 e MinGW GCC 16.2.0 UCRT, com versões e hashes fixados; biblioteca padrão Go para JSON, ZIP, XML, templates e hashing. Sem Node, WebView, automação Office, framework DI ou biblioteca Java na execução do editor.
-**Storage**: `.jornada`, ZIP com manifesto JSON versão 1 e recursos incorporados; autosave local separado do arquivo explícito.
+**Storage**: `.jornada`, ZIP com manifesto JSON schemaVersion 2 e recursos incorporados; reader aceita versão 1 por migração explícita; autosave local separado do arquivo explícito.
 **Testing**: testes Go unitários, contrato e integração; testes de widgets Fyne, fixtures determinísticas e homologação manual em Windows/PowerPoint/Java-EFL reais.
 **Java Validation Tooling**: JDK 17 do usuário executa ECJ 3.33.0 com source/target 1.6; verificação estática com Animal Sniffer 1.24 e assinatura java16:1.1, além de classfile major 50. Scripts externos em `scripts/java6.py` e `scripts/java6/CheckJava6.java`; hashes em `scripts/java6-tools.json`. Sem compilação no editor. Execução Java 6/EFL permanece gate externo.
 **Target Platform**: Windows 10 22H2 e Windows 11 x64; validar DPI 100%, 150% e 200%, hardware gráfico/driver disponível e ambiente de referência de spec.md.
@@ -31,11 +31,12 @@ Recursos originais ficam em `internal/adapter/builtinassets`, incorporados com G
 | Princípio | Aplicação no desenho | Estado documental |
 | --- | --- | --- |
 | I. Domínio | Pacotes por domínio; UI e serialização ficam nos adaptadores | Conforme |
-| II. Contratos | Modelo tipado, IDs estáveis, snapshot por exportação e diagnósticos | Conforme |
+| II. Contratos | Modelo tipado/IDs/snapshot implementados; serviço de exportação e diagnóstico completo ainda parciais | Parcial; T009/T030/T038/T046 |
 | III. Offline | Recursos embutidos, sem Java/Office na geração | Conforme; execução ainda não homologada |
-| IV. Documentação | GoDoc, comentários locais e Javadoc em português, inclusive nas ferramentas de validação | Implementado nos arquivos atuais; revisão contínua |
+| IV. Documentação | GoDoc, comentários locais e Javadoc em português; revisão integral por declaração ainda necessária | Parcial; T002/T073 |
 | V. Evidência | Contratos testados e homologações reais distintas | Conforme; dependência EFL externa explícita |
 | VI. Simplicidade | Um módulo, construtores, arquivo local, sem infraestrutura distribuída | Conforme |
+| VII. Sincronização | Artefatos reconciliados por domínio com evidências e lacunas locais; aceite separado | Reconciliação concluída em 2026-10-19; implementação integral não declarada |
 
 Reavaliação pós-design: sem exceção arquitetural. Compatibilidade EFL permanece uma condição de conclusão da implementação, não uma decisão de tecnologia a adivinhar. A Sprint 7 não pode ser encerrada somente com dublês.
 
@@ -90,21 +91,19 @@ internal/
 ├── presentation/  # primitivas e conversões visuais sem Fyne/Open XML
 └── adapter/
     ├── desktop/   # shell, canvas, paleta, inspector, timeline, prévia
-    ├── projectzip/# DTOs JSON, limites, ZIP, gravação e recuperação
+    ├── projectzip/# manifesto, limites e ZIP; publicação delegada a atomicfile
     ├── pptx/      # pacote Open XML, formas, links, animações
-    └── javaefl/   # perfil, normalização, templates e relatório
-assets/            # recursos do editor e catálogo, embutidos no build
-templates/java/    # templates revisados e embutidos
-tests/
-├── integration/
-├── contract/
-└── testdata/       # projetos e saídas de referência
-scripts/           # build e verificações em PowerShell
+    ├── javaefl/   # perfil e geração de fontes por responsabilidade
+    ├── atomicfile/# publicação atômica nativa
+    ├── builtinassets/ # recursos e ícone incorporados
+    └── buildinfo/ # versão do software
+scripts/           # PowerShell/Python, toolchains e build Windows
+go.mod / go.sum    # módulo único e dependências fixadas
 ```
 
 **Structure Decision**: termos em inglês nos pacotes; interface e documentação em português. Arquivos curtos por responsabilidade dentro de cada módulo, sem diretórios genéricos `utils`/`common`. A aplicação agora reside em apps/gerador-jornada, conforme solicitação do usuário; specs e .specify permanecem na raiz do workspace.
 
-O caminho público do módulo Go será o endereço real do repositório quando houver hospedagem definida; não inventar organização GitHub. Na Sprint 1, até existir esse endereço, usar `gerador-jornada.local/editor` como identificador local, em um único `go.mod`.
+O caminho público do módulo Go será o endereço real do repositório quando houver hospedagem definida; não inventar organização GitHub. Até existir esse endereço, manter `gerador-jornada.local/editor` como identificador local, em um único `go.mod`.
 
 ## Design and Data Flow
 
@@ -223,3 +222,41 @@ Linux amd64 pode ser compilado em Docker, com imagem Go 1.27.2/Debian 12 fixada 
 MacOS usa runner/Mac nativo Intel ou ARM64, SDK/Clang Apple e bundle .app com ícone ICNS, metadados e assinatura ad-hoc sem notarização. O workflow manual .github/workflows/desktop-distribution.yml possui os quatro alvos e ações fixadas por commit; não publica release nem dispara aprovação. A existência do workflow não comprova builds remotos executados.
 
 `internal/adapter/desktop/recovery_path.go` isola a resolução nativa da recuperação. Não alterar regras de negócio ou formato .jornada por causa dos novos alvos. Manter versão 1.0.0.0, schemaVersion 2 e catalogVersion 1 independentes.
+
+## Apresentação da janela e captura Windows
+
+`internal/adapter/desktop/window_mode.go` concentra estado transitório, botão e comandos de tela cheia, com Fyne.Window como dependência; não acessa Session. `window_message.go` traduz intenções de mensagens Win32 de forma testável, e `window_native_windows.go` captura somente a janela principal, encaminhando mensagens não tratadas ao procedimento anterior com CallWindowProcW. Chamadas de UI passam por fyne.Do; somente o indicador necessário ao callback é compartilhado de forma atômica. Repetição de F12 é consumida, Escape retorna sem alterar seleção e o procedimento anterior é restaurado ao fechar/destruir a janela.
+
+`window_native_other.go` mantém os builds Linux/macOS livres de imports Windows; nesses sistemas permanecem o botão e as teclas encaminhadas pelo driver, sem afirmar interceptação de maximização. A composição principal mostra a janela antes de instalar o adaptador nativo e só então inicia o loop, evitando perder o primeiro Maximizar. Não usar polling de seleção ou mudança global da barra de tarefas. Não modificar schemaVersion/catalogVersion/software por esse estado visual.
+
+
+ShowWindow primeiro mostra a janela nativa, instala a captura e só então solicita tela cheia pela mesma operação usada por F12; sincroniza o indicador atômico e a legenda Restaurar. newWindowMode apenas prepara o controle, preservando a configuração das dimensões de restauração antes da abertura. Não alterar os domínios ou a persistência.
+
+
+## Temas e encerramento no adaptador desktop
+
+window_mode.go controla visibilidade de Sair junto ao modo de janela. window_lifecycle.go compartilha a solicitação de encerramento entre botão e fechamento nativo, com confirmação única de alterações. theme.go contém paletas; theme_preferences.go seleciona/aplica o tema e usa fyne.Preferences por usuário. A preferência não entra no .jornada, no histórico nem nos modelos de domínio. Aplicar tema sem reconstruir inspector, selecionados ou artboard; textos do cabeçalho acompanham a paleta. Manter somente build Windows na entrega corrente.
+
+O inspector compara valores com o formulário inicial para proteger rascunhos no encerramento, sem substituir OnChanged nem criar revisão de domínio. preview.go aplica ThemeOverride claro somente à superfície runtime, para que os widgets interativos também fiquem isolados do tema global. A janela principal é master para encerrar com prévias abertas após confirmação.
+
+
+## Reconciliação com a implementação — 2026-10-18
+
+Constituição vigente: 1.2.0. A árvore acima representa os pacotes atuais. Testes ficam
+junto aos pacotes (`*_test.go`); os antigos caminhos planejados tests/integration,
+tests/contract e templates/java não correspondem a diretórios implementados. Java
+é emitido por javaefl/sources.go e component_source.go com perfil explícito.
+
+O código atual mantém sessão/histórico em application/session.go, composição e
+validação em application/document.go, manifesto em projectzip/wire.go e ZIP em
+projectzip/package.go. UI e I/O de projeto/autosave ficam em desktop/files.go.
+A organização por pacotes/domínios está preservada, mas há responsabilidades que
+precisam completar o plano: job de exportação ainda é coordenado em desktop/export.go;
+pausa/relógio ainda residem em desktop/player.go; metadados completos do catálogo e
+diagnósticos com todas as localizações ainda não estão implementados. T009, T030,
+T038, T045 e os backlogs de domínio registram essas lacunas sem alterar os requisitos.
+
+Entrega corrente: somente Windows x64. A base Linux/macOS e seus resultados anteriores
+permanecem como referência histórica; novos builds nesses alvos estão fora do escopo.
+EFL real, PowerPoint nas duas versões-alvo e máquina Windows limpa continuam gates
+próprios. A presença de código ou configuração não conclui essas homologações.

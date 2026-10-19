@@ -64,3 +64,8 @@ Validar Explorer, título da janela e barra de tarefas nos DPIs definidos acima.
 ## IDs de arquivo no painel
 
 Tela e instâncias visuais têm campo ID, separado de Nome, com regras e mensagens do [painel de propriedades](../028-propriedades/DESIGN.md#id-do-arquivo). Prefixo Pnl é obrigatório somente nas telas; exemplos PnlIdentificacao e BtnContinuar. O atributo é metadado e não é desenhado no PPT/prévia. Texto visível e nome amigável continuam aceitando acentos.
+
+
+## Temas e saída em tela cheia
+
+A barra de ferramentas define as paletas e controles em [025/DESIGN.md](../025-barra-ferramentas/DESIGN.md#sair-e-seletor-de-tema). Claro é padrão; Escuro e Azul são preferências locais. As superfícies do editor mudam, enquanto fundo, texto e componentes da jornada mantêm os valores do projeto. Sair aparece à direita somente em tela cheia e usa a confirmação de encerramento com Sim/Não. Rascunhos são protegidos conforme [028-propriedades](../028-propriedades/spec.md).

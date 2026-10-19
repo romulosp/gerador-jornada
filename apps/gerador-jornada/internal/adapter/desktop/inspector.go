@@ -23,6 +23,7 @@ func entry(value string) *widget.Entry {
 
 // refreshInspector seleciona propriedades de tela ou do controle ativo.
 func (e *Editor) refreshInspector() {
+	e.InspectorHasDraft = nil
 	e.Inspector.RemoveAll()
 	e.InspectorActions.RemoveAll()
 	if e.page() == nil {

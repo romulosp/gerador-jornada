@@ -21,7 +21,7 @@ Definir as sete famílias, seus defaults, propriedades tipadas e capacidades sem
 
 ## Constitution Check
 
-Conforme princípios I/II: modelo coeso e sem adaptadores. Conforme IV/V: documentar tipos, funções, métodos, campos e variáveis e testar regras, incluindo erros. Conforme VI: sem interfaces para cada struct, DI framework, banco ou serviço externo.
+Conforme princípios I/II: modelo coeso e sem adaptadores. IV/V exigem documentação integral e testes de regras/erros; os checks atuais aprovados não substituem a revisão completa nem a matriz ainda aberta em tasks.md. Conforme VI: sem interfaces para cada struct, DI framework, banco ou serviço externo. VII: rastreabilidade reconciliada com estado parcial explícito, sem declarar o domínio aprovado.
 
 ## Project Structure
 
@@ -31,7 +31,7 @@ spec.md, plan.md, data-model.md e tasks.md. Pesquisa e contratos compartilhados 
 
 ### Source Code (apps/gerador-jornada)
 
-`internal/catalog/model.go`, `operations.go`, `validation.go` e testes correspondentes; separar outros arquivos por responsabilidade se necessário. Os caminhos de código desta feature são relativos a apps/gerador-jornada; a implementação segue o backlog local.
+`internal/catalog/model.go`, `copy.go` e `model_test.go`; criação de defaults em `internal/screen/model.go`; round-trip das sete famílias em `internal/adapter/projectzip/package_test.go`. Os caminhos são relativos a apps/gerador-jornada. Não criar operations.go/validation.go apenas para repetir uma divisão planejada; dividir por responsabilidade quando a evolução justificar.
 
 **Structure Decision**: um pacote por domínio, sem classes centrais ou novo módulo Go.
 
@@ -45,10 +45,17 @@ Normas de formato/propriedades: [contrato compartilhado](../001-gerador-jornada/
 
 ## Validation and Integration
 
-Testar sete defaults, enums desconhecidos, cores inválidas, opções com vírgulas, campo de família errada e catálogo incompatível. Verificar caso válido, falha e preservação de estado; executar `go test ./internal/catalog` somente após a implementação existir.
+Testar sete defaults, enums desconhecidos, cores inválidas, opções com vírgulas, campo de família errada e catálogo incompatível. Verificar caso válido, falha e preservação de estado; `go test ./internal/catalog` já é executável; cobertura atual e casos restantes estão identificados em tasks.md, sem equiparar teste parcial à matriz completa.
 
 Integrar conforme [tasks.md](tasks.md) deste domínio e checkpoints da [feature coordenadora](../001-gerador-jornada/tasks.md). Não marcar checkpoint de integração antes dos testes de domínio.
 
 ## Complexity Tracking
 
 Sem exceção à constituição. Tipos concretos bastam para regras internas; fronteiras de IO permanecem fora deste pacote.
+
+
+## Estado reconciliado — 2026-10-18
+
+Sete famílias, união tipada, Lookup e validação de enums implementados. Definition contém Kind/Name/Width/Height; metadados completos de propriedades/capacidades ainda não são um modelo declarativo. Inspector usa formulários explícitos por família. Perfil EFL segue no adaptador e não está homologado.
+
+Checks desta revisão: `scripts/check.ps1 -Jdk17 C:\Desenvolvimento\jdk-17.0.11` aprovados; escopo e evidências em [quickstart da coordenadora](../001-gerador-jornada/quickstart.md#reconciliação-documental-por-domínio--2026-10-18). Não implica teste manual nem aprovação do domínio.

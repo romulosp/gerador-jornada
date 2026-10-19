@@ -2,7 +2,6 @@ package desktop
 
 import (
 	"fmt"
-	"image/color"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -23,6 +22,8 @@ type Editor struct {
 	App fyne.App
 	// Window é a janela principal.
 	Window fyne.Window
+	// Mode mantém tela cheia e integração nativa fora dos domínios e do documento persistido.
+	Mode *windowMode
 	// Session coordena o documento e seu histórico.
 	Session *application.Session
 	// PageID identifica a tela em edição.
@@ -49,6 +50,8 @@ type Editor struct {
 	Inspector *fyne.Container
 	// InspectorActions mantém Salvar alterações e Descartar fora da área rolável.
 	InspectorActions *fyne.Container
+	// InspectorHasDraft detecta valores ainda não aplicados no formulário atual, sem editar o domínio.
+	InspectorHasDraft func() bool
 	// Structure relaciona os controles da tela e permite selecioná-los por nome.
 	Structure *fyne.Container
 	// StructurePage e StructureRevision identificam o conteúdo já montado na árvore.
@@ -62,6 +65,12 @@ type Editor struct {
 	Status *widget.Label
 	// Title exibe o nome do projeto no cabeçalho.
 	Title *canvas.Text
+	// Brand apresenta a identificação do produto com a cor do tema.
+	Brand *canvas.Text
+	// Subtitle acompanha o contraste do tema sem alterar o conteúdo do projeto.
+	Subtitle *canvas.Text
+	// ThemeSelect oferece preferências locais de aparência do editor.
+	ThemeSelect *widget.Select
 	// Tabs alterna editor, navegação e roteiro.
 	Tabs *container.AppTabs
 	// JourneyPanel atualiza destinos e tela inicial.
@@ -78,14 +87,18 @@ type Editor struct {
 func New(app fyne.App, document application.Document) *Editor {
 	// editor recebe uma sessão completamente isolada.
 	editor := &Editor{App: app, Window: app.NewWindow("Gerador de Jornada " + buildinfo.Version()), Session: application.NewSession(document), Zoom: 1}
+	// A janela principal encerra o aplicativo também quando existem prévias abertas.
+	editor.Window.SetMaster()
+	editor.Mode = newWindowMode(editor.Window)
+	editor.Mode.exitButton.OnTapped = editor.requestClose
 	if len(document.Screens) > 0 {
 		editor.PageID = document.Screens[0].ID
 	}
-	app.Settings().SetTheme(jornadaTheme{})
 	editor.Status = widget.NewLabel("Pronto · funcionamento offline")
 	editor.Title = canvas.NewText(document.Project.Name, rgb("#0F172A"))
 	editor.Title.TextSize = 24
 	editor.Title.TextStyle.Bold = true
+	editor.initTheme()
 	editor.Screens = container.NewVBox()
 	editor.Inspector = container.NewVBox()
 	editor.InspectorActions = container.NewVBox()
@@ -100,22 +113,13 @@ func New(app fyne.App, document application.Document) *Editor {
 	editor.Window.CenterOnScreen()
 	editor.installShortcuts()
 	editor.refresh()
-	editor.Window.SetCloseIntercept(func() {
-		if editor.Session.Dirty() {
-			dialog.ShowConfirm("Alterações não salvas", "Sair sem salvar as alterações?", func(yes bool) {
-				if yes {
-					editor.close()
-				}
-			}, editor.Window)
-		} else {
-			editor.close()
-		}
-	})
+	editor.Window.SetCloseIntercept(editor.requestClose)
 	return editor
 }
 
 // close encerra timers e libera a janela sem alterar dados persistidos.
 func (e *Editor) close() {
+	e.Mode.close()
 	if e.Autosave != nil {
 		e.Autosave.Stop()
 	}
@@ -132,21 +136,25 @@ func (e *Editor) page() *screen.Screen { return e.Session.Document.Screen(e.Page
 // header reúne identidade, ações e informações essenciais sem poluir o canvas.
 func (e *Editor) header() fyne.CanvasObject {
 	// brand identifica o produto, separado do título da jornada.
-	brand := canvas.NewText("JORNADA STUDIO · "+buildinfo.Version(), rgb("#2563EB"))
+	brand := canvas.NewText("JORNADA STUDIO · "+buildinfo.Version(), e.App.Settings().Theme().Color(theme.ColorNamePrimary, theme.VariantLight))
+	e.Brand = brand
 	brand.TextSize = 12
 	brand.TextStyle.Bold = true
 	// subtitle orienta a tarefa principal.
-	subtitle := canvas.NewText("Desenhe experiências. Conecte telas. Apresente sua jornada.", rgb("#64748B"))
+	subtitle := canvas.NewText("Desenhe experiências. Conecte telas. Apresente sua jornada.", e.App.Settings().Theme().Color(theme.ColorNamePlaceHolder, theme.VariantLight))
+	e.Subtitle = subtitle
 	subtitle.TextSize = 13
 	// identity mantém hierarquia tipográfica clara.
-	identity := container.NewVBox(brand, e.Title, subtitle)
+	identity := container.NewVBox(e.Title, subtitle)
+	// windowControls mantém aparência e encerramento acessíveis sem decoração nativa.
+	windowControls := container.NewHBox(brand, layout.NewSpacer(), widget.NewLabel("Tema"), e.ThemeSelect, e.Mode.button, e.Mode.exitButton)
 	// actions disponibiliza fluxos completos de arquivo e exportação.
 	// java mantém a capacidade identificável enquanto seu acesso está suspenso pelo usuário.
 	java := widget.NewButtonWithIcon("Java / EFL", theme.ComputerIcon(), e.exportJava)
 	java.Disable()
 	e.CurrentScreenPreview = widget.NewButtonWithIcon("Prévia Tela Atual", theme.VisibilityIcon(), e.previewCurrentScreen)
 	actions := container.NewHBox(widget.NewButtonWithIcon("Novo", theme.DocumentCreateIcon(), e.newProject), widget.NewButtonWithIcon("Abrir", theme.FolderOpenIcon(), e.openProject), widget.NewButtonWithIcon("Salvar", theme.DocumentSaveIcon(), func() { e.saveProject(false) }), widget.NewButtonWithIcon("Prévia", theme.VisibilityIcon(), e.preview), e.CurrentScreenPreview, widget.NewButtonWithIcon("PowerPoint", theme.MediaPlayIcon(), e.exportPPT), java)
-	return container.NewPadded(container.NewVBox(container.NewBorder(nil, nil, identity, nil, container.NewVBox(layout.NewSpacer(), actions, layout.NewSpacer())), widget.NewSeparator()))
+	return container.NewPadded(container.NewVBox(windowControls, container.NewBorder(nil, nil, identity, nil, container.NewVBox(layout.NewSpacer(), actions, layout.NewSpacer())), widget.NewSeparator()))
 }
 
 // design organiza paleta, área de desenho e inspector em painéis redimensionáveis.
@@ -174,10 +182,8 @@ func (e *Editor) design() fyne.CanvasObject {
 
 // section cria um rótulo discreto de painel.
 func section(text string) fyne.CanvasObject {
-	// label mantém contraste sem competir com o conteúdo.
-	label := canvas.NewText(text, color.NRGBA{R: 100, G: 116, B: 139, A: 255})
-	label.TextSize = 11
-	label.TextStyle.Bold = true
+	// label segue o tema automaticamente, incluindo contraste em superfícies escuras.
+	label := widget.NewLabelWithStyle(text, fyne.TextAlignLeading, fyne.TextStyle{Bold: true})
 	return container.NewPadded(label)
 }
 

@@ -2,7 +2,8 @@
 
 **Input**: [spec.md](spec.md), [plan.md](plan.md), [data-model.md](data-model.md) e contrato compartilhado.
 **Prerequisites**: preparação/toolchain da feature coordenadora; regras/documentação revisadas.
-**Tests**: exigidos pelo plano aprovado. Todos os itens são futuros e permanecem desmarcados.
+**Tests**: checks executados em 2026-10-18, conforme evidências abaixo. Caixas abertas distinguem cobertura/implementação parcial de trabalho não iniciado; não representam ausência de código.
+**Status**: reconciliação documental concluída conforme constituição 1.2.0; domínio com implementação e lacunas identificadas, sem aceite integral.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -10,32 +11,32 @@ IDs Txxx/USx são locais a esta feature. Caminhos de código relativos a apps/ge
 
 ## Phase 1: Setup
 
-- [ ] T001 Conferir campos, invariantes e fronteiras com o contrato em specs/003-catalogo/data-model.md; resolver divergência antes de criar código.
+- [X] T001 Conferir campos/fronteiras de Catálogo e corrigir o inventário documental. Revisão 2026-10-18 distingue Definition implementado do metamodelo completo ainda planejado, sem importar adaptadores no domínio.
 
 ## Phase 2: Foundational
 
-- [ ] T002 Preparar fixtures e casos de contrato de Catálogo em internal/catalog/model_test.go: sete defaults, enums desconhecidos, cores inválidas, opções com vírgulas, campo de família errada e catálogo incompatível.
-- [ ] T003 Implementar tipos/valores coesos em internal/catalog/model.go conforme data-model.md, sem importar UI/IO nem duplicar entidades de outro pacote.
+- [ ] T002 Completar fixtures em internal/catalog/model_test.go e adapter/projectzip/package_test.go: já passam união discriminada, enum de botão e round-trip das sete famílias; faltam casos específicos para todos os enums, cores, opções com vírgulas, catálogo incompatível e matriz completa de defaults.
+- [X] T003 Implementar Kind, Definition, Option e Properties tipadas em internal/catalog/model.go, com cópia em copy.go. TestPropertiesVariants e TestRoundTripAllFamilies passaram no check de 2026-10-18; pacote não importa UI/IO.
 
 ## Phase 3: User Story 1 - Escolher um componente conhecido (Priority: P1)
 
 **Goal**: atender o cenário principal da US1.
 **Independent Test**: caso de aceitação US1 executado sem UI e sem geração de saídas.
 
-- [ ] T004 [US1] Implementar resolução de famílias, defaults e metadados do inspector em internal/catalog/operations.go, com retornos tipados e sem alteração parcial em erro.
-- [ ] T005 [US1] Verificar cenário válido e invariantes de US1 em internal/catalog/operations_test.go, incluindo preservação de IDs/ordem aplicável.
+- [ ] T004 [US1] Completar metadados declarativos para inspector/defaults. Definitions/Lookup estão em internal/catalog/model.go, defaults em screen.NewComponent e formulários no desktop. propertyDefinitions/capabilities do metamodelo não existem integralmente; manter essa evolução explícita, sem mover Fyne para o domínio.
+- [ ] T005 [US1] Completar cenário de referência e invariantes de todas as famílias em catalog/model_test.go. O teste atual verifica quantidade/discriminador e alguns enums; round-trip das sete famílias está em projectzip/package_test.go, sem substituir toda a matriz.
 
 ## Phase 4: User Story 2 - Editar apenas propriedades válidas (Priority: P2)
 
 **Goal**: comportamento previsível e diagnóstico de erro.
 **Independent Test**: cenário US2 com fixture isolada e verificação do estado anterior.
 
-- [ ] T006 [US2] Implementar propriedades tipadas e capacidades declaradas em internal/catalog/validation.go, com erros que a aplicação consiga localizar.
-- [ ] T007 [US2] Testar os limites e erros de US2 em internal/catalog/validation_test.go, demonstrando ausência de publicação parcial.
+- [ ] T006 [US2] Completar declaração/validação de capacidades por propriedade. Properties.Validate já valida variantes/enums em catalog/model.go; capacidades por perfil/propriedade permanecem parciais e o perfil EFL real está pendente no adaptador (001-gerador-jornada/T055).
+- [ ] T007 [US2] Completar a matriz de limites/erros e preservação de estado nos testes do catálogo e da aplicação. TestPropertiesVariants passa, mas não cobre todas as propriedades/combinações inválidas previstas.
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T008 Revisar GoDoc de todos os elementos e comentários de variáveis em internal/catalog/; executar testes do pacote e registrar resultado em specs/003-catalogo/tasks.md.
+- [ ] T008 Concluir revisão integral de GoDoc e variáveis de internal/catalog. Testes do pacote passaram em 2026-10-18; revisão documental de toda declaração e complementação da matriz continuam pendentes.
 
 ## Dependencies & Execution Order
 
@@ -54,3 +55,20 @@ Concluir a US1 com fixture mínima, depois US2 e integração. Definição de pr
 ## Traceability
 
 FR-001 a FR-005 → T002–T007; SC-001/SC-002 → T005/T007; constituição/documentação → T008. Testes independentes ficam nos pacotes; validação ponta a ponta em quickstart.md da feature coordenadora.
+
+
+## Evidências da reconciliação — 2026-10-18
+
+Executor: agente, ambiente Windows deste workspace. `scripts/check.ps1 -Jdk17
+C:\Desenvolvimento\jdk-17.0.11` passou: formatação, vet, testes dos pacotes Go,
+três testes do empacotador e nove testes da toolchain Java estática. Resultados por
+pacote e limites em [quickstart da coordenadora](../001-gerador-jornada/quickstart.md#reconciliação-documental-por-domínio--2026-10-18).
+
+A existência de um teste aprovado não completa os demais cenários descritos nas
+caixas abertas. Não foram executados testes manuais, PowerPoint ou EFL real nesta
+revisão. IDs T001–T008 foram preservados; caminhos planejados foram substituídos
+pelos arquivos existentes, sem criar novos módulos ou duplicar implementação.
+
+## Requisitos acrescentados e integração
+
+FR-006 (ID comum): 001-gerador-jornada/T093–T095 e 004-tela/FR-011–FR-012; screen/file_id.go, application/file_ids.go e desktop/file_id.go. O catálogo continua sem persistir FileID em Properties; validação fica na composição.

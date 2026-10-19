@@ -25,7 +25,7 @@ Testes obrigatórios: bordas, dimensões inválidas, nome duplicado, z-order, c�
 
 ## Rastreabilidade
 
-Requisitos FR deste domínio cobrem FR-002, FR-004 a FR-008, FR-013, FR-016 da feature coordenadora. [Backlog local](tasks.md) detalha os arquivos e testes. Nenhuma persistência ou integração foi executada nesta entrega.
+Requisitos FR deste domínio cobrem FR-002, FR-004 a FR-008, FR-013, FR-016 da feature coordenadora. [Backlog local](tasks.md) detalha os arquivos e testes. Implementação e integrações verificadas estão identificadas em tasks.md; cenários não exercitados permanecem pendentes, conforme o registro de evidências da coordenadora.
 
 ## Alinhamento textual e transformação coletiva
 
@@ -34,3 +34,8 @@ Style.TextAlign aceita vazio/left/center/right; vazio mantém o comportamento an
 ## ID de arquivo
 
 FileID é independente do ID UUID e do Name Unicode. Aplicar limites/prefixo de 004-tela/FR-011–FR-012, incluindo unicidade local dos componentes e, na aplicação, unicidade de telas. Campos existem na entidade de composição e não em Style ou Properties. A persistência usa fileId no manifesto v2 e a exportação usa o valor exato em nomes de arquivo/classe.
+
+
+## Correspondência com o código atual
+
+Modelo, bounds, seleção coletiva, IDs de arquivo, duplicação e remoção reversível implementados. Parte dos comandos de composição ainda é coordenada no desktop por Session.Change. A matriz completa de bordas/duplicação e todos os alinhamentos previstos ainda requerem conferência; DPI nativo permanece manual.

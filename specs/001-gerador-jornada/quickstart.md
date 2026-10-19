@@ -1,6 +1,6 @@
 # Quickstart: validação do Gerador de Jornada
 
-**Status**: implementação em andamento em apps/gerador-jornada. Testes automatizados dos domínios e dos formatos estão aprovados; build desktop e homologação manual são registrados na seção de aceite. Os cenários manuais abaixo não são considerados executados por existir uma suíte automatizada.
+**Status**: implementação em andamento em apps/gerador-jornada; incremento atual do editor disponível para teste manual. A suíte existente está aprovada, mas não cobre integralmente todos os requisitos: lacunas de implementação/cobertura estão nos tasks.md de cada domínio. O registro vigente de evidências está no final deste documento; seções anteriores são histórico de revisões/builds. Os cenários manuais abaixo não são considerados executados por existir uma suíte automatizada.
 **Input**: [spec.md](spec.md), [plan.md](plan.md), [tasks.md](tasks.md).
 
 ## 1. Revisar a documentação com Spec Kit
@@ -38,7 +38,7 @@ go vet ./...
 go run ./cmd/gerador-jornada
 ```
 
-Os scripts scripts/check.ps1 e scripts/build.ps1 da aplicação executam checks e build. O pacote de release terá inventário/licenças próprios. Testes que precisam de PowerPoint ou EFL devem identificar pré-requisitos e registrar ausência como não executados, sem aprovação falsa.
+scripts/check.ps1 executa verificações; scripts/build.ps1 compila o EXE e scripts/build.py empacota com metadados/hashes. Inventário completo de licenças da release ainda está em T067. Não recompilar Linux/macOS na entrega corrente. Testes que precisam de PowerPoint ou EFL devem identificar pré-requisitos e registrar ausência como não executados, sem aprovação falsa.
 
 Toolchain Java SE 6 e JARs EFL ficam no ambiente de homologação da saída, não no editor distribuído. A biblioteca real e o bootstrap do hospedeiro são gates G-03/G-04 de research.md.
 
@@ -199,7 +199,7 @@ Build desktop recompilado após a correção com `scripts/build.ps1`: [JornadaSt
 
 **Desempenho observado**: `BenchmarkSelect500`, dez iterações com 500 rótulos e driver de teste Fyne, Intel Core i5-13600KF, Go 1.27.2/windows/amd64: seleção passou de 14.251.660 ns/op, 1.776.739 B/op e 27.175 alocações/op para 704.540 ns/op, 483.956 B/op e 9.004 alocações/op. A medição compara o mesmo cenário; não comprova latência da janela nativa ou metas completas de desempenho.
 
-**Evidência anterior desta revisão de interface**: [revisao-edicao.png](../../apps/gerador-jornada/build/revisao-edicao.png) mostra o rodapé fixo e Java/EFL desabilitado, antes da inclusão do novo ícone. [jornada-fade-revisao-2026-10-18.pptx](../../apps/gerador-jornada/dist/jornada-fade-revisao-2026-10-18.pptx) foi gerado antes da troca do ícone e contém nove slides com fade e oito movimentos de cursor, conferidos no ZIP/XML. Não houve homologação visual no PowerPoint.
+**Evidência anterior desta revisão de interface**: [revisao-edicao.png](../../apps/gerador-jornada/build/revisao-edicao.png) mostra o rodapé fixo e Java/EFL desabilitado, antes da inclusão do novo ícone. `jornada-fade-revisao-2026-10-18.pptx` (artefato histórico, não está mais presente no dist atual) foi registrado como gerado antes da troca do ícone e contém nove slides com fade e oito movimentos de cursor, conferidos no ZIP/XML. Não houve homologação visual no PowerPoint.
 
 **Limite de execução**: a revisão automática bloqueou a tentativa de executar o EXE para nova captura e regeneração da amostra, com a mensagem `blocked by policy`, sem detalhar a causa. Não foi tentado outro mecanismo de execução. O EXE final com o novo ícone foi compilado e inspecionado estaticamente; sua inicialização e aparência precisam do teste manual abaixo.
 
@@ -303,3 +303,141 @@ Versão do software mantida em 1.0.0.0. Windows: Go 1.27.2, GCC/MinGW 16.2.0; Li
 4. Registrar aceite humano e resultados por plataforma separadamente. EFL real e PowerPoint desktop continuam gates próprios.
 
 **Estado**: T097–T099 concluídas no escopo descrito. T100 permanece pendente para builds/homologação macOS e aprovação em máquinas limpas; disponibilizar configuração e compilar Windows/Linux não conclui essa validação.
+
+
+### Maximização em tela cheia e entrega Windows — 2026-10-18
+
+**Escopo atualizado pelo usuário**: recompilar somente o EXE Windows. Configuração e instruções Linux/macOS permanecem como base futura; builds e homologação desses alvos não são exigidos nesta entrega. T100 foi adiada, sem declarar execução ou aprovação.
+
+**EXE 1.0.0.0 atualizado**: [JornadaStudio.exe](../../apps/gerador-jornada/dist/JornadaStudio.exe), também disponível em dist/windows-amd64. Ambos possuem SHA-256 `B839E989BEA8B3AF1F8D6A95714614D51D3409A0E47E750A45325A28710F6FCF`. A cópia principal foi atualizada nesta revisão.
+
+**Comportamento implementado**: Maximizar no Windows entra em tela cheia pela API Fyne, mantendo os controles do editor e ocultando a decoração da janela/barra de tarefas. Botão Tela cheia/Restaurar e F12 alternam; Escape retorna. Estado de janela fica no adaptador desktop, fora do domínio e do manifesto. Não confirma nem cancela alterações de propriedades ou diálogos.
+
+**Evidências**: testes Go e vet passaram, incluindo alternância, tradução de mensagens Windows, repetição de teclas, foco, rascunho, seleção, zoom, documento/histórico preservados e ações após fechamento. Os testes de mensagens são unitários, não exercitam o procedimento nativo do HWND. Build Windows com checks passou e o EXE foi recompilado após a definição do escopo. Uma verificação Linux anterior já havia sido concluída; não é requisito repetir esse build.
+
+**Roteiro manual Windows**:
+
+1. Encerrar a janela antiga, abrir o EXE atualizado e usar Maximizar ou duplo clique na barra de título. Conferir ausência da barra de título e da barra de tarefas, com ferramentas do editor acessíveis.
+2. Retornar por Restaurar, F12 e Escape; repetir com uma propriedade em edição e componentes selecionados, conferindo rascunho, seleção, zoom e histórico preservados.
+3. Abrir um diálogo, entrar em tela cheia e pressionar Escape: apenas sair de tela cheia, sem confirmar nem cancelar a operação do diálogo.
+4. Conferir minimizar, fechar e Alt+Tab, além dos monitores e escalas DPI utilizados. Não considerar testes headless como homologação dessas interações nativas.
+
+**Estado**: T101–T102 implementadas e verificadas automaticamente; teste visual e aprovação humana continuam pendentes. A execução automática do EXE foi bloqueada anteriormente com “blocked by policy”; não foi usado outro mecanismo para contornar a restrição.
+
+
+### Tela cheia por padrão — 2026-10-18
+
+O editor inicia em tela cheia em cada execução, com Restaurar visível. F12, Escape e Restaurar continuam permitindo voltar à janela. Estado visual transitório, sem alteração no domínio ou formato .jornada.
+
+**Validação**: `python scripts/build.py --target windows --arch amd64 --check` passou (formatação, vet, testes Go, testes do empacotador e build Windows). O teste do adaptador verifica modo inicial, indicador atômico, legenda e restauração, além da preservação de edição já coberta. Não foram executados novos builds Linux/macOS.
+
+**Executável desta revisão**: [dist/windows-amd64/JornadaStudio.exe](../../apps/gerador-jornada/dist/windows-amd64/JornadaStudio.exe), SHA-256 `39FD6B46E7545B65E9C55943ABBA9E202F204DCAF741B9C277DE8B6747FCA4C5`. A cópia dist/JornadaStudio.exe estava em uso e foi preservada; usar o caminho windows-amd64 para testar a alteração atual. Nenhum processo do usuário foi encerrado.
+
+**Teste manual pendente**: fechar a janela antiga, abrir o EXE desta revisão e conferir tela cheia desde a abertura, controles acessíveis e Restaurar visível. Sair por Escape/F12/Restaurar, reabrir e conferir o padrão novamente. Os testes automatizados não homologam visualmente as barras do Windows.
+
+
+### Correção da sequência de abertura em tela cheia — 2026-10-18
+
+O usuário informou que ainda via as barras na abertura. A entrada em tela cheia foi movida da construção do controlador para ShowWindow: mostrar a janela nativa, instalar captura, solicitar tela cheia pela mesma operação usada por F12. A montagem e o dimensionamento normal ocorrem antes dessa sequência. O teste existente agora exige estado normal antes de ShowWindow e tela cheia/Restaurar após a abertura, mantendo os testes de retorno e edição.
+
+`python scripts/build.py --target windows --arch amd64 --check` passou: formatação, vet, testes e build Windows. Os dois caminhos dist/JornadaStudio.exe e dist/windows-amd64/JornadaStudio.exe foram atualizados, SHA-256 `16749AD24B6D11B8BE966667E8984B58293EB114E49218DC582A397829F4F6F3`. Não houve novos builds Linux/macOS.
+
+Teste manual pendente: encerrar a instância antiga, abrir este EXE e conferir que a tela inteira é ocupada, sem decoração/barra de tarefas; testar F12, Escape e Restaurar. Testes headless não comprovam o efeito visual no Windows. A causa visual não foi reproduzida em uma sessão nativa automática; a ordem de inicialização foi corrigida e a homologação continua humana.
+
+
+### Sair em tela cheia e temas — 2026-10-18
+
+**Implementado**: Sair no cabeçalho somente em tela cheia; confirmar Sim/Não quando houver documento alterado ou rascunho ainda não aplicado. Botão e fechamento nativo compartilham o fluxo, sem confirmações duplicadas. A janela principal encerra o aplicativo mesmo com prévias abertas. Tema no topo oferece Claro (padrão/fallback), Escuro e Azul, com preferência local salva por usuário. Cores do projeto e controles runtime de prévia ficam isolados da paleta do editor.
+
+**Rastreabilidade por responsabilidade**: 025-barra-ferramentas/FR-016–FR-018 (controles/temas); 028-propriedades/FR-014 (rascunho); 029-previa-interativa/FR-011 (isolamento visual); 001-gerador-jornada/FR-048 integra. DESIGN.md específicos, plano, pesquisa e modelo de dados foram atualizados. Não foram acrescentadas entidades ou dependências de interface aos domínios existentes.
+
+**Evidências**: `python scripts/build.py --target windows --arch amd64 --check` passou, incluindo formatação, vet, testes Go e do empacotador. Testes desktop verificam Sair visível/oculto, documento limpo, confirmação/cancelamento de alterações e rascunhos, não empilhamento de diálogo, preferência inválida/recuperada, troca sem reconstrução do formulário nem mudança de documento/seleção/zoom/histórico, isolamento dos botões da prévia e contraste mínimo 4,5:1 dos tokens principais nos três temas. O teste de preferência utiliza o armazenamento do driver de testes entre novas janelas; persistência após reiniciar o processo permanece na verificação manual. Nenhuma inspeção de janela nativa ou homologação visual foi executada nesta etapa.
+
+**EXE Windows 1.0.0.0**: [JornadaStudio.exe](../../apps/gerador-jornada/dist/JornadaStudio.exe), também em dist/windows-amd64/JornadaStudio.exe. SHA-256 `0D512AE99FDB9433D11D42AFA37BD825FE0B66F72B04E0AE039AC0A59A5F8CDC`. Ambas as cópias atualizadas; somente Windows foi compilado.
+
+**Roteiro manual**:
+
+1. Fechar a versão anterior e abrir o novo EXE. Em tela cheia, conferir Tema, Restaurar e Sair acessíveis no topo. Restaurar/F12/Escape ocultam Sair; voltar a tela cheia reapresenta o botão.
+2. Trocar entre Claro, Escuro e Azul; conferir menus, entradas, foco, diálogos, texto do cabeçalho e estados desabilitados. Conferir resolução/DPI utilizados, especialmente 1366×768 e escalas 100/150/200%.
+3. Com seleção e rascunho no inspector, trocar tema: campos e conteúdo do canvas devem permanecer. Abrir as duas prévias e alternar tema no editor: fundo/primitivas e controles da jornada conservam aparência anterior.
+4. Sair com documento alterado e, separadamente, apenas com rascunho: Não conserva tudo; Sim descarta e encerra. Repetir pelo fechamento do sistema em janela normal. Conferir encerramento também com prévias abertas.
+5. Escolher Escuro ou Azul, fechar/reabrir e conferir a preferência. Salvar/reabrir .jornada e exportar PPT: cores do projeto não devem mudar por causa do tema do editor.
+
+**Estado**: T105–T107 implementadas com verificações automatizadas; aceite visual, persistência entre processos e aprovação do usuário permanecem pendentes.
+
+
+## Reconciliação documental por domínio — 2026-10-18
+
+**Concluída em**: 2026-10-19 (America/Sao_Paulo). Revisão iniciada em 2026-10-18.
+**Estado da documentação**: reconciliada com a implementação e as evidências disponíveis,
+conforme constituição 1.2.0. Isso não afirma implementação integral nem aprovação do produto.
+**Estado do produto completo**: em andamento; incremento Windows atual pronto para teste
+manual, com pendências funcionais/de cobertura nos backlogs e gates externos abaixo.
+
+**Correções documentais realizadas**:
+
+- spec.md não descreve mais a entrega atual como exclusivamente documental.
+- plan.md registra schemaVersion 2 (reader 1 com migração), toolchain fixada em
+  scripts/toolchains-windows.json e árvore/caminhos de código existentes.
+- Modelos diferenciam tipos Go implementados de contratos/metadados ainda planejados.
+- Planos e tarefas dos cinco domínios registram o código existente e testes atuais;
+  deixaram de tratar todo o trabalho como futuro. IDs foram preservados, sem renumerar.
+- Backlog coordenador distingue conclusão técnica, implementação/testes parciais,
+  dependência externa e validação manual. Contratos de exportação/relógio indicam
+  explicitamente a diferença entre arquitetura alvo e implementação atual.
+
+### Evidências executadas
+
+Executor: agente, nesta estação Windows. Comando executado em apps/gerador-jornada:
+
+```powershell
+./scripts/check.ps1 -Jdk17 'C:\Desenvolvimento\jdk-17.0.11'
+```
+
+Resultado aprovado: formatação Go, go vet, suíte Go existente, três testes Python do
+empacotador e nove testes da toolchain Java 6. O teste Go do gerador também compilou
+fontes estruturais com ECJ/Animal Sniffer e classfile major 50. Nenhum teste de JAR
+EFL real, PowerPoint, máquina limpa ou revisão visual nativa foi executado nesta passagem.
+Checks não auditam automaticamente todo GoDoc/comentário nem fecham a matriz de testes
+que ainda está aberta em cada domínio. A mensagem de reprovação Java emitida por um
+cenário negativo foi esperada e o próprio teste terminou aprovado.
+
+| Responsabilidade | Código e evidência existentes | Pendência preservada |
+| --- | --- | --- |
+| [Projeto](../002-projeto/tasks.md) | Identidade, snapshot/rollback, round-trip e manifesto v2/migração | Unicidade global/UUID de roteiros e etapas (001-gerador-jornada/T008), índice/remoção segura de recursos, falhas de gravação/recuperação e matriz completa |
+| [Catálogo](../003-catalogo/tasks.md) | Sete famílias, união tipada, enum e round-trip | Metadados completos de propriedades/capacidades e matriz de validações |
+| [Tela](../004-tela/tasks.md) | Bounds, seleção coletiva, FileID, duplicação/remoção reversíveis | Todos os alinhamentos/combinações de referências/camadas e revisão integral de comandos |
+| [Jornada](../005-jornada/tasks.md) | Binding none/navigate, validação cruzada e reset da prévia | Warning de inalcançável, diagnóstico clicável e matriz completa A-B-C-A/remoções |
+| [Demonstração](../006-demonstracao/tasks.md) | Interpretador, grafemas, ocorrências e animações/transições estruturais | Reordenação da lista de roteiros, relógio injetável e testes completos de tempo/pausa |
+| Exportação | Snapshot/contexto/job no desktop e publicação pelos adaptadores | Contrato completo ExportProject/Result/Artifact/diagnóstico, testes de falha/commit e responsividade |
+| Distribuição | EXE/pacote Windows 1.0.0.0 e recursos incorporados | Matriz Windows limpa/offline/DPI e inventário completo de licenças; Linux/macOS adiados |
+
+### Revisão executável preservada
+
+Esta correção alterou documentação; não alterou fontes do aplicativo nem recompilou
+qualquer alvo. [EXE atual](../../apps/gerador-jornada/dist/JornadaStudio.exe), também
+em dist/windows-amd64/JornadaStudio.exe: versão 1.0.0.0, SHA-256
+`0D512AE99FDB9433D11D42AFA37BD825FE0B66F72B04E0AE039AC0A59A5F8CDC`.
+Os roteiros manuais V-01 a V-09 e de cada incremento acima permanecem disponíveis;
+nenhum resultado esperado foi convertido em resultado observado nesta reconciliação.
+
+### Gates e aceite vigentes
+
+- G-01/G-05: validar Windows real, escalas e máquina limpa/offline; ainda pendente.
+- G-02: abrir/reproduzir/editar PPT nas versões 2016 e Microsoft 365; ainda pendente.
+- G-03/G-04: faltam JARs/contratos/bootstrap e execução EFL real. Apenas a parte estática
+  Java 6 possui evidência. Botão Java/EFL continua visível e desabilitado por orientação
+  do usuário, sem reativação por esta revisão.
+- Gaps de comportamento/testes: usar tasks.md da responsabilidade indicada na tabela;
+  não eliminar requisito para fazer a documentação parecer integralmente atendida.
+- Teste manual e aprovação integral: pendentes. Comentários positivos do usuário sobre
+  incrementos não são aceite de todos os cenários/requisitos desta revisão.
+
+
+**Conferência final da reconciliação (2026-10-19)**: 40 documentos Markdown da
+coordenadora e dos cinco domínios conferidos; links locais/âncoras e caminhos de
+código dos tasks.md válidos. IDs e ordem das 107 tarefas da coordenadora e das oito
+por domínio preservados, sem duplicidades. O resolvedor Spec Kit confirmou spec,
+plan e tasks da feature ativa. As caixas são evidências técnicas limitadas ao seu
+escopo, não percentual de conclusão do produto. As duas cópias do EXE mantêm o hash
+acima. Não foram executados novos builds nem homologações nesta revisão documental.

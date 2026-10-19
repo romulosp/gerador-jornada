@@ -13,7 +13,7 @@ IDs de steps únicos no projeto; duração inteira 1..600000 ms; etapas são seq
 
 ## Limites e relacionamento com outros domínios
 
-Recebe snapshot resolvido de telas/componentes e resolução Journey, preparado pela aplicação. Interpretador devolve eventos puros. Player da aplicação controla relógio e pausa; adaptadores desktop/PPT apenas consomem eventos.
+Recebe snapshot resolvido de telas/componentes e resolução Journey, preparado pela aplicação. Interpretador devolve eventos puros. A arquitetura alvo mantém relógio/pausa na aplicação. Atualmente FrameAt deriva quadros puros, enquanto ticker/pausa/reinício ficam em desktop/player.go; a separação e seus testes controlados permanecem em 001-gerador-jornada/T045 e no backlog local. PPT consome eventos interpretados sem relógio de UI.
 
 Não grava uso do mouse, não cria macros, não contém lógica condicional e não emite XML PPT ou eventos Fyne.
 
@@ -25,4 +25,9 @@ Testes obrigatórios: intervalo temporal, campos por kind, alvo removido, tela e
 
 ## Rastreabilidade
 
-Requisitos FR deste domínio cobrem FR-017 a FR-021 da feature coordenadora. [Backlog local](tasks.md) detalha os arquivos e testes. Nenhuma persistência ou integração foi executada nesta entrega.
+Requisitos FR deste domínio cobrem FR-017 a FR-021 da feature coordenadora. [Backlog local](tasks.md) detalha os arquivos e testes. Implementação e integrações verificadas estão identificadas em tasks.md; cenários não exercitados permanecem pendentes, conforme o registro de evidências da coordenadora.
+
+
+## Correspondência com o código atual
+
+Interpretador, ocorrências, grafemas, cursor/clique/digitação e transições XML implementados. Pausa/reinício existem na UI, mas o relógio ainda não é abstraído na aplicação; reordenação disponível para etapas, não para a lista de roteiros. T004/T007 e 001-gerador-jornada/T044–T047 conservam essas pendências; execução PowerPoint ainda não homologada.

@@ -93,3 +93,29 @@ Exibir `JORNADA STUDIO · 1.0.0.0` no cabeçalho e `Gerador de Jornada 1.0.0.0` 
 ## Prévia da tela ativa
 
 Acrescentar o botão com ícone de olho e legenda Prévia Tela Atual imediatamente após Prévia. O primeiro continua abrindo o projeto completo. A nova ação fica visível e desabilitada sem tela ativa; a disponibilidade não depende da seleção de componente. Conferir a largura do cabeçalho na resolução nominal e DPIs homologados.
+
+## Tela cheia e restauração
+
+Posicionar botão Tela cheia com ícone de expansão junto à marca, no cabeçalho que permanece dentro da aplicação. Em modo ativo, legenda Restaurar. Somente a decoração do sistema é retirada; paleta, propriedades e ações do editor continuam disponíveis. A janela inicia em tela cheia após sua exibição nativa; no Windows, Maximizar também entra no mesmo modo que o botão.
+
+F12 alterna; Escape retorna à janela normal. No Windows, o callback nativo impede que essas teclas sejam consumidas pelo campo de texto. Escape usado para sair do modo não exclui componentes nem confirma/cancela o diálogo de negócio; uma confirmação aberta permanece pendente. Fora de tela cheia, atalhos de seleção/edição conservam seu comportamento. Outros drivers têm botão acessível e teclas encaminhadas pelo canvas, sujeitos a foco e homologação nativa.
+
+
+A abertura do editor começa em tela cheia, com Restaurar visível após a solicitação inicial. A janela nativa é exibida antes dessa solicitação, pela mesma operação usada por F12. F12, Escape ou Restaurar permitem voltar à janela normal; uma nova execução volta ao padrão de tela cheia. O modo não é persistido no projeto.
+
+
+## Sair e seletor de tema
+
+Linha superior: marca à esquerda; Tema (Claro/Escuro/Azul), Tela cheia/Restaurar e Sair à direita. Sair usa texto e ícone de encerramento, aparece somente em tela cheia e aciona confirmação Sim/Não se o projeto estiver alterado. Não deve apenas restaurar a janela. O seletor permanece disponível em ambos os modos.
+
+| Token | Claro (padrão) | Escuro | Azul |
+| --- | --- | --- | --- |
+| Fundo | #F8FAFC | #111827 | #EDF4FC |
+| Texto | #0F172A | #F1F5F9 | #142D4E |
+| Campo/menu | #FFFFFF | #1F2937 | #FFFFFF |
+| Botão | #E8EEF6 | #334155 | #DCE9F8 |
+| Primário/foco | #2563EB | #60A5FA | #174EA6 |
+| Texto secundário | #64748B | #CBD5E1 | #486581 |
+| Seleção | #DBEAFE | #1E40AF | #C9DDF5 |
+
+O tema Azul é uma alternativa clara com superfícies azuladas. Cores de conteúdo do canvas e imagens permanecem as definidas no projeto. Não reconstruir o formulário ao mudar o tema. Conferir legibilidade, popup, diálogo, foco de teclado e o cabeçalho em 1366×768 e DPI 100/150/200% nos três temas.

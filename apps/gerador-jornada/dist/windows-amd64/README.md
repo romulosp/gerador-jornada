@@ -130,6 +130,12 @@ Componentes suportam seleção múltipla por Ctrl/Shift+clique e caixa de seleç
 
 Botão direito abre **Alterar propriedades** e **Excluir elemento/seleção**. A tecla Delete, o menu e **Excluir** ao lado de Ajustar compartilham confirmação **Sim/Não**; sem seleção, Excluir fica desabilitado. A operação pode ser desfeita.
 
+### Temas e saída do aplicativo
+
+No topo, **Tema** permite escolher **Claro** (padrão), **Escuro** ou **Azul**. A mudança é imediata e a escolha fica salva para o usuário nas próximas aberturas. Ela personaliza os painéis e controles do editor; o fundo e as cores das telas desenhadas, prévias e exportações permanecem os definidos no projeto. Rascunhos, seleção, zoom e histórico são preservados.
+
+Em tela cheia, o botão **Sair**, junto de **Restaurar**, encerra o programa sem precisar restaurar a janela. Ele fica oculto no modo normal, onde o fechamento do sistema continua disponível. Se houver alterações no projeto ou no formulário de propriedades, a confirmação **Sim/Não** protege a saída; **Não** mantém a sessão aberta, **Sim** descarta as alterações e encerra, inclusive com prévias abertas. Salve antes de sair para conservar suas mudanças.
+
 ### Atalhos atuais
 
 | Atalho | Ação |
@@ -141,7 +147,10 @@ Botão direito abre **Alterar propriedades** e **Excluir elemento/seleção**. A
 | Ctrl/Shift+clique | Adicionar/remover componente da seleção |
 | Setas / Shift+setas | Mover 1 / 10 unidades lógicas |
 | Delete | Solicitar exclusão da seleção |
-| Escape | Limpar seleção/cancelar manipulação |
+| F12 | Alternar tela cheia quando encaminhado ao canvas; captura nativa na janela Windows |
+| Escape | Sair da tela cheia; no modo normal, limpar seleção/cancelar manipulação |
+
+O aplicativo abre em **tela cheia por padrão**, com a ação **Restaurar** disponível. Essa escolha inicial não depende do último estado da sessão. No Windows, **Maximizar** entra em tela cheia do editor, sem decoração do sistema/barra de tarefas. O botão **Tela cheia/Restaurar**, junto à marca, permite alternar sem depender da barra oculta; F12 alterna e Escape retorna, inclusive com campos focados pela captura nativa. Documento, seleção, zoom e rascunhos são preservados. Não é modo quiosque: fechar, minimizar e alternar aplicações continuam disponíveis. Linux/macOS mantêm a maximização do sistema e têm o botão de tela cheia; o encaminhamento das teclas pelo canvas depende do foco/driver e exige homologação.
 
 Atalhos de desenho respeitam o foco dos campos: Delete e setas continuam editando texto. Os atalhos implementados usam Ctrl; equivalências com Command e ergonomia nativa do macOS ainda precisam de homologação.
 
@@ -199,6 +208,8 @@ O código segue **monólito modular**, um módulo Go e composição manual de de
 `internal/adapter` contém desktop, persistência, PPT, Java, recursos incorporados e metadados de build. `internal/presentation` traduz a composição em primitivas compartilhadas de apresentação. A separação permite mudar o visual ou um exportador sem transferir essas responsabilidades para o domínio.
 
 ## Compilar em `dist` — 64 bits
+
+A entrega corrente e as recompilações de manutenção abrangem somente **Windows x64**, conforme orientação do usuário. As instruções e configurações Linux/macOS abaixo ficam como referência futura; não exigem novos builds ou homologação nesta etapa.
 
 ### Windows x64
 

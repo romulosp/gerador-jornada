@@ -47,7 +47,7 @@ func main() {
 	if *smokeScreenshot != "" {
 		go func() {
 			time.Sleep(2 * time.Second)
-			fyne.DoAndWait(editor.FitToWindow)
+			fyne.DoAndWait(func() { editor.EnableWindowMode(); editor.FitToWindow() })
 			// O intervalo permite pintar o quadro ajustado antes da captura do framebuffer.
 			time.Sleep(200 * time.Millisecond)
 			fyne.Do(func() {
@@ -77,10 +77,12 @@ func main() {
 	} else {
 		go func() {
 			time.Sleep(400 * time.Millisecond)
-			fyne.Do(func() { editor.FitToWindow(); editor.OfferRecovery() })
+			fyne.Do(func() { editor.EnableWindowMode(); editor.FitToWindow(); editor.OfferRecovery() })
 		}()
 	}
-	editor.Window.ShowAndRun()
+	// A abertura aplica tela cheia somente depois de criar e exibir a janela nativa.
+	editor.ShowWindow()
+	desktopApp.Run()
 }
 
 // fail preserva o código de saída dos utilitários de validação.

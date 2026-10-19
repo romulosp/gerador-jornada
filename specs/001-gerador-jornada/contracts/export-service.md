@@ -2,6 +2,16 @@
 
 **Version**: 1 | **Requirements**: FR-026, FR-028, NFR-004, NFR-005.
 
+## Estado de implementação — 2026-10-18
+
+Este contrato define o alvo de evolução; não descreve uma API já integralmente implementada.
+Hoje desktop.startExport coordena um job/snapshot e callback `func(float64)`, chamando
+pptx.Export ou javaefl.Export com contexto. PPT publica por atomicfile; Java tem staging
+e gate de perfil. Ainda faltam o caso de uso ExportProject na aplicação, request/result
+estruturados, Artifact, eventos por fase e todas as localizações de Diagnostic.
+Pendências mantidas em 001-gerador-jornada/T009, T030, T038, T040, T046 e T068; não considerar o contrato
+satisfeito apenas por existir exportação funcional. Requisitos abaixo permanecem vigentes.
+
 ## Fronteira interna
 
 Não há API HTTP pública nesta versão. O caso de uso ExportProject recebe:

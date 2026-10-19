@@ -149,7 +149,7 @@ A arquitetura e a composição manual já foram aprovadas: a orientação genér
 
 ## Research conclusion
 
-As escolhas de produto e arquitetura estão definidas. A implementação precisa produzir evidências G-01 a G-05. Nenhuma delas é apresentada como teste já aprovado nesta entrega documental. Os registros de decisão permanecem neste arquivo para manter a estrutura GitHub Spec Kit solicitada.
+As escolhas de produto e arquitetura estão definidas e há implementação em andamento. Há evidência automatizada e builds registrados em quickstart.md; G-01 a G-05 só são concluídos pela evidência específica exigida em cada linha, incluindo execução real e homologação quando aplicáveis. Os registros de decisão permanecem neste arquivo para manter a estrutura GitHub Spec Kit solicitada.
 
 Atualização da implementação: a parte estática de G-04 tem ferramenta executável e testes, conforme D-09 e quickstart.md. G-03 e a execução Java 6/EFL de G-04 continuam pendentes. Não foram encontrados JARs EFL no material legado nem na busca por nomes EFL sob `C:\Desenvolvimento` e `D:\desenvolvimento`; isso não identifica bibliotecas com outros nomes nem substitui o inventário dos mantenedores.
 
@@ -220,3 +220,16 @@ A documentação oficial do [Fyne para preparação](https://docs.fyne.io/starte
 A [referência oficial de runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners) distingue macos-15-intel de macos-15 ARM64. A matriz explicita arquitetura e verifica o formato do binário; o macOS não é tratado como um único pacote universal. Assinatura ad-hoc serve ao teste interno e não representa assinatura Developer ID/notarização. Ações do workflow fixadas por commits consultados nos repositórios oficiais, sem execução remota nesta entrega.
 
 Tradeoff: builds nativos/Docker exigem mais infraestrutura do que uma compilação Go sem CGO, mas respeitam as dependências gráficas e produzem artefatos verificáveis. O usuário final não precisa instalar a toolchain; Linux ainda requer bibliotecas gráficas compatíveis. O manual separa essas duas classes de pré-requisitos e os estados configurado/gerado/homologado.
+
+## Maximização para tela cheia sem estado de negócio
+
+A API pública Fyne 2.8.2 fornece Window.SetFullScreen/FullScreen e driver.NativeWindow, mas não expõe evento de maximização; conferido no módulo local. No Windows, adotada captura restrita de WM_SYSCOMMAND/SC_MAXIMIZE com [SetWindowLongPtrW](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowlongptrw), delegação de mensagens com [CallWindowProcW](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-callwindowprocw) e máscara dos comandos descrita em [WM_SYSCOMMAND](https://learn.microsoft.com/en-us/windows/win32/menurc/wm-syscommand).
+
+O custo é manter um adaptador específico e exigir teste nativo. Em troca, a intenção é capturada antes de a maximização comum substituir a geometria, sem polling ou dependências nos domínios. F12/Escape no HWND cobrem campos focados, pois o driver Fyne não encaminha suas teclas simples ao canvas quando um widget está focado; CustomShortcut sem modificadores também não é emitido nesse driver. Todos os demais eventos continuam no Fyne. Botão interno permite retornar quando a decoração do sistema está oculta. Linux/macOS não recebem uma implementação Win32 artificial e permanecem sujeitos a homologação própria.
+
+
+## Temas de interface e encerramento (2026-10-18)
+
+Escolha: paletas Fyne e Preferences já disponíveis, sem dependência adicional ou tema no projeto. Claro permanece padrão, Escuro atende ambientes com pouca luz e Azul oferece alternativa clara. Custo: manter tokens/contraste e conferir visualmente os estados nos três temas. Alterar apenas a interface evita contaminar as saídas da jornada. A preferência é local ao usuário, não um dado de domínio compartilhável.
+
+Sair chama a mesma solicitação do fechamento nativo, com confirmação única para documento alterado ou rascunho do formulário; a janela principal é master para também encerrar com prévias abertas. Alternativa de chamar Quit diretamente foi descartada porque ignoraria a confirmação. A captura dos valores do formulário é local ao inspector, sem observar teclas ou substituir validações.

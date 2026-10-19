@@ -112,3 +112,8 @@ Selecionar um componente com formulário maior que o painel, rolar até o iníci
 
 - **FR-012**: Exibir campo ID nas propriedades de tela e de todas as famílias, independente de Nome. Explicar nome-base sem extensão e limite de 40 caracteres; exemplificar PnlIdentificacao na tela. Remover acentos/espaços/símbolos imediatamente na edição; não truncar silenciosamente valor digitado acima do limite. Validar prefixo Pnl somente para telas, início em letra e nomes Windows reservados.
 - **FR-013**: Salvar alterações deve confirmar FileID, validar colisão em seu contexto e produzir uma ação reversível, sem mudar UUID ou texto exibido do componente. Se inválido, manter o último estado do projeto e informar o motivo; Descartar retorna ao ID confirmado.
+
+
+## Proteção de rascunhos no encerramento
+
+- **FR-014**: Ao solicitar encerramento pelo sistema ou Sair (025-barra-ferramentas/FR-016), detectar valores do formulário atual diferentes de sua montagem, mesmo sem revisão de projeto criada. Não substitui callbacks de validação nem publica o rascunho. **Não** preserva o formulário e a sessão; **Sim** autoriza descartá-lo e encerrar. Reconstrução por Salvar/Descartar renova a referência de comparação. A preferência de tema não altera essa referência.

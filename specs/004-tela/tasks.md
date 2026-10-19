@@ -2,7 +2,8 @@
 
 **Input**: [spec.md](spec.md), [plan.md](plan.md), [data-model.md](data-model.md) e contrato compartilhado.
 **Prerequisites**: preparação/toolchain da feature coordenadora; regras/documentação revisadas.
-**Tests**: exigidos pelo plano aprovado. Todos os itens são futuros e permanecem desmarcados.
+**Tests**: checks executados em 2026-10-18, conforme evidências abaixo. Caixas abertas distinguem cobertura/implementação parcial de trabalho não iniciado; não representam ausência de código.
+**Status**: reconciliação documental concluída conforme constituição 1.2.0; domínio com implementação e lacunas identificadas, sem aceite integral.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -10,32 +11,32 @@ IDs Txxx/USx são locais a esta feature. Caminhos de código relativos a apps/ge
 
 ## Phase 1: Setup
 
-- [ ] T001 Conferir campos, invariantes e fronteiras com o contrato em specs/004-tela/data-model.md; resolver divergência antes de criar código.
+- [X] T001 Conferir entidades/fronteiras de Tela e registrar o mapeamento real em plan.md/data-model.md. Revisão de 2026-10-18 preserva a separação entre composição, comandos da aplicação e interação desktop.
 
 ## Phase 2: Foundational
 
-- [ ] T002 Preparar fixtures e casos de contrato de Tela em internal/screen/model_test.go: bordas, dimensões inválidas, nome duplicado, z-order, cópia de teclado, auto-referência e resize de tela sem reposicionamento oculto.
-- [ ] T003 Implementar tipos/valores coesos em internal/screen/model.go conforme data-model.md, sem importar UI/IO nem duplicar entidades de outro pacote.
+- [ ] T002 Completar fixtures em screen/model_test.go, selection_test.go, file_id_test.go e application/edit_selection_test.go. Já há limites/clamp, seleção/IDs e duplicação; faltam combinações completas de dimensões, nomes, camadas, remapeamento de teclado e remoção referenciada previstas no plano.
+- [X] T003 Implementar Screen/Component/Bounds/Style em screen/model.go, regras coletivas em selection.go e IDs em file_id.go. TestGeometryAndLocalNames, TestGroupMovementPreservesSpacing e TestFileIDRules passaram no check de 2026-10-18, sem UI/IO no pacote.
 
 ## Phase 3: User Story 1 - Compor uma tela (Priority: P1)
 
 **Goal**: atender o cenário principal da US1.
 **Independent Test**: caso de aceitação US1 executado sem UI e sem geração de saídas.
 
-- [ ] T004 [US1] Implementar criação/renomeação/dimensionamento de tela, geometria, alinhamento, camada e manipulação de componentes em internal/screen/operations.go, com retornos tipados e sem alteração parcial em erro; separar tipos/arquivos quando necessário.
-- [ ] T005 [US1] Verificar cenário válido e invariantes de US1 em internal/screen/operations_test.go, incluindo preservação de IDs/ordem aplicável.
+- [ ] T004 [US1] Completar operações de criação/geometria/alinhamento/camadas com responsabilidade explícita. Núcleo existe em application/edit_screen.go, transform.go e desktop/arrangement.go/operations.go; conferir todos os alinhamentos previstos e consolidar os comandos que ainda vivem no desktop. Não criar uma classe central ou arquivos apenas para repetir o plano antigo.
+- [ ] T005 [US1] Completar matriz de operações válidas e invariantes nos testes existentes de screen/application. Geometria, transação, seleção e IDs já têm evidência; falta cobertura integral de todos os comandos/ordem/camadas e efeitos de remoção.
 
 ## Phase 4: User Story 2 - Alterar a composição com previsibilidade (Priority: P2)
 
 **Goal**: comportamento previsível e diagnóstico de erro.
 **Independent Test**: cenário US2 com fixture isolada e verificação do estado anterior.
 
-- [ ] T006 [US2] Implementar duplicação com mapa de IDs e validação de limites em internal/screen/validation.go, com erros que a aplicação consiga localizar.
-- [ ] T007 [US2] Testar os limites e erros de US2 em internal/screen/validation_test.go, demonstrando ausência de publicação parcial.
+- [X] T006 [US2] Implementar duplicação com mapa de IDs e limites entre os módulos em application/edit_screen.go, edit_selection.go e screen/selection.go. Evidências: TestSelectionDuplicateAndDelete, TestFileIDMigrationAndDuplication e TestGroupMovementPreservesSpacing aprovados em 2026-10-18; casos adicionais seguem em T002/T007.
+- [ ] T007 [US2] Completar cenários de falha de duplicação, vínculos de teclado/destinos externos e ausência de alteração parcial nos testes existentes de screen/application. A cobertura atual não fecha toda a matriz original.
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T008 Revisar GoDoc de todos os elementos e comentários de variáveis em internal/screen/; executar testes do pacote e registrar resultado em specs/004-tela/tasks.md.
+- [ ] T008 Concluir revisão integral de GoDoc/variáveis do domínio Tela e comandos relacionados. Checks do pacote passaram em 2026-10-18; DPI/homologação desktop pertencem aos gates manuais de 001, não a esta caixa.
 
 ## Dependencies & Execution Order
 
@@ -54,3 +55,20 @@ Concluir a US1 com fixture mínima, depois US2 e integração. Definição de pr
 ## Traceability
 
 FR-001 a FR-005 → T002–T007; SC-001/SC-002 → T005/T007; constituição/documentação → T008. Testes independentes ficam nos pacotes; validação ponta a ponta em quickstart.md da feature coordenadora.
+
+
+## Evidências da reconciliação — 2026-10-18
+
+Executor: agente, ambiente Windows deste workspace. `scripts/check.ps1 -Jdk17
+C:\Desenvolvimento\jdk-17.0.11` passou: formatação, vet, testes dos pacotes Go,
+três testes do empacotador e nove testes da toolchain Java estática. Resultados por
+pacote e limites em [quickstart da coordenadora](../001-gerador-jornada/quickstart.md#reconciliação-documental-por-domínio--2026-10-18).
+
+A existência de um teste aprovado não completa os demais cenários descritos nas
+caixas abertas. Não foram executados testes manuais, PowerPoint ou EFL real nesta
+revisão. IDs T001–T008 foram preservados; caminhos planejados foram substituídos
+pelos arquivos existentes, sem criar novos módulos ou duplicar implementação.
+
+## Requisitos acrescentados e integração
+
+FR-006–FR-009: 001-gerador-jornada/T080–T083 e T088–T090; screen/selection.go, application/edit_selection.go e testes. FR-010: 001-gerador-jornada/T092 e application/screen_preview_test.go. FR-011–FR-012: 001-gerador-jornada/T093–T096 e testes file_id nos pacotes screen/application/projectzip. São verificações de integração já registradas, não novos comandos a implementar duas vezes.

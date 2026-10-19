@@ -15,12 +15,12 @@ Manifesto usa camelCase, sem funções. Os campos de raiz são:
 | id, name | string | UUID e nome não vazio. |
 | revision | integer | Inteiro não negativo; identifica a revisão salva. |
 | screens | array | Screen na ordem de apresentação. Pode ser vazio em rascunho. |
-| journey | object | startScreenId (UUID ou null) e actions (array). |
+| journey | object | startScreenId (UUID ou string vazia quando ausente; reader também aceita null) e actions (array). |
 | scenarios | array | Scenario; vazio quando não há demonstração. |
 | assets | array | Asset; vazio quando não há imagens. |
 | javaOptions | object | packageName e profileId, strings; podem estar vazios no rascunho. |
 
-Screen contém `id`, `name`, `fileId`, `size:{width,height}`, `background:{color,assetId}` e `components`. Component contém `id`, `name`, `fileId`, `kind`, `bounds:{x,y,width,height}`, `style` e `properties`. assetId nulo significa sem imagem. Style permite os campos descritos no modelo, omitindo os não personalizados.
+Screen contém `id`, `name`, `fileId`, `size:{width,height}`, `background:{color,assetId}` e `components`. Component contém `id`, `name`, `fileId`, `kind`, `bounds:{x,y,width,height}`, `style` e `properties`. assetId vazio significa sem imagem; o reader também aceita null. Style permite os campos descritos no modelo, omitindo os não personalizados.
 
 Todos os arrays são obrigatórios, inclusive vazios. Propriedades e campos de outras entidades seguem [catálogo](component-catalog.md) e [jornada/roteiro](navigation-scenario.md). Campos desconhecidos são recusados pelo leitor, com localização; não são ignorados silenciosamente.
 
@@ -34,7 +34,7 @@ Todos os arrays são obrigatórios, inclusive vazios. Propriedades e campos de o
   "name": "Atendimento",
   "revision": 0,
   "screens": [],
-  "journey": { "startScreenId": null, "actions": [] },
+  "journey": { "startScreenId": "", "actions": [] },
   "scenarios": [],
   "assets": [],
   "javaOptions": { "packageName": "", "profileId": "" }
@@ -42,6 +42,17 @@ Todos os arrays são obrigatórios, inclusive vazios. Propriedades e campos de o
 ```
 
 Esse arquivo pode ser salvo/reaberto; exportação retorna `JOURNEY_START_MISSING`.
+
+## Ausência de referências opcionais no wire format
+
+O writer atual representa ausência em campos Go string por `""`, incluindo
+startScreenId, targetScreenId de ação none, selectedOptionId, assetId e alvos opcionais.
+O reader também aceita `null` para esses campos, normalizando-o para a string vazia.
+Nos modelos conceituais, “nulo” descreve ausência de referência, não exige JSON null.
+Opcionais tipados por ponteiro, como Step.point e Step.text, conservam JSON null;
+texto vazio de typeText continua sendo um valor explícito diferente de null.
+Essa descrição registra o comportamento do writer/reader já existente, sem migração
+adicional nem mudança de schemaVersion 2.
 
 ## Recursos e limites de leitura
 

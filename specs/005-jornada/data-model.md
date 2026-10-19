@@ -25,4 +25,9 @@ Testes obrigatórios: none implícito, ciclo, auto-navegação, fonte não botã
 
 ## Rastreabilidade
 
-Requisitos FR deste domínio cobrem FR-011 a FR-013, FR-014, FR-023 da feature coordenadora. [Backlog local](tasks.md) detalha os arquivos e testes. Nenhuma persistência ou integração foi executada nesta entrega.
+Requisitos FR deste domínio cobrem FR-011 a FR-013, FR-014, FR-023 da feature coordenadora. [Backlog local](tasks.md) detalha os arquivos e testes. Implementação e integrações verificadas estão identificadas em tasks.md; cenários não exercitados permanecem pendentes, conforme o registro de evidências da coordenadora.
+
+
+## Correspondência com o código atual
+
+Binding none/navigate, resolução por ID e validação de origem/destino estão implementados. O warning de tela inalcançável previsto em FR-004 ainda não é emitido; permanece em T006. Diagnóstico clicável/localização completa também depende de 001-gerador-jornada/T030.

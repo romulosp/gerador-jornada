@@ -74,3 +74,8 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 Manter Prévia como execução completa e acrescentar Prévia Tela Atual no cabeçalho. A janela individual usa título `Prévia Tela Atual · <nome da tela>` e indicação `Tela atual · campos e escolhas interativos; navegação entre telas desativada`. Preservar a renderização existente de fundo, tipografia, alinhamento e controles; nenhuma sobreposição de seleção ou alça do editor aparece. Dimensões seguem a tela com rolagem disponível. Não executar roteiro nem trocar de tela por botão nesse modo.
 
 A janela usa snapshot do conteúdo confirmado, independente de futuras edições. Para visualizar uma propriedade ainda em rascunho, o autor primeiro usa Salvar alterações. Testar tela ativa diferente da inicial, campos, teclado, escolhas, fundo e fechamento sem alteração no projeto.
+
+
+## Tema da superfície de execução
+
+A superfície com os controles da jornada usa escopo de tema claro fixo, preservando a aparência anterior dos widgets interativos. Imagens e primitivas continuam usando os estilos do modelo. O cabeçalho explicativo da janela acompanha o tema do editor. Conferir a prévia aberta ao alternar os três temas, incluindo botões, campo, seleção e teclado numérico.

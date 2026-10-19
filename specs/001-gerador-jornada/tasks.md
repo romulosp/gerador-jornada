@@ -1,8 +1,8 @@
 # Tasks: Gerador de Jornada
 
 **Input**: [spec.md](spec.md), [plan.md](plan.md), [research.md](research.md), [data-model.md](data-model.md) e contracts/.
-**Prerequisites**: constituição 1.1.1 e contratos revisados.
-**Status**: implementação em andamento. Tarefas sem evidência integral permanecem abertas; a correção da toolchain Java 6 está registrada em T077 e quickstart.md. Homologação EFL e aprovação manual continuam pendentes.
+**Prerequisites**: constituição 1.2.0 e contratos revisados.
+**Status**: implementação em andamento; backlog reconciliado em 2026-10-18. Caixas abertas podem ter implementação/cobertura parcial já existente, conforme notas individuais. Tarefas sem evidência integral permanecem abertas; a correção da toolchain Java 6 está registrada em T077 e quickstart.md. Homologação EFL e aprovação manual continuam pendentes.
 **Tests**: incluídos porque os testes de contrato, integração e homologação fazem parte do plano aprovado.
 
 ## Format: `[ID] [P?] [Story] Description`
@@ -26,24 +26,24 @@ As tarefas de domínio implementam suas regras; as tarefas desta feature verific
 **Goal**: reduzir riscos antes de desenvolver o produto.
 **Independent Test**: provas registradas com ferramentas e resultados, sem declarar produto pronto.
 
-- [ ] T001 Fixar versões Go/Fyne/C em `go.mod`, `go.sum` e `scripts/build.ps1`; usar módulo local temporário descrito no plano.
-- [ ] T002 [P] Preparar checks de formatação, vet, importações e documentação em `scripts/check.ps1`; incluir revisão explícita de comentários privados/variáveis locais.
-- [ ] T003 Provar drag/drop, limites visuais e DPI 100/150/200% em `tests/integration/desktop_spike_test.go`, registrando resultado em research.md.
-- [ ] T004 Provar PPT com formas editáveis, links, cursor e digitação em `tests/integration/pptx_spike_test.go`; homologar PowerPoint 2016/Microsoft 365 e registrar em research.md.
-- [ ] T005 Levantar JARs, dependências e exemplo do hospedeiro EFL em `internal/adapter/javaefl/profile.go`; registrar inventário verificável em research.md, sem assinaturas inventadas.
-- [ ] T006 Confirmar assinaturas das sete famílias e build SE 6 em `tests/integration/javaefl_profile_test.go`; registrar perfil e gate G-03/G-04 em research.md.
+- [X] T001 Fixar versões Go/Fyne/C em `go.mod`, `go.sum` e `scripts/build.ps1`; usar módulo local temporário descrito no plano. **Evidência técnica (2026-10-18)**: Versões confirmadas em go.mod/go.sum, scripts/toolchains-windows.json e build.ps1.
+- [ ] T002 [P] Preparar checks de formatação, vet, importações e documentação em `scripts/check.ps1`; incluir revisão explícita de comentários privados/variáveis locais. **Estado parcial/pendência**: check.ps1 já executa formatação/vet/testes; falta auditoria integral de comentários/importações conforme NFR-003-catalogo/T073.
+- [ ] T003 Provar drag/drop, limites visuais e DPI 100/150/200% em `internal/adapter/desktop/background_test.go`, registrando resultado em research.md. **Estado parcial/pendência**: testes de arraste/limites são headless; falta DPI 100/150/200% e prova nativa G-01.
+- [ ] T004 Provar PPT com formas editáveis, links, cursor e digitação em `internal/adapter/pptx/export_test.go`; homologar PowerPoint 2016/Microsoft 365 e registrar em research.md. **Estado parcial/pendência**: XML/formas/animações testados; falta executar nas duas versões PowerPoint (G-02).
+- [ ] T005 Levantar JARs, dependências e exemplo do hospedeiro EFL em `internal/adapter/javaefl/profile.go`; registrar inventário verificável em research.md, sem assinaturas inventadas. **Estado parcial/pendência**: CurrentProfile é não verificado; faltam JARs, dependências e bootstrap dos mantenedores.
+- [ ] T006 Confirmar assinaturas das sete famílias e build SE 6 em `internal/adapter/javaefl/toolchain_test.go`; registrar perfil e gate G-03/G-04 em research.md. **Estado parcial/pendência**: T077 valida Java 6 estaticamente; faltam assinaturas EFL e execução real.
 
 **Checkpoint**: G-01/G-02 resolvidos para iniciar adaptação definitiva. T005/T006 dependem dos mantenedores EFL; sua ausência não impede os domínios/editor/PPT, mas impede concluir a entrega Java.
 
 ## Phase 2: Foundational — integração dos domínios (Sprint 2)
 
-- [ ] T007 Verificar conclusão de Projeto e Catálogo pelos respectivos tasks.md e integrar seus contratos em `internal/application/project.go`; sem duplicar entidades de `internal/project`/`internal/catalog`.
-- [ ] T008 Verificar conclusão dos modelos Tela/Jornada/Demonstração e compor validação entre IDs em `internal/application/validation.go`, sem ciclos de importação.
-- [ ] T009 Definir sessão, interfaces consumidoras de persistência/exportação e revisão de snapshot em `internal/application/session.go` e `internal/application/export.go`.
-- [ ] T010 Criar fixtures das sete famílias e teste de round-trip/erros em `tests/contract/project_format_test.go`, conforme project-format.md.
-- [ ] T011 Implementar DTOs, leitura com limites e gravação atômica em `internal/adapter/projectzip/reader.go` e `internal/adapter/projectzip/writer.go`.
-- [ ] T012 Implementar autosave com debounce de 2 s e recuperação em `internal/adapter/projectzip/recovery.go`, preservando revisões não salvas.
-- [ ] T013 Validar falhas de escrita, ZIP, hashes, versão e recuperação em `tests/integration/project_storage_test.go`.
+- [ ] T007 Verificar conclusão de Projeto e Catálogo pelos respectivos tasks.md e integrar seus contratos em `internal/application/document.go`; sem duplicar entidades de `internal/project`/`internal/catalog`. **Estado parcial/pendência**: modelos já estão integrados e testados; conclusão integral de Projeto/Catálogo depende das lacunas em seus backlogs.
+- [ ] T008 Verificar os modelos Tela/Jornada/Demonstração e completar validação de identidade entre domínios em `internal/application/document.go`, sem ciclos de importação. **Estado parcial/pendência**: telas/componentes e referências de navegação são validados; Scenario.Interpret recusa step ID vazio/duplicado dentro de um roteiro. Falta demonstrar UUID canônico e unicidade global incluindo todos os roteiros/etapas e colisões com outras entidades, conforme 002-projeto/FR-002 e 006-demonstracao/data-model.md. Testes atuais aprovados não fecham essa matriz.
+- [ ] T009 Definir sessão, interfaces consumidoras de persistência/exportação e revisão de snapshot em `internal/application/session.go` e `internal/adapter/desktop/export.go`. **Estado parcial/pendência**: Session/snapshot existem; faltam ExportProject/Result/Artifact e fronteira consumidora na aplicação. Coordenação atual é desktop.startExport.
+- [X] T010 Criar fixtures das sete famílias e teste de round-trip/erros em `internal/adapter/projectzip/package_test.go`, conforme project-format.md. **Evidência técnica (2026-10-18)**: TestRoundTripAllFamilies, TestRejectUnknownFieldAndTraversal e TestFileIDPersistenceAndMigration aprovados.
+- [X] T011 Implementar DTOs, leitura com limites e gravação atômica em `internal/adapter/projectzip/package.go` e `internal/adapter/projectzip/wire.go`. **Evidência técnica (2026-10-18)**: Manifesto em wire.go, ZIP em package.go e publicação em atomicfile/write.go implementados; testes de pacote aprovados. Matriz adicional de falhas permanece em T013.
+- [X] T012 Implementar autosave com debounce de 2 s e recuperação em `internal/adapter/desktop/files.go`, preservando revisões não salvas. **Evidência técnica (2026-10-18)**: scheduleAutosave/OfferRecovery em desktop/files.go usam cópia, debounce de 2 s e caminho nativo. Recuperação por interrupção real permanece em T013/T025.
+- [ ] T013 Validar falhas de escrita, ZIP, hashes, versão e recuperação em `internal/adapter/projectzip/package_test.go`. **Estado parcial/pendência**: round-trip, campo desconhecido, traversal e migração testados; faltam todos os limites/hash, interrupção/recuperação, disco cheio e falhas de publicação.
 
 **Checkpoint**: é possível criar projeto de teste, salvar/reabrir e recuperar sem UI completa. Todas as interfaces têm consumidor e finalidade.
 
@@ -52,102 +52,102 @@ As tarefas de domínio implementam suas regras; as tarefas desta feature verific
 **Goal**: desenhar e preservar uma tela com as sete famílias.
 **Independent Test**: V-01 e V-02 em quickstart.md.
 
-- [ ] T014 [US1] Implementar expansão visual sem Fyne/XML em `internal/presentation/scene.go`, consumindo o catálogo e bounds dos domínios.
-- [ ] T015 [US1] Montar shell e lista de telas em `internal/adapter/desktop/shell.go`; conectar criar/renomear/reordenar/duplicar/remover telas e comandos de arquivo aos casos de uso.
-- [ ] T016 [US1] Implementar paleta das sete famílias em `internal/adapter/desktop/palette.go`, sem instanciar regras por reflexão.
-- [ ] T017 [US1] Implementar canvas, conversão zoom/DPI, seleção e drag/drop em `internal/adapter/desktop/canvas.go`.
-- [ ] T018 [US1] Implementar inspector tipado e mensagens por propriedade em `internal/adapter/desktop/inspector.go`.
-- [ ] T019 [US1] Conectar mover, redimensionar, alinhar, duplicar e camadas às regras de Tela em `internal/application/edit_screen.go`.
-- [ ] T020 [US1] Implementar histórico de 100 entradas e operação única por arraste em `internal/application/history.go`; nova edição após undo remove redo.
-- [ ] T021 [US1] Implementar zoom 25..400%, atalhos e cancelamento de arraste em `internal/adapter/desktop/shortcuts.go`, respeitando foco de texto.
-- [ ] T022 [US1] Conectar salvar/abrir/recuperar com diagnóstico e sessão limpa/alterada em `internal/adapter/desktop/files.go`.
-- [ ] T023 [US1] Validar operações e histórico em `internal/application/history_test.go`, incluindo undo de remoção referenciada.
-- [ ] T024 [US1] Validar widgets, posições de drop e foco em `internal/adapter/desktop/canvas_test.go`.
-- [ ] T025 [US1] Executar V-01/V-02 e registrar evidências em quickstart.md, sem marcar domínio concluído com teste apenas de widget.
+- [X] T014 [US1] Implementar expansão visual sem Fyne/XML em `internal/presentation/scene.go`, consumindo o catálogo e bounds dos domínios. **Evidência técnica (2026-10-18)**: presentation/scene.go puro é consumido pelo editor/PPT; testes estruturais de exportação aprovados.
+- [X] T015 [US1] Montar shell e lista de telas em `internal/adapter/desktop/editor.go`; conectar criar/renomear/reordenar/duplicar/remover telas e comandos de arquivo aos casos de uso. **Evidência técnica (2026-10-18)**: Shell em editor.go, lista em tools.go e comandos em operations.go; TestEditorComposition e regressões desktop aprovados. Homologação nativa em T025.
+- [X] T016 [US1] Implementar paleta das sete famílias em `internal/adapter/desktop/palette.go`, sem instanciar regras por reflexão. **Evidência técnica (2026-10-18)**: palette.go e sete Definitions implementados sem reflexão de instanciação; TestEditorComposition e round-trip aprovados.
+- [X] T017 [US1] Implementar canvas, conversão zoom/DPI, seleção e drag/drop em `internal/adapter/desktop/board.go`. **Evidência técnica (2026-10-18)**: board.go, board_renderer.go e selection.go implementados; testes de arraste/seleção aprovados. DPI real permanece em T003.
+- [ ] T018 [US1] Implementar inspector tipado e mensagens por propriedade em `internal/adapter/desktop/inspector.go`. **Estado parcial/pendência**: inspector tipado/Save/Discard testados; falta diagnóstico uniforme localizado por propriedade para toda a matriz.
+- [X] T019 [US1] Conectar mover, redimensionar, alinhar, duplicar e camadas às regras de Tela em `internal/application/edit_screen.go`. **Evidência técnica (2026-10-18)**: Comandos em edit_screen.go/edit_selection.go/transform.go e arrangement.go usam Session.Change; regressões de geometria/seleção aprovadas. Conferir alinhamentos restantes em 004-tela/T004.
+- [X] T020 [US1] Implementar histórico de 100 entradas e operação única por arraste em `internal/application/session.go`; nova edição após undo remove redo. **Evidência técnica (2026-10-18)**: Session limita histórico a 100, Change limpa redo e Board.DragEnd confirma uma operação. TestHistoryAndSnapshot/TestMultipleSelectionAndHistory aprovados; matriz 100/101 permanece em T023.
+- [X] T021 [US1] Implementar zoom 25..400%, atalhos e cancelamento de arraste em `internal/adapter/desktop/keyboard.go`, respeitando foco de texto. **Evidência técnica (2026-10-18)**: keyboard.go/board.go implementam foco, atalhos e cancelamento; regressões desktop aprovadas. Teclas/DPI nativos continuam no teste manual.
+- [X] T022 [US1] Conectar salvar/abrir/recuperar com diagnóstico e sessão limpa/alterada em `internal/adapter/desktop/files.go`. **Evidência técnica (2026-10-18)**: Fluxos implementados em desktop/files.go; leitura válida antecede troca da sessão. Testes de pacote aprovados; falhas de escrita/permissão em T013/T070.
+- [ ] T023 [US1] Validar operações e histórico em `internal/application/session_test.go`, incluindo undo de remoção referenciada. **Estado parcial/pendência**: histórico, seleção e remoção têm testes; ampliar limite 100/101, limpeza de redo após nova Change e referências removidas.
+- [ ] T024 [US1] Validar widgets, posições de drop e foco em `internal/adapter/desktop/selection_test.go`. **Estado parcial/pendência**: há regressões de seleção/foco/grupo/fundo/menu; completar posições de drop da paleta e matriz de resize/atalhos.
+- [ ] T025 [US1] Executar V-01/V-02 e registrar evidências em quickstart.md, sem marcar domínio concluído com teste apenas de widget. **Estado**: teste/homologação manual integral não executado; roteiro em quickstart.md.
 
 ## Phase 4: User Story 2 — jornada navegável (Priority: P1; Sprint 4)
 
 **Goal**: experimentar fluxo de três telas sem exportação.
 **Independent Test**: V-03.
 
-- [ ] T026 [US2] Integrar ações none/navigate e tela inicial de Jornada em `internal/application/edit_journey.go`.
-- [ ] T027 [US2] Implementar painel de destinos e impacto de remoção em `internal/adapter/desktop/navigation.go`.
-- [ ] T028 [US2] Implementar sessão de prévia isolada em `internal/application/preview.go`, restaurando valores iniciais a cada entrada de tela.
-- [ ] T029 [US2] Renderizar prévia interativa com campo, seleção e teclado vinculado em `internal/adapter/desktop/preview.go`.
-- [ ] T030 [US2] Implementar navegação/localização de diagnósticos na UI em `internal/adapter/desktop/diagnostics.go`.
-- [ ] T031 [US2] Testar ciclos, remoções, estado isolado e reset em `internal/application/preview_test.go`.
-- [ ] T032 [US2] Executar V-03 e registrar evidências em quickstart.md.
+- [X] T026 [US2] Integrar ações none/navigate e tela inicial de Jornada em `internal/adapter/desktop/navigation.go`. **Evidência técnica (2026-10-18)**: Bind/Destination e configuração de inicial integrados; TestBindAndCycle/TestPreviewReset aprovados.
+- [X] T027 [US2] Implementar painel de destinos e impacto de remoção em `internal/adapter/desktop/navigation.go`. **Evidência técnica (2026-10-18)**: Destinos em navigation.go e contagem de impacto em operations.go implementados. Localizador e alcançabilidade continuam em T030 e 005-jornada/T006.
+- [X] T028 [US2] Implementar sessão de prévia isolada em `internal/application/preview.go`, restaurando valores iniciais a cada entrada de tela. **Evidência técnica (2026-10-18)**: Preview isolado implementado; TestPreviewReset e testes de escopo individual aprovados.
+- [X] T029 [US2] Renderizar prévia interativa com campo, seleção e teclado vinculado em `internal/adapter/desktop/preview.go`. **Evidência técnica (2026-10-18)**: Campos, escolhas e teclado em desktop/preview.go implementados; regressões de prévia aprovadas. Fluxo nativo completo em T032.
+- [ ] T030 [US2] Implementar navegação/localização de diagnósticos na UI em `internal/adapter/desktop/editor.go`. **Estado parcial/pendência**: Diagnostic tem Code/Severity/Message/ScreenID/ComponentID e diálogo textual; faltam lista clicável e localização completa de campo/roteiro/etapa.
+- [ ] T031 [US2] Testar ciclos, remoções, estado isolado e reset em `internal/application/session_test.go`. **Estado parcial/pendência**: binding/reset testados; faltam todas as combinações de ciclos, remoção inválida e cenário A-B-C-A.
+- [ ] T032 [US2] Executar V-03 e registrar evidências em quickstart.md. **Estado**: teste/homologação manual integral não executado; roteiro em quickstart.md.
 
 ## Phase 5: User Story 3 — PPT navegável (Priority: P1; Sprint 5)
 
 **Goal**: compartilhar exploração editável sem depender de roteiro.
 **Independent Test**: V-05 sem demonstração.
 
-- [ ] T033 [US3] Preparar fixtures e testes OPC/links/formas em `tests/contract/pptx_export_test.go`.
-- [ ] T034 [US3] Implementar partes OPC, tema, master e layout em `internal/adapter/pptx/package.go`.
-- [ ] T035 [US3] Mapear primitivas a formas/grupos/textos em `internal/adapter/pptx/shapes.go`, usando 9525 EMU por unidade lógica.
-- [ ] T036 [US3] Implementar slides de menu/exploração e mapa de destinos em `internal/adapter/pptx/navigation.go`.
-- [ ] T037 [US3] Incluir recursos decorativos e diagnósticos de layout em `internal/adapter/pptx/resources.go`, sem rasterizar controles.
-- [ ] T038 [US3] Implementar staging, progresso e publicação do job PPT em `internal/application/export_pptx.go`.
-- [ ] T039 [US3] Implementar opções de percurso e aviso sobre entrada simulada em `internal/adapter/desktop/export_pptx.go`.
-- [ ] T040 [US3] Testar determinismo, cancelamento e falha antes de publicar em `tests/integration/pptx_export_test.go`.
-- [ ] T041 [US3] Homologar navegação, edição e geometria nas duas versões do PowerPoint e registrar V-05 em quickstart.md.
-- [ ] T042 [US3] Corrigir divergências da homologação em `internal/adapter/pptx/shapes.go`/`navigation.go` e repetir somente cenários afetados.
+- [X] T033 [US3] Preparar fixtures e testes OPC/links/formas em `internal/adapter/pptx/export_test.go`. **Evidência técnica (2026-10-18)**: TestEditableNavigationAndTiming e testes de transição verificam OPC/XML, vínculos e formas. Não homologa execução Office.
+- [X] T034 [US3] Implementar partes OPC, tema, master e layout em `internal/adapter/pptx/parts.go`. **Evidência técnica (2026-10-18)**: Partes OPC em parts.go verificadas por ValidatePackage e testes de exportação.
+- [X] T035 [US3] Mapear primitivas a formas/grupos/textos em `internal/adapter/pptx/xml.go`, usando 9525 EMU por unidade lógica. **Evidência técnica (2026-10-18)**: xml.go emite formas/grupos/texto com 9525 EMU por unidade; estrutura aprovada, visual em T041.
+- [X] T036 [US3] Implementar slides de menu/exploração e mapa de destinos em `internal/adapter/pptx/export.go`. **Evidência técnica (2026-10-18)**: Menu e mapa de slides/links em pptx/export.go; estrutura de destinos aprovada nos testes.
+- [ ] T037 [US3] Incluir recursos decorativos e diagnósticos de layout em `internal/adapter/pptx/export.go`, sem rasterizar controles. **Estado parcial/pendência**: recursos decorativos são incorporados sem rasterizar controles; diagnóstico completo de layout/capacidades ainda é parcial.
+- [ ] T038 [US3] Implementar staging, progresso e publicação do job PPT em `internal/adapter/desktop/export.go`. **Estado parcial/pendência**: job/snapshot/progresso/publicação existem no desktop/adaptadores; falta caso de uso na aplicação conforme export-service.md. Caminho indicado aponta a implementação atual, não um caso de uso já extraído.
+- [X] T039 [US3] Implementar opções de percurso e aviso sobre entrada simulada em `internal/adapter/desktop/export.go`. **Evidência técnica (2026-10-18)**: Diálogo implementado em desktop/export.go com opções de percursos e aviso de entrada simulada.
+- [ ] T040 [US3] Testar determinismo, cancelamento e falha antes de publicar em `internal/adapter/pptx/export_test.go`. **Estado parcial/pendência**: cancelamento prévio/rota inválida/determinismo testados; faltam falhas durante gravação/commit e destino anterior preservado.
+- [ ] T041 [US3] Homologar navegação, edição e geometria nas duas versões do PowerPoint e registrar V-05 em quickstart.md. **Estado**: teste/homologação manual integral não executado; roteiro em quickstart.md.
+- [ ] T042 [US3] Corrigir divergências da homologação em `internal/adapter/pptx/xml.go`/`navigation.go` e repetir somente cenários afetados. **Estado parcial/pendência**: correções concretas dependem de T041; nenhum resultado esperado foi apresentado como homologação executada.
 
 ## Phase 6: User Story 4 — demonstração guiada (Priority: P2; Sprints 4 e 6)
 
 **Goal**: roteiro explícito reproduzível na prévia e no PPT.
 **Independent Test**: V-04 e V-06.
 
-- [ ] T043 [US4] Integrar modelo/interpretador de Demonstração em `internal/application/edit_scenario.go`, respeitando clique visual e navigate separado.
-- [ ] T044 [US4] Implementar CRUD/reordenação de roteiros e etapas em `internal/adapter/desktop/timeline.go`.
-- [ ] T045 [US4] Conectar reprodução, pausa, continuação e restart em `internal/adapter/desktop/scenario_preview.go`, com relógio controlado.
-- [ ] T046 [US4] Implementar validação incremental e localização de etapa em `internal/application/validate_scenario.go`.
-- [ ] T047 [US4] Testar reset, Unicode, tempo e revisitas em `tests/integration/scenario_preview_test.go`.
-- [ ] T048 [US4] Executar V-04 e registrar evidência em quickstart.md; este checkpoint encerra a parte da Sprint 4.
-- [ ] T049 [US4] Implementar ocorrências temporizadas e árvore timing em `internal/adapter/pptx/timing.go`.
-- [ ] T050 [US4] Implementar trajetória de cursor e realce de clique em `internal/adapter/pptx/cursor.go`.
-- [ ] T051 [US4] Implementar prefixos de digitação editáveis por cluster Unicode em `internal/adapter/pptx/typing.go`.
-- [ ] T052 [US4] Integrar blocos de demonstração, replay e separação da exploração em `internal/adapter/pptx/scenario.go`.
-- [ ] T053 [US4] Testar estados/tempos, revisitas e integridade de alvos em `tests/contract/pptx_timing_test.go`.
-- [ ] T054 [US4] Homologar V-06 nas duas versões-alvo e registrar tolerância SC-004 em quickstart.md.
+- [X] T043 [US4] Integrar modelo/interpretador de Demonstração em `internal/adapter/desktop/scenarios.go`, respeitando clique visual e navigate separado. **Evidência técnica (2026-10-18)**: Interpret integrado com clique visual e navigate separados; TestRevisitAndUnicode/TestEditableNavigationAndTiming aprovados.
+- [ ] T044 [US4] Implementar CRUD/reordenação de roteiros e etapas em `internal/adapter/desktop/scenarios.go`. **Estado parcial/pendência**: CRUD e reordenação de etapas existem; reordenação da lista de roteiros de FR-017 não está implementada.
+- [ ] T045 [US4] Conectar reprodução, pausa, continuação e restart em `internal/adapter/desktop/player.go`, com relógio controlado. **Estado parcial/pendência**: pausa/continuação/reinício existem em player.go; falta controle temporal na aplicação com relógio controlado em testes.
+- [ ] T046 [US4] Implementar validação incremental e localização de etapa em `internal/scenario/model.go`. **Estado parcial/pendência**: Interpret valida etapas e retorna erros; localização estruturada e navegação ao campo/etapa continuam parciais.
+- [ ] T047 [US4] Testar reset, Unicode, tempo e revisitas em `internal/scenario/model_test.go`. **Estado parcial/pendência**: teste cobre revisita/grafemas/duração inválida; falta matriz de quadros, tempos, pausa e reinício.
+- [ ] T048 [US4] Executar V-04 e registrar evidência em quickstart.md; este checkpoint encerra a parte da Sprint 4. **Estado**: teste/homologação manual integral não executado; roteiro em quickstart.md.
+- [X] T049 [US4] Implementar ocorrências temporizadas e árvore timing em `internal/adapter/pptx/timing.go`. **Evidência técnica (2026-10-18)**: timing.go gera árvore temporizada; testes estruturais aprovados.
+- [X] T050 [US4] Implementar trajetória de cursor e realce de clique em `internal/adapter/pptx/timing.go`. **Evidência técnica (2026-10-18)**: timing.go gera trajetória e realce; estrutura animada testada, reprodução real em T054.
+- [X] T051 [US4] Implementar prefixos de digitação editáveis por cluster Unicode em `internal/adapter/pptx/timing.go`. **Evidência técnica (2026-10-18)**: scenario.Graphemes e timing.go emitem prefixos Unicode; testes de grafemas/exportação aprovados.
+- [X] T052 [US4] Integrar blocos de demonstração, replay e separação da exploração em `internal/adapter/pptx/export.go`. **Evidência técnica (2026-10-18)**: export.go integra blocos/ocorrências e exploração isolada; estrutura aprovada, PowerPoint em T054.
+- [ ] T053 [US4] Testar estados/tempos, revisitas e integridade de alvos em `internal/adapter/pptx/export_test.go`. **Estado parcial/pendência**: estrutura XML/links/animações testada; falta matriz temporal completa e revisita A-B-A.
+- [ ] T054 [US4] Homologar V-06 nas duas versões-alvo e registrar tolerância SC-004 em quickstart.md. **Estado**: teste/homologação manual integral não executado; roteiro em quickstart.md.
 
 ## Phase 7: User Story 5 — fontes Java/EFL (Priority: P2; Sprint 7)
 
 **Goal**: entregar projeto-fonte integrado e comprovado no ambiente real.
 **Independent Test**: V-07; depende de T005/T006 concluídas.
 
-- [ ] T055 [US5] Consolidar perfil EFL homologado e capacidades por propriedade em `internal/adapter/javaefl/profile.go`.
-- [ ] T056 [US5] Criar testes de identificadores, colisões e escape em `internal/adapter/javaefl/names_test.go`.
-- [ ] T057 [US5] Implementar nomes e escape de literais/Javadoc em `internal/adapter/javaefl/names.go` e `escaping.go`.
-- [ ] T058 [US5] Implementar templates das sete famílias em `templates/java/component/`, com documentação e APIs homologadas.
-- [ ] T059 [US5] Implementar painéis/fábricas por tela em `templates/java/screen/`, sem classe central de todas as telas.
-- [ ] T060 [US5] Implementar navegação e integração na EDT em `templates/java/navigation/` e `templates/java/integration/`.
-- [ ] T061 [US5] Implementar projeto fonte, resources, sources.list e instruções em `internal/adapter/javaefl/export.go`, sem publicar em diretório existente.
-- [ ] T062 [US5] Conectar diálogo e job Java em `internal/adapter/desktop/export_java.go` e `internal/application/export_java.go`.
-- [ ] T063 [US5] Compilar fixtures com Java SE 6/EFL real, verificar classfile 50.0 e executar navegação em `tests/integration/javaefl_compile_test.go`.
-- [ ] T064 [US5] Homologar sete famílias, estilos suportados e integração V-07; registrar versões/evidências em quickstart.md.
+- [ ] T055 [US5] Consolidar perfil EFL homologado e capacidades por propriedade em `internal/adapter/javaefl/profile.go`. **Estado parcial/pendência**: faltam JARs e bootstrap reais; perfil Swing exclusivo de teste não conclui a integração EFL.
+- [X] T056 [US5] Criar testes de identificadores, colisões e escape em `internal/adapter/javaefl/names_test.go`. **Evidência técnica (2026-10-18)**: TestNamesAndEscaping, TestSourceFileIDs e validação de colisões FileID aprovados; independem de EFL real.
+- [X] T057 [US5] Implementar nomes e escape de literais/Javadoc em `internal/adapter/javaefl/names.go` e `names.go`. **Evidência técnica (2026-10-18)**: Identifier/Literal/Comment/ValidatePackageName em names.go testados com Unicode e compilação estática Java 6.
+- [ ] T058 [US5] Implementar templates das sete famílias em `internal/adapter/javaefl/component_source.go`, com documentação e APIs homologadas. **Estado parcial/pendência**: component_source.go implementa geração por fábrica; construções EFL reais das sete famílias não estão homologadas. Não existe diretório templates/java/component nesta revisão.
+- [ ] T059 [US5] Implementar painéis/fábricas por tela em `internal/adapter/javaefl/sources.go`, sem classe central de todas as telas. **Estado parcial/pendência**: sources.go/component_source.go separam fontes/fábricas e passam em compilação estrutural; integração de painéis EFL real segue pendente.
+- [ ] T060 [US5] Implementar navegação e integração na EDT em `internal/adapter/javaefl/sources.go` e `internal/adapter/javaefl/sources.go`. **Estado parcial/pendência**: controlador/EDT são gerados e compilados em perfil estrutural; HostSource e bootstrap EFL reais precisam de homologação.
+- [ ] T061 [US5] Implementar projeto fonte, resources, sources.list e instruções em `internal/adapter/javaefl/profile.go`, sem publicar em diretório existente. **Estado parcial/pendência**: staging/resources/sources.list/instruções existem em profile.go; falta validar inventário/capacidades com perfil real antes de concluir saída EFL.
+- [ ] T062 [US5] Conectar diálogo e job Java em `internal/adapter/desktop/export.go` e `internal/adapter/desktop/export.go`. **Estado parcial/pendência**: diálogo/job preservados no desktop; ação está visível e desabilitada por FR-029. Falta fronteira na aplicação e integração real; não reabilitar por revisão documental.
+- [ ] T063 [US5] Compilar fixtures com Java SE 6/EFL real, verificar classfile 50.0 e executar navegação em `internal/adapter/javaefl/toolchain_test.go`. **Estado parcial/pendência**: JDK 17/ECJ/Animal Sniffer comprovam sintaxe/bytecode/API em perfil estrutural; falta compilar/executar com EFL real.
+- [ ] T064 [US5] Homologar sete famílias, estilos suportados e integração V-07; registrar versões/evidências em quickstart.md. **Estado parcial/pendência**: faltam ambiente real e homologação das sete famílias/estilos; checks estáticos não substituem V-07.
 
 ## Phase 8: User Story 6 — distribuição Windows (Priority: P1; Sprint 8)
 
 **Goal**: instalar nada e trabalhar offline.
 **Independent Test**: V-08.
 
-- [ ] T065 [US6] Montar composição final por construtores em `cmd/gerador-jornada/main.go`, mantendo o entrypoint sem regras de negócio.
-- [ ] T066 [US6] Empacotar recursos/templates e manifesto DPI em `scripts/build.ps1`.
-- [ ] T067 [US6] Montar ZIP de release com EXE, licenças e inventário em `scripts/package.ps1`.
-- [ ] T068 [US6] Validar UI thread, um job ativo, progresso e cancelamento em `tests/integration/export_job_test.go`.
-- [ ] T069 [US6] Executar V-08 em Windows 10/11 x64 limpos e offline, registrando dependências efetivas em quickstart.md.
-- [ ] T070 [US6] Validar paths com acentos/espaços e falhas de permissão em `tests/integration/windows_paths_test.go`.
+- [X] T065 [US6] Montar composição final por construtores em `cmd/gerador-jornada/main.go`, mantendo o entrypoint sem regras de negócio. **Evidência técnica (2026-10-18)**: main.go compõe adaptadores; pacote cmd compila e vet/suite passaram.
+- [ ] T066 [US6] Empacotar recursos/templates e manifesto DPI em `scripts/build.ps1`. **Estado parcial/pendência**: ícone/recursos/VERSIONINFO embutidos; manifesto DPI Windows explícito e validação de escalas continuam pendentes.
+- [ ] T067 [US6] Montar ZIP de release com EXE, licenças e inventário em `scripts/build.py`. **Estado parcial/pendência**: build.py gera pacote/inventário/hashes; faltam inventário completo de licenças distribuídas e verificação de conteúdo para release.
+- [ ] T068 [US6] Validar UI thread, um job ativo, progresso e cancelamento em `internal/adapter/desktop/export.go`. **Estado parcial/pendência**: worker/fyne.Do/contexto e bloqueio de segundo job implementados; faltam testes da fronteira em export.go para transições de job/cancelamento/publicação e responsividade.
+- [ ] T069 [US6] Executar V-08 em Windows 10/11 x64 limpos e offline, registrando dependências efetivas em quickstart.md. **Estado**: teste/homologação manual integral não executado; roteiro em quickstart.md.
+- [ ] T070 [US6] Validar paths com acentos/espaços e falhas de permissão em `internal/adapter/desktop/files.go`. **Estado parcial/pendência**: há suporte Unicode/caminhos nativos; falta matriz de paths com acentos/espaços, arquivo bloqueado e falhas de permissão em Windows.
 
 ## Phase 9: Polish & Cross-Cutting Concerns (Sprint 8)
 
-- [ ] T071 Medir tempos nominais NFR-007 em `tests/integration/performance_test.go`, registrando ambiente e mediana em quickstart.md.
-- [ ] T072 Executar integração completa V-09 e registrar evidências em quickstart.md.
-- [ ] T073 Revisar GoDoc de pacotes/tipos/métodos/campos e comentários de todas as variáveis em `internal/` e `cmd/`, além de Javadoc em `templates/java/`.
-- [ ] T074 Executar checks de importação, vet, contratos e regressões com `scripts/check.ps1`; corrigir falhas pertinentes.
-- [ ] T075 Atualizar exemplos e inventário de distribuição em quickstart.md e research.md, distinguindo testes reais de dublês.
-- [ ] T076 Revisar rastreabilidade e fechar somente tarefas com evidência em tasks.md e checklists/requirements.md.
+- [ ] T071 Medir tempos nominais NFR-007 em `internal/adapter/desktop/selection_bench_test.go`, registrando ambiente e mediana em quickstart.md. **Estado parcial/pendência**: BenchmarkSelect500 anterior não substitui NFR-007 (10×50 componentes/50 etapas), três execuções e mediana. Criar cenários nominais além do benchmark existente.
+- [ ] T072 Executar integração completa V-09 e registrar evidências em quickstart.md. **Estado**: teste/homologação manual integral não executado; roteiro em quickstart.md.
+- [ ] T073 Revisar GoDoc de pacotes/tipos/métodos/campos e comentários de todas as variáveis em `internal/` e `cmd/`, além de Javadoc em `internal/adapter/javaefl/`. **Estado parcial/pendência**: comentários em português presentes; falta revisão integral por declaração/variável e do Javadoc gerado. Vet/testes não comprovam documentação completa.
+- [X] T074 Executar checks de importação, vet, contratos e regressões com `scripts/check.ps1`; corrigir falhas pertinentes. **Evidência técnica (2026-10-18)**: check.ps1 com JDK 17 executado: gofmt/vet, três testes de empacotador, nove testes Java e suite Go aprovados.
+- [X] T075 Atualizar exemplos e inventário de distribuição em quickstart.md e research.md, distinguindo testes reais de dublês. **Evidência técnica (2026-10-18)**: Inventário, ambiente e evidências atualizados em quickstart.md/research.md com limites de cada verificação.
+- [X] T076 Revisar rastreabilidade e fechar somente tarefas com evidência em tasks.md e checklists/requirements.md. **Evidência técnica (2026-10-18)**: Specs/planos/modelos/backlogs reconciliados por domínio nesta revisão; somente evidências técnicas fecham caixas técnicas. Checklists de aprovação não foram marcados.
 
 ## Dependencies & Execution Order
 
@@ -264,4 +264,32 @@ As features 007 a 030 permanecem Draft. T079 conclui sua documentação solicita
 - [X] T097 [US6] Criar README completo da aplicação e portal na raiz, descrevendo componentes, propósito, versões, arquitetura, requisitos, build e limites reais; conferir links locais e registrar pendências de homologação. Fonte: FR-043.
 - [X] T098 [US6] Preparar build/empacotamento por alvo em dist, metadados e checksums, validação PE/ELF/Mach-O e manifesto Windows versionado; compilar/testar Windows x64 e Linux x64 via Docker, preservar EXE antigo se estiver em uso e resolver recuperação por plataforma. Fontes: FR-044–FR-045; 002-projeto/FR-007.
 - [X] T099 [US6] Configurar workflow manual nativo para Windows/Linux/macOS Intel/ARM64, SDK e bundle Apple, sem publicação automática; validar estrutura local e documentar ausência de execução remota/Mac nesta estação. Fonte: FR-044.
-- [ ] T100 [US6] Executar os builds em Mac/runner Intel e ARM64, registrar versão de SDK/OS e validar janela, ícone, bundle, recuperação, projeto e PPT; homologar distribuição e aprovação humana em máquina limpa por plataforma. Não concluir esta tarefa apenas por configuração do workflow ou fixtures Mach-O.
+- [ ] T100 [US6] **Adiada; fora do escopo corrente por orientação do usuário (2026-10-18).** Executar os builds em Mac/runner Intel e ARM64, registrar versão de SDK/OS e validar janela, ícone, bundle, recuperação, projeto e PPT; homologar distribuição e aprovação humana em máquina limpa por plataforma. Não concluir esta tarefa apenas por configuração do workflow ou fixtures Mach-O.
+
+## Phase 17: Maximização e tela cheia
+
+- [X] T101 [US6] Isolar estado de janela e tradução de mensagens no adaptador desktop; converter Maximizar Windows em API Fyne de tela cheia, capturar F12/Escape sem polling e com repetição suprimida, restaurar procedimento ao fechar e manter implementação neutra nos outros alvos; adicionar botão Tela cheia/Restaurar sem alterar domínios/persistência. Fontes: FR-046–FR-047; 025-barra-ferramentas/FR-015; 019-canvas-edicao/FR-011.
+- [X] T102 [US6] Testar traduções de mensagem, alternância, foco, rascunho/seleção/zoom/histórico preservados e ações após fechamento; executar vet/suite e recompilar o EXE Windows, atualizar README/specs e roteiro manual. A base Linux/macOS permanece como referência, sem novos builds exigidos no escopo corrente. Teste unitário de mensagens não conclui inspeção nativa das barras, monitores e DPI; homologação humana permanece pendente.
+
+
+- [X] T103 [US6] Abrir o editor em tela cheia por padrão no adaptador desktop; manter Restaurar/F12/Escape, verificar estado inicial e retorno no teste existente, atualizar FR-047 e 025/FR-015, documentação e recompilar somente Windows x64. Homologação visual permanece manual.
+
+
+- [X] T104 [US6] Corrigir a ordem de abertura no adaptador desktop: ShowWindow mostra a janela antes de solicitar tela cheia, pelo mesmo comando de F12. Testar sequência de estado inicial, retorno e preservação; executar checks e recompilar somente Windows. Teste nativo manual continua pendente.
+
+
+## Phase 18: Temas e encerramento em tela cheia
+
+- [X] T105 [US6] Implementar 025/FR-016: Sair somente em tela cheia e encerramento compartilhado com confirmação única Sim/Não para alterações e rascunhos (028/FR-014); janela principal encerra também com prévias abertas.
+- [X] T106 [US6] Implementar 025/FR-017–FR-018: paletas Claro/Escuro/Azul, seletor, preferência local/fallback e atualização de controles/cabeçalho sem alterar domínio ou rascunhos; isolar controles de prévia (029/FR-011).
+- [X] T107 [US6] Testar visibilidade, encerramento/cancelamento, preferência e isolamento, conferir contraste das paletas, atualizar documentação, executar checks e entregar EXE Windows para teste manual.
+
+## Evidências e interpretação do backlog — reconciliação 2026-10-18
+
+IDs preservados. Caminhos planejados foram substituídos pelos pontos reais da implementação;
+responsabilidades e testes ainda ausentes permanecem abertos nas notas individuais.
+Não executar novamente uma implementação existente apenas porque seu arquivo foi reorganizado.
+
+Checks desta revisão: [quickstart.md](quickstart.md#reconciliação-documental-por-domínio--2026-10-18).
+T100 está adiada por decisão do usuário, não aprovada. Esta revisão é documental:
+sem novos builds Linux/macOS, sem mudança de código e sem substituição do EXE atual.

@@ -141,7 +141,10 @@ Botão direito abre **Alterar propriedades** e **Excluir elemento/seleção**. A
 | Ctrl/Shift+clique | Adicionar/remover componente da seleção |
 | Setas / Shift+setas | Mover 1 / 10 unidades lógicas |
 | Delete | Solicitar exclusão da seleção |
-| Escape | Limpar seleção/cancelar manipulação |
+| F12 | Alternar tela cheia quando encaminhado ao canvas; captura nativa na janela Windows |
+| Escape | Sair da tela cheia; no modo normal, limpar seleção/cancelar manipulação |
+
+No Windows, **Maximizar** entra em tela cheia do editor, sem decoração do sistema/barra de tarefas. O botão **Tela cheia/Restaurar**, junto à marca, permite alternar sem depender da barra oculta; F12 alterna e Escape retorna, inclusive com campos focados pela captura nativa. Documento, seleção, zoom e rascunhos são preservados. Não é modo quiosque: fechar, minimizar e alternar aplicações continuam disponíveis. Linux/macOS mantêm a maximização do sistema e têm o botão de tela cheia; o encaminhamento das teclas pelo canvas depende do foco/driver e exige homologação.
 
 Atalhos de desenho respeitam o foco dos campos: Delete e setas continuam editando texto. Os atalhos implementados usam Ctrl; equivalências com Command e ergonomia nativa do macOS ainda precisam de homologação.
 

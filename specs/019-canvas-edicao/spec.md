@@ -101,3 +101,7 @@ Como autor, quero salvar, reabrir e exportar a composição sem perda ou altera�
 1. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-008, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
 2. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-009, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
 3. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-010, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+
+## Área disponível em tela cheia
+
+- **FR-011**: A ampliação da janela utiliza a área disponível sem mudar dimensões lógicas, zoom confirmado, geometria ou camadas da tela. Tela cheia é estado transitório do adaptador da janela, não uma propriedade do canvas persistido ou do domínio Tela; Ajustar continua sendo uma ação explícita de zoom.

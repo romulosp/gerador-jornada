@@ -42,7 +42,9 @@ func (e *Editor) showPreview(state *application.Preview, title, description stri
 	// redraw reconstrói apenas após uma navegação, não a cada tecla.
 	var redraw func()
 	redraw = func() {
-		window.SetContent(container.NewBorder(widget.NewLabel(description), nil, nil, nil, container.NewScroll(previewPage(state, redraw))))
+		// surface isola controles runtime do tema do editor, preservando o visual claro já utilizado na prévia.
+		surface := container.NewThemeOverride(previewPage(state, redraw), jornadaTheme{})
+		window.SetContent(container.NewBorder(widget.NewLabel(description), nil, nil, nil, container.NewScroll(surface)))
 		// page resolve a composição corrente sem confundir sua identidade com o nome exibido.
 		page := state.Document.Screen(state.ScreenID)
 		window.Resize(fyne.NewSize(float32(page.Size.Width+48), float32(page.Size.Height+96)))

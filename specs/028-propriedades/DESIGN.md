@@ -81,3 +81,8 @@ Os novos requisitos são normativos; verificar todos os estados afetados antes d
 ## ID do arquivo
 
 Adicionar ID logo após Tela/Nome, usando o mesmo campo de entrada dos dados comuns. Tela: dica `Pnl + nome, até 40 caracteres`, exemplo `PnlIdentificacao → PnlIdentificacao.java`. Componente: `até 40 letras/números, sem acentos; Pnl não obrigatório`. O ID técnico UUID não aparece como campo editável. Texto amigável continua podendo ter acentos. Limpeza de acentos/pontuação acontece na digitação; erro de tamanho/prefixo/colisão é explícito e não salva valor inválido. Nome e ID são independentes após a sugestão inicial.
+
+
+## Encerramento com rascunho
+
+O diálogo de saída protege também o formulário em edição. Tema não remonta o formulário nem aplica valores. Responder Não conserva os campos e o modo de janela; Sim encerra descartando valores ainda não aplicados. A confirmação pertence à integração desktop, não às propriedades persistidas dos componentes.

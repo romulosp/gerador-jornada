@@ -49,7 +49,7 @@ Cada ocorrência contém lista de etapas contíguas da mesma visita, mesmo quand
 
 ## Prévia e exportação
 
-A prévia usa relógio injetável para testes. O PPT compila os mesmos eventos em efeitos e tempos; não grava vídeo da prévia. Exportação pode selecionar exploração apenas, um roteiro ou todos; opção padrão é exploração mais todos os roteiros não vazios.
+A arquitetura alvo exige relógio injetável para testes. Na implementação atual, FrameAt é puro, mas o ticker/pausa/reinício ainda estão em desktop/player.go; a extração e os testes controlados permanecem em 001-gerador-jornada/T045 e 006-demonstracao/T004/T007. O PPT compila os mesmos eventos em efeitos e tempos; não grava vídeo da prévia. Exportação pode selecionar exploração apenas, um roteiro ou todos; opção padrão é exploração mais todos os roteiros não vazios.
 
 Se houver roteiro selecionado inválido, bloquear esse job e indicar como exportar apenas a exploração ou corrigir o roteiro. Não omitir silenciosamente um roteiro selecionado.
 
