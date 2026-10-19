@@ -190,3 +190,116 @@ Build desktop recompilado após a correção com `scripts/build.ps1`: [JornadaSt
 5. Revisar os contratos individuais no [inventário de specs e designs](research.md#inventário-de-componentes-e-designs-individuais), distinguindo o alvo visual de lacunas ainda documentadas.
 
 **Estado**: este incremento de editor/fundo está pronto_para_teste_manual. Feature completa permanece em_andamento; EFL real, demais diferenças do legado e aceite humano continuam pendentes. As 24 specs novas têm estrutura e links conferidos, sem representar aprovação funcional.
+
+### Revisão de edição, PPT e ícone — 2026-10-18
+
+**Build mais recente para revisão**: [JornadaStudio.exe](../../apps/gerador-jornada/dist/JornadaStudio.exe), SHA-256 `767F5716F4C6DCF1C53CEA68B38FD6DD9FEA79813921690CC878B5B2CD2E1E35`. Esta revisão substitui os hashes anteriores para novos testes. Compilada com `scripts/build.ps1`, incluindo o ícone fornecido pelo usuário na janela e nos recursos PE do EXE.
+
+**Verificações realizadas**: `go test ./... -count=1` e `go vet ./...` passaram após a incorporação do ícone. Regressões cobrem seleção/movimento coletivo, limites de grupo, duplicação com referências remapeadas, remoção e Undo, formulário com confirmação e descarte, alinhamento sem alteração de geometria, persistência e transições PPT. Inspeção estática do EXE confirmou um grupo de ícones com sete imagens; o PNG incorporado tem o mesmo SHA-256 do original.
+
+**Desempenho observado**: `BenchmarkSelect500`, dez iterações com 500 rótulos e driver de teste Fyne, Intel Core i5-13600KF, Go 1.27.2/windows/amd64: seleção passou de 14.251.660 ns/op, 1.776.739 B/op e 27.175 alocações/op para 704.540 ns/op, 483.956 B/op e 9.004 alocações/op. A medição compara o mesmo cenário; não comprova latência da janela nativa ou metas completas de desempenho.
+
+**Evidência anterior desta revisão de interface**: [revisao-edicao.png](../../apps/gerador-jornada/build/revisao-edicao.png) mostra o rodapé fixo e Java/EFL desabilitado, antes da inclusão do novo ícone. [jornada-fade-revisao-2026-10-18.pptx](../../apps/gerador-jornada/dist/jornada-fade-revisao-2026-10-18.pptx) foi gerado antes da troca do ícone e contém nove slides com fade e oito movimentos de cursor, conferidos no ZIP/XML. Não houve homologação visual no PowerPoint.
+
+**Limite de execução**: a revisão automática bloqueou a tentativa de executar o EXE para nova captura e regeneração da amostra, com a mensagem `blocked by policy`, sem detalhar a causa. Não foi tentado outro mecanismo de execução. O EXE final com o novo ícone foi compilado e inspecionado estaticamente; sua inicialização e aparência precisam do teste manual abaixo.
+
+**Roteiro manual desta revisão**:
+
+1. Abrir o EXE acima; conferir o ícone no Explorer, na janela e na barra de tarefas, também com DPI 150/200%. Copiar apenas o EXE para outra pasta e verificar o funcionamento offline.
+2. Selecionar componentes com Ctrl/Shift+clique, depois com caixa de seleção em área vazia. Arrastar o grupo, usar setas (1 unidade) e Shift+setas (10), Ctrl+A, Ctrl+D, Delete, Escape e desfazer/refazer; conferir limites e distâncias relativas. Com um campo de texto focado, as setas devem editar o texto.
+3. Conferir cursor de movimento sobre componentes e de redimensionamento na alça da seleção individual. Selecionar repetidamente e verificar resposta com muitos componentes.
+4. Alterar propriedades, conferir **Salvar alterações** e **Descartar** sempre acessíveis no rodapé; salvar deve renderizar o novo estado e permitir Undo. Descartar conserva o estado anterior.
+5. Inserir uma faixa de título e alterar **Alinhamento do texto** para esquerda/centro/direita; a posição do componente deve permanecer igual. Salvar/reabrir, prévia e PPT devem preservar a escolha.
+6. Conferir **Java / EFL** visível e desabilitado. A suspensão é temporária e não remove a implementação.
+7. Exportar PPT com Fade suave, Deslizar, Revelar e Sem transição; executar no PowerPoint desktop 2016/Microsoft 365, conferir efeitos e texto editável, links e roteiro com cursor/clique/digitação. Exploração deve manter navegação por ações, sem avanço automático. Registrar versão do Office e resultado.
+
+**Estado**: T080–T087 têm implementação/evidências automáticas registradas. Teste manual e aprovação humana permanecem pendentes, assim como integração EFL real e capacidades futuras das specs individuais.
+
+### Menu contextual e exclusão — 2026-10-18
+
+**Build atual**: [JornadaStudio.exe](../../apps/gerador-jornada/dist/JornadaStudio.exe), SHA-256 `FACB56BF41E62D5C62B22796B67F9EF5E4FEE0299AB6E4E5EA4DF29D11F24519`. Substitui a revisão anterior para teste. Mantém o ícone incorporado e as correções anteriores.
+
+**Evidências**: `go test ./... -count=1`, `go vet ./...` e `scripts/build.ps1` passaram. `component_menu_test.go` exercita menu real do widget, foco em propriedades, Delete com foco textual, confirmação/cancelamento por menu e botão, Delete no grupo, confirmação única, Undo, clique vazio e troca de tela. O teste usa o driver Fyne de testes; não é execução do EXE no Windows nativo.
+
+**Reteste manual**:
+
+1. Sem seleção, conferir **Excluir** desabilitado imediatamente à direita de **Ajustar**. Selecionar um componente habilita; clique vazio, Escape e troca de tela sem seleção desabilitam.
+2. Clicar com botão direito em um componente, inclusive com zoom diferente de 100%, e escolher **Alterar propriedades**. O painel direito deve mostrar somente o alvo e focar o formulário; salvar a alteração continua explícito.
+3. Selecionar o componente e apertar **Delete**. Conferir pergunta e respostas **Sim/Não**. Não conserva o elemento; Sim remove, limpa seleção e desabilita Excluir. Desfazer deve restaurá-lo.
+4. Repetir o cenário pelo botão **Excluir** e pelo item **Excluir elemento** do menu. Nenhuma entrada pode apagar sem confirmação.
+5. Selecionar dois componentes e clicar com botão direito num deles: o conjunto permanece selecionado e **Excluir seleção** confirma a quantidade antes de removê-los em uma única ação reversível.
+6. Com um campo de propriedades focado, usar Delete para editar texto; não deve aparecer exclusão de componente. Clicar com botão direito em área vazia não abre menu de elemento.
+
+**Limites**: o bloqueio anterior de execução automática do EXE (`blocked by policy`, sem causa detalhada) não foi contornado. Esta revisão foi compilada e testada no driver de testes; teste visual nativo e aprovação humana permanecem pendentes.
+
+### Versão 1.0.0.0 — 2026-10-18
+
+EXE atualizado: [JornadaStudio.exe](../../apps/gerador-jornada/dist/JornadaStudio.exe), SHA-256 `53BEA5BAE15D09E4BF2A6CDBB28D2C447C1E9BF5A4E750B7E100F7E322636447`. Fonte única em `internal/adapter/buildinfo/VERSION`; cabeçalho/título e recurso VERSIONINFO usam o mesmo valor. `go test ./... -count=1`, `go vet ./...` e build passaram. Leitura estática com `System.Diagnostics.FileVersionInfo` confirmou FileVersion e ProductVersion iguais a `1.0.0.0`.
+
+Teste manual: abrir Propriedades → Detalhes do EXE e conferir as duas versões; iniciar o aplicativo e conferir cabeçalho/título. Esta revisão não foi executada para inspeção visual; permanece o limite de execução automática já registrado, sem antecipar aprovação humana.
+
+### Prévia Tela Atual — 2026-10-18
+
+**EXE atualizado (versão 1.0.0.0)**: [JornadaStudio.exe](../../apps/gerador-jornada/dist/JornadaStudio.exe), SHA-256 `C7ACDAEB961611C72615A690DE0C85A5E99D10AC2BC2A5634C19660690990472`. Encerrar a janela antiga e abrir este EXE para carregar os novos botões.
+
+**Verificações**: `go test ./... -count=1`, `go vet ./...` e `scripts/build.ps1` passaram. `internal/application/screen_preview_test.go` comprova escopo de uma tela diferente da inicial, bloqueio da navegação entre telas, isolamento do documento/valores, validação da tela local e independência de outras telas/jornada incompletas. `internal/adapter/desktop/screen_preview_test.go` aciona o botão real no driver de testes, verifica o título da janela, preservação da prévia completa e desabilitação sem tela atual. São evidências automatizadas, sem homologação visual do EXE.
+
+**Roteiro manual**:
+
+1. Selecionar uma tela diferente da inicial e clicar **Prévia Tela Atual**, ao lado de **Prévia**. Conferir nome da tela no título, fundo, componentes e dimensões.
+2. Operar campos, escolhas e teclado; clicar em um botão de navegação e conferir que continua na mesma tela.
+3. Fechar a janela e confirmar que a tela inicial, seleção, valores salvos e histórico não foram modificados. Reabrir a prévia deve usar os valores confirmados no modelo.
+4. Abrir **Prévia** e confirmar que o projeto completo continua começando na tela inicial e navegando normalmente.
+5. Conferir o cabeçalho na resolução/DPI usados, incluindo as duas opções de prévia. Para ver alterações ainda em rascunho no painel, primeiro clicar **Salvar alterações**.
+
+**Estado**: implementação de T092 concluída; teste visual nativo e aprovação do usuário continuam pendentes. A restrição anterior de execução automática permanece registrada; não foi utilizado outro mecanismo para contorná-la.
+
+### ID de arquivo nas telas e componentes — 2026-10-18
+
+**EXE atual (1.0.0.0)**: [JornadaStudio.exe](../../apps/gerador-jornada/dist/JornadaStudio.exe), SHA-256 `7778A00CDC21078CEBF3DBB8FF0F61514355B49684E030343E82F196188827F2`. Fechar a janela antiga antes de abrir esta revisão.
+
+**Implementado**: campo ID comum em todas as famílias e nas telas. Tela `01 · Identificação` sugere `PnlIdentificacao`; componente aceita, por exemplo, `BtnContinuar`, sem Pnl obrigatório. Limite de 40 inclui prefixo e exclui extensão; não permite acentos, espaços, símbolos, começo numérico ou dispositivos Windows. Limpeza de acentos/símbolos é imediata; tamanho/prefixo/colisão inválidos impedem salvar sem truncar explicitamente o valor digitado. Renomear Nome não altera ID já confirmado, e alterar ID nunca muda UUIDs ou vínculos. Duplicação e migração sugerem sufixos livres dentro do limite.
+
+**Persistência**: novos salvamentos gravam schemaVersion 2, com fileId separado de id UUID. Projetos v1 abrem por migração determinística e conservam referências; nenhum arquivo original é regravado durante a leitura. V2 incompleta/duplicada/inválida e versões desconhecidas são recusadas. catalogVersion e versão do software permanecem 1 e 1.0.0.0.
+
+**Evidências**: `scripts/check.ps1 -Jdk17 'C:\Desenvolvimento\jdk-17.0.11'` e `scripts/build.ps1` passaram. Check inclui gofmt, go vet, testes Go, nove testes reais de ECJ/Animal Sniffer e compilação dos fontes estruturais do gerador para Java 1.6/classfile 50, com arquivos individuais nomeados por FileID. Novos testes cobrem o exemplo pedido, 40/41 caracteres, prefixo, nomes Windows, colisões de caixa, transação/Undo, duplicação no limite, migração v1, round-trip v2 e formulário. Gate real EFL preservado; botão continua visível e desabilitado.
+
+**Reteste manual**:
+
+1. Selecionar a tela Identificação sem componente selecionado e localizar ID nas propriedades. Conferir PnlIdentificacao e manter Nome com acentos.
+2. Editar para `PnlConfirmação Final!`: campo deve mostrar PnlConfirmacaoFinal. Salvar alterações, mudar de tela e voltar, salvar/reabrir o projeto e conferir preservação.
+3. Selecionar cada família, conferir ID comum e atribuir nome livre, por exemplo BtnContinuar. Confirmar que textos/legendas e a geometria não mudam e a navegação continua funcionando.
+4. Tentar ID de 41 caracteres, ID de tela sem Pnl, Pnl sozinho, CON e um ID já usado no mesmo contexto. Salvar deve informar o erro e conservar o último estado válido. ID válido de 40 deve ser aceito.
+5. Duplicar componente/tela com ID de 40 e conferir sugestão independente dentro do limite; desfazer deve restaurar o estado. Renomear um Nome amigável não renomeia automaticamente um ID confirmado.
+6. Abrir um `.jornada` anterior e conferir sugestões e vínculos; salvar/reabrir no editor atualizado. O manifesto resultante usa formato 2 e é incompatível com leitores antigos que só aceitam 1.
+
+**Estado**: T093–T096 implementadas e verificadas automaticamente. Interface nativa, teste manual e aprovação do usuário continuam pendentes, com o limite de execução automática anteriormente registrado. Integração EFL real continua independente e não homologada.
+
+### README e distribuições de 64 bits — 2026-10-18
+
+**Documentação**: [README completo da aplicação](../../apps/gerador-jornada/README.md) e [portal na raiz](../../README.md). Guia cobre propósito/público, sete famílias, cinco conjuntos, responsabilidades do editor, propriedades/IDs, atalhos, formatos/saídas, versões, arquitetura por domínio, requisitos de uso/build, comandos por plataforma, limitações e contribuição. Links locais conferidos.
+
+**Pacotes gerados**:
+
+| Alvo | Arquivo | SHA-256 do executável | Evidência |
+| --- | --- | --- | --- |
+| Windows amd64 | [ZIP](../../apps/gerador-jornada/dist/JornadaStudio-1.0.0.0-windows-amd64.zip), [EXE atual](../../apps/gerador-jornada/dist/windows-amd64/JornadaStudio.exe) | `051E243F55548E18C1A539D7307B197D233F22CA86049FF51D5536E22C07A88E` | Build nativo, checks Go/vet e PE x64 conferidos |
+| Linux amd64 | [TAR.GZ](../../apps/gerador-jornada/dist/JornadaStudio-1.0.0.0-linux-amd64.tar.gz) | `6785223DEF2419721890E2C09E0EB279E3E6EEDF0C67B5E1B3B935286B9EDB2B` | Go/vet e suite passaram no contêiner Debian 12, ELF64 x86-64 e dependências conferidos |
+| macOS amd64/arm64 | Workflow/bundle configurados; pacotes ainda não gerados | Não disponível | Sem Mac/SDK Apple disponível nesta estação; fixtures de cabeçalho não comprovam build Apple |
+
+Versão do software mantida em 1.0.0.0. Windows: Go 1.27.2, GCC/MinGW 16.2.0; Linux: Go 1.27.2, GCC 12.2.0, glibc 2.36. O usuário iniciou o Docker para o build Linux. O empacotamento não abriu a interface nem homologou os sistemas-alvo.
+
+**Comandos realizados**: `python scripts/build.py --target windows --arch amd64 --check` executou os checks e compilou; o caminho legado estava em uso. O empacotador foi ajustado para preservar o processo/arquivo antigo e entregar o pacote novo. Reexecução de `python scripts/build.py --target windows --arch amd64` gerou ZIP e inventário. `python scripts/build.py --target linux --arch amd64 --docker --check` executou vet/testes e gerou Linux; reempacotamento final incluiu dependências de runtime e README atualizado. Testes Python do reconhecimento PE/ELF/Mach-O passaram; hashes individuais e de ZIP/TAR, cabeçalhos reais e bit executável do TAR foram conferidos. Workflow YAML validado com quatro alvos, SHA de ações e gatilho manual.
+
+**Caminho correto desta revisão Windows**: usar `dist/windows-amd64/JornadaStudio.exe`. O `dist/JornadaStudio.exe` antigo estava aberto e foi conservado; não afirmar que sua revisão é igual à do pacote atual. Nenhum processo do usuário foi encerrado.
+
+**Recuperação**: adaptador usa caminho por usuário em Windows/Linux/macOS, preservando LOCALAPPDATA no Windows e evitando diretório relativo no Linux/macOS. O contêiner não substitui teste de uma sessão gráfica Linux.
+
+**Roteiro manual**:
+
+1. Extrair o pacote Windows, abrir o EXE do pacote, conferir versão/ícone, criar/editar/salvar/reabrir, prévias e exportação PPT. Conferir recuperação na pasta do usuário.
+2. Em desktop Linux x64 com bibliotecas compatíveis, extrair o TAR e abrir o executável, repetir o fluxo e registrar distro, sessão gráfica, driver e DPI. Consultar runtime-libraries.txt/build-info.json; não contar os testes headless como aprovação da janela.
+3. Em Mac/runner Intel e ARM64, executar os comandos do README ou o workflow manual, gerar e conferir os bundles, assinar/notarizar conforme a estratégia futura de distribuição e registrar evidências. Nenhuma release remota foi publicada nem workflow remoto executado nesta entrega.
+4. Registrar aceite humano e resultados por plataforma separadamente. EFL real e PowerPoint desktop continuam gates próprios.
+
+**Estado**: T097–T099 concluídas no escopo descrito. T100 permanece pendente para builds/homologação macOS e aprovação em máquinas limpas; disponibilizar configuração e compilar Windows/Linux não conclui essa validação.

@@ -12,6 +12,8 @@ try {
     if ($unformatted) { throw ('Arquivos sem gofmt: ' + ($unformatted -join ', ')) }
     go vet ./...
     if ($LASTEXITCODE -ne 0) { throw 'go vet reprovado.' }
+    python -X utf8 -m unittest discover -s scripts -p test_build.py -v
+    if ($LASTEXITCODE -ne 0) { throw 'Validação do empacotamento de 64 bits reprovada.' }
     if ($env:JORNADA_TEST_JDK) {
         python -X utf8 -m unittest discover -s scripts -p test_java6.py -v
         if ($LASTEXITCODE -ne 0) { throw 'Validação da toolchain Java 6 reprovada.' }

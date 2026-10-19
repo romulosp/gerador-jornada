@@ -89,3 +89,26 @@ Como autor, quero trocar de seleção ou modo e voltar ao painel sem perda ou al
 - O DESIGN.md é um contrato de personalização e revisão, não um arquivo de configuração lido automaticamente pelo executável.
 - A entrega desta especificação não significa implementação integral ou homologação. Lacunas devem ser tratadas no planejamento da feature coordenadora.
 - A saída Java continua condicionada ao perfil EFL real e ao ambiente Java 6; documentos e dublês não substituem a homologação. A interface do editor não é exportada como parte da tela da jornada.
+
+## Atualização solicitada em 2026-10-18 — Confirmação de alterações
+
+- **FR-008**: Manter botão Salvar alterações visível fora da rolagem do formulário, inclusive quando o último campo estiver fora da área visível.
+- **FR-009**: Aplicar o rascunho válido em uma ação reversível e atualizar a tela imediatamente após salvar; Descartá-lo pelo botão Descartar restaura os valores confirmados.
+- **FR-010**: Exibir Alinhamento do texto, com esquerda, centro e direita, em controles textuais. A alteração modifica texto dentro da caixa, sem mover o elemento.
+- **FR-011**: Com seleção múltipla, mostrar quantidade e comandos coletivos; não exibir formulário de um único componente como se editasse todos.
+
+### Aceitação da atualização
+
+1. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-008, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+2. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-009, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+3. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-010, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+4. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-011, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+
+### Cenário concreto do rodapé
+
+Selecionar um componente com formulário maior que o painel, rolar até o início e alterar o texto. Salvar alterações continua visível na base do painel; clicar nele publica uma revisão e atualiza o canvas. Alterar novamente e clicar Descartar restaura o último texto confirmado, sem nova revisão. Uma largura inválida não publica nenhum campo do rascunho.
+
+## Campo ID comum
+
+- **FR-012**: Exibir campo ID nas propriedades de tela e de todas as famílias, independente de Nome. Explicar nome-base sem extensão e limite de 40 caracteres; exemplificar PnlIdentificacao na tela. Remover acentos/espaços/símbolos imediatamente na edição; não truncar silenciosamente valor digitado acima do limite. Validar prefixo Pnl somente para telas, início em letra e nomes Windows reservados.
+- **FR-013**: Salvar alterações deve confirmar FileID, validar colisão em seu contexto e produzir uma ação reversível, sem mudar UUID ou texto exibido do componente. Se inválido, manter o último estado do projeto e informar o motivo; Descartar retorna ao ID confirmado.

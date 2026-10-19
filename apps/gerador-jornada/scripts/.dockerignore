@@ -1,0 +1,6 @@
+# O contexto do builder contém scripts, nunca caches ou configuração local.
+__pycache__/
+*.pyc
+*.log
+.env
+.env.*

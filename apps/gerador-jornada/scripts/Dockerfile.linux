@@ -1,0 +1,9 @@
+# Compilação Linux nativa em contêiner amd64; não executa a interface gráfica.
+FROM golang:1.27.2-bookworm@sha256:5cf287a799e6b94384bad13d16b14904c531f51ba65792237e122ce42b392f61
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc libgl1-mesa-dev xorg-dev libwayland-dev libxkbcommon-dev \
+    pkg-config python3 ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+ENV CGO_ENABLED=1
+WORKDIR /workspace
+ENTRYPOINT ["python3", "scripts/build.py", "--target", "linux", "--arch", "amd64"]

@@ -24,7 +24,7 @@ Valores abaixo são a referência desta feature; diferenças do código atual de
 | recurso | faixatituloprincipal.png | Style.BackgroundAssetID |
 | texto | #FFFFFF | Style.TextColor |
 | fonte | 18, destaque | Style.FontSize / família title |
-| alinhamento alvo | à direita | renderer; lacuna a verificar na implementação |
+| alinhamento alvo | à direita | Style.TextAlign; esquerda / centro / direita |
 
 Conteúdo e opções configuráveis: Texto do título, faixa de fundo, posição, dimensões, fonte e cor.
 
@@ -69,3 +69,14 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 - Conferir os estados descritos, casos inválidos e retorno ao estado anterior.
 - Registrar versão/hash do build, fixture, resolução, DPI, executor e resultado em [quickstart.md](../001-gerador-jornada/quickstart.md).
 - Homologação humana permanece pendente até o usuário testar a revisão entregue.
+
+## Revisão de interação — 2026-10-18
+
+- **FR-008**: Oferecer alinhamento horizontal do texto da faixa: esquerda, centro e direita; preservar X, Y, largura e altura da faixa ao mudar somente essa propriedade.
+- **FR-009**: Conservar alinhamento ao salvar/reabrir e reproduzi-lo no editor, prévia, demonstração e PPT, mantendo texto editável. A faixa pronta inicia com texto à direita.
+
+Os novos requisitos são normativos; verificar todos os estados afetados antes de considerar esta revisão homologada.
+
+## ID de arquivo compartilhado
+
+Aplicar o [design do campo ID](../028-propriedades/DESIGN.md#id-do-arquivo) na instância. O atributo não é texto desenhado no componente e não altera sua tipografia ou geometria. Todas as cores, textos e legendas continuam independentes do nome-base ASCII.

@@ -27,6 +27,7 @@ func (s *Session) AddComponent(pageID string, kind catalog.Kind, x, y int) (stri
 			return err
 		}
 		component.Name = UniqueName(*page, component.Name)
+		component.FileID = UniqueComponentFileID(*page, component.FileID)
 		component.Bounds = component.Bounds.Clamp(page.Size)
 		page.Components = append(page.Components, component)
 		created = component.ID
@@ -70,6 +71,7 @@ func (s *Session) DuplicateScreen(id string) (string, error) {
 		// duplicate recebe coleções mutáveis independentes.
 		duplicate := *original
 		duplicate.Name += " — cópia"
+		duplicate.FileID = UniqueScreenFileID(*document, original.FileID)
 		duplicate.ID = project.NewID()
 		duplicate.Components = append([]screen.Component{}, original.Components...)
 		// mapping remapeia referências da mesma tela e ações copiadas.

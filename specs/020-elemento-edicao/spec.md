@@ -89,3 +89,43 @@ Como autor, quero trocar de seleção ou modo e voltar ao painel sem perda ou al
 - O DESIGN.md é um contrato de personalização e revisão, não um arquivo de configuração lido automaticamente pelo executável.
 - A entrega desta especificação não significa implementação integral ou homologação. Lacunas devem ser tratadas no planejamento da feature coordenadora.
 - A saída Java continua condicionada ao perfil EFL real e ao ambiente Java 6; documentos e dublês não substituem a homologação. A interface do editor não é exportada como parte da tela da jornada.
+
+## Atualização solicitada em 2026-10-18 — Seleção e movimentação profissional
+
+- **FR-008**: Ctrl/Shift+clique alterna inclusão na seleção; clique simples em membro selecionado conserva o conjunto para arrastar; clique simples fora do conjunto troca a seleção.
+- **FR-009**: Arrastar área vazia desenha caixa de seleção; ao soltar, seleciona os componentes que intersectam a caixa. Ctrl+A seleciona todos; Escape cancela o arraste provisório ou limpa a seleção.
+- **FR-010**: Setas movem 1 unidade lógica e Shift+setas movem 10; nenhum atalho de desenho deve capturar digitação em campos com foco.
+- **FR-011**: Arraste e setas movimentam todo o conjunto preservando espaçamento; bordas limitam o grupo inteiro. Resize pela alça só é oferecido para seleção única.
+- **FR-012**: Exibir cursor de movimentação em cruz sobre componente selecionado e cursor diagonal na alça; não reconstruir todas as propriedades e imagens a cada clique ou movimento.
+
+### Aceitação da atualização
+
+1. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-008, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+2. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-009, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+3. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-010, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+4. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-011, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+5. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-012, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+
+- **FR-013**: Ctrl+D duplica a seleção inteira e remapeia vínculos internos; Delete oferece confirmação do conjunto e remove-o em uma ação reversível. Referências externas permanecem diagnosticáveis.
+
+### Cenários concretos de regressão
+
+1. Selecionar A, Ctrl+clicar B e arrastar 20 × 10: os dois mudam pelo mesmo deslocamento, preservam distâncias e um Undo restaura ambos.
+2. Arrastar caixa vazia em qualquer direção seleciona A e B que a intersectam; Ctrl+A seleciona todos os componentes da tela, sem editar o documento.
+3. Setas movem 1 unidade; Shift+setas, 10. Com campo textual focado, esses atalhos não movem controles.
+4. Ctrl+D em campo e teclado cria novos IDs e vincula o teclado copiado ao campo copiado. Delete do conjunto e um Undo removem/restauram todos.
+5. Na alça de uma seleção única aparece cursor diagonal; no corpo selecionado, cruz de movimentação. A seleção múltipla não oferece resize coletivo implícito.
+
+## Menu contextual e exclusão — 2026-10-18
+
+- **FR-014**: Botão direito sobre o componente superior no ponto clicado abre Alterar propriedades e Excluir elemento. Converter coordenadas pelo zoom/margem e respeitar camadas. Selecionar o alvo se estiver fora da seleção; manter o conjunto se o alvo já for membro. Em área vazia, não abrir menu de componente.
+- **FR-015**: Alterar propriedades deve selecionar somente o componente clicado e direcionar o foco ao formulário do painel direito. A abertura do menu/formulário não modifica dados nem histórico.
+- **FR-016**: Delete fora de campos de entrada e Excluir elemento/seleção devem solicitar confirmação explícita Sim/Não antes de chamar a remoção transacional. Não ou fechamento conservam documento, revisão e seleção; Sim remove os alvos apresentados, permite Undo e limpa a seleção. Uma confirmação aberta impede outra para a mesma operação.
+
+### Acceptance Scenarios
+
+1. **Given** um componente sem seleção, **When** clicar com botão direito, **Then** o componente fica selecionado e as duas ações são exibidas; dados permanecem iguais.
+2. **Given** o menu do componente, **When** escolher Alterar propriedades, **Then** seu formulário recebe foco; Delete dentro do campo edita texto sem abrir confirmação de exclusão.
+3. **Given** um componente selecionado, **When** pressionar Delete e escolher Não, **Then** componente, revisão e histórico permanecem iguais; escolhendo Sim, o componente é excluído e restaurável por Undo.
+4. **Given** dois controles selecionados, **When** abrir o menu num membro e confirmar Excluir seleção, **Then** ambos são removidos em uma única transação.
+5. **Given** área vazia ou nenhuma seleção, **When** clicar com botão direito ou pressionar Delete, respectivamente, **Then** não há menu/diálogo indevido nem alteração de dados.

@@ -77,3 +77,32 @@ O detalhamento abaixo mantém este domínio como responsável pelo modelo e pela
 - [Elemento editável — PageElement](../020-elemento-edicao/spec.md) — [DESIGN.md](../020-elemento-edicao/DESIGN.md).
 - [Lista de telas — PageTab](../022-lista-telas/spec.md) — [DESIGN.md](../022-lista-telas/DESIGN.md).
 - [Estrutura — StructureTab](../024-arvore-estrutura/spec.md) — [DESIGN.md](../024-arvore-estrutura/DESIGN.md).
+
+## Atualização solicitada em 2026-10-18 — Seleção e composição de texto
+
+- **FR-006**: Selecionar múltiplos componentes por Ctrl/Shift+clique, caixa de seleção e Ctrl+A; seleção é estado de interface e não deve ser persistida.
+- **FR-007**: Mover uma seleção inteira preservando distâncias relativas e limitando o deslocamento pelo conjunto; desfazer o movimento inteiro em uma ação.
+- **FR-008**: Persistir alinhamento horizontal do texto como esquerda, centro ou direita, independente do alinhamento geométrico do elemento; projetos anteriores sem a propriedade usam esquerda.
+
+### Aceitação da atualização
+
+1. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-006, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+2. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-007, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+3. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-008, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+
+## Exclusão confirmada — 2026-10-18
+
+- **FR-009**: Remover o conjunto confirmado em uma única transação reversível, preservando identidades/ordem dos demais componentes e referências externas diagnosticáveis. Seleção, menu contextual, disponibilidade do botão e confirmação Sim/Não pertencem ao adaptador; não inserir widgets ou estado de confirmação no modelo de domínio.
+
+**Aceitação**: dado um conjunto de dois componentes selecionados, confirmar sua exclusão remove ambos em um comando e desfazer restaura ambos; cancelar a confirmação não gera revisão ou histórico de domínio.
+
+## Visualização individual — 2026-10-18
+
+- **FR-010**: A composição de uma tela deve poder ser visualizada isoladamente, preservando seus componentes, dimensões, recursos e conteúdo confirmado. O escopo de visualização e os valores temporários são responsabilidade da aplicação/adaptador; a tela de domínio não recebe estado de janela ou navegação de prévia.
+
+## Identidade de arquivo — 2026-10-18
+
+- **FR-011**: Screen e Component têm FileID editável, independente de ID UUID e Name. Exigir nome-base ASCII alfanumérico de até 40 caracteres, início em letra e sem nomes reservados Windows; Screen exige Pnl seguido de nome. Component não exige Pnl. Nome amigável e textos continuam Unicode. Alterar FileID não troca identidades, navegação, teclado ou referências de roteiro.
+- **FR-012**: Garantir FileID de telas único no projeto e de componentes único na tela, sem diferenciar caixa. Duplicação/criação pode sugerir nome livre com sufixo dentro de 40 caracteres; edição explícita inválida deve ser rejeitada atomicamente. Troca de Name não altera FileID já confirmado.
+
+**Aceitação**: Identificação sugere PnlIdentificacao; campos de 40 caracteres são válidos e de 41 são recusados; Pnl sozinho não é tela válida. Copiar controle/tela no limite não cria colisão nem ultrapassa 40. Editar somente FileID preserva UUID e vínculos; Undo restaura o ID anterior.

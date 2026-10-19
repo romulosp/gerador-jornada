@@ -26,3 +26,7 @@ Testes obrigatórios: IDs duplicados, nome vazio, revisão negativa, recurso com
 ## Rastreabilidade
 
 Requisitos FR deste domínio cobrem FR-001, FR-009, FR-010; NFR-004, NFR-005 da feature coordenadora. [Backlog local](tasks.md) detalha os arquivos e testes. Nenhuma persistência ou integração foi executada nesta entrega.
+
+## Versão de arquivo e identidade de saída
+
+O manifesto atual tem schemaVersion 2; o leitor migra v1 por regra explícita no adaptador/aplicação. FileID pertence a Screen/Component do domínio Tela, não ao UUID de Project. Não elevar catalogVersion nem versão do software por causa dessa mudança. Preservar referências UUID e recursos durante a migração, sem sobrescrever o original na leitura.

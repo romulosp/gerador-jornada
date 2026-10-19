@@ -68,3 +68,19 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 - Conferir os estados descritos, casos inválidos e retorno ao estado anterior.
 - Registrar versão/hash do build, fixture, resolução, DPI, executor e resultado em [quickstart.md](../001-gerador-jornada/quickstart.md).
 - Homologação humana permanece pendente até o usuário testar a revisão entregue.
+
+## Revisão de interação — 2026-10-18
+
+- **FR-008**: Ctrl/Shift+clique alterna inclusão na seleção; clique simples em membro selecionado conserva o conjunto para arrastar; clique simples fora do conjunto troca a seleção.
+- **FR-009**: Arrastar área vazia desenha caixa de seleção; ao soltar, seleciona os componentes que intersectam a caixa. Ctrl+A seleciona todos; Escape cancela o arraste provisório ou limpa a seleção.
+- **FR-010**: Setas movem 1 unidade lógica e Shift+setas movem 10; nenhum atalho de desenho deve capturar digitação em campos com foco.
+- **FR-011**: Arraste e setas movimentam todo o conjunto preservando espaçamento; bordas limitam o grupo inteiro. Resize pela alça só é oferecido para seleção única.
+- **FR-012**: Exibir cursor de movimentação em cruz sobre componente selecionado e cursor diagonal na alça; não reconstruir todas as propriedades e imagens a cada clique ou movimento.
+
+Os novos requisitos são normativos; verificar todos os estados afetados antes de considerar esta revisão homologada.
+
+## Menu de componente e confirmação
+
+O clique secundário usa o componente superior no ponto do ponteiro; não inicia movimento. O menu mostra Alterar propriedades e Excluir elemento, ou Excluir seleção quando houver grupo. Abrir propriedades direciona o foco ao primeiro campo do formulário individual. Clique fora fecha o menu; clique direito em área vazia não cria ações de elemento.
+
+A exclusão abre alerta com a quantidade de componentes, aviso de referências e possibilidade de desfazer, com respostas Sim e Não. Nenhuma remoção acontece antes de Sim. Cancelar ou fechar conserva o conteúdo. Seleção e menu são estado efêmero do desktop, conforme 004-tela/FR-009.

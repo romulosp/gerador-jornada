@@ -120,6 +120,9 @@ func (d Document) Validate() []Diagnostic {
 	add := func(code, message, page, component string) {
 		problems = append(problems, Diagnostic{Code: code, Severity: "error", Message: message, ScreenID: page, ComponentID: component})
 	}
+	if err := d.ValidateFileIDs(); err != nil {
+		add("FILE_ID_INVALID", err.Error(), "", "")
+	}
 	// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
 	if err := d.Project.Validate(); err != nil {
 		add("PROJECT_SCHEMA_INVALID", err.Error(), "", "")

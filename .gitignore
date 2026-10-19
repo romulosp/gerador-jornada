@@ -2,7 +2,7 @@
 /apps/gerador-jornada/.tools/
 
 # Executáveis, pacotes de distribuição e evidências temporárias de build.
-/apps/gerador-jornada/dist/
+#/apps/gerador-jornada/dist/
 /apps/gerador-jornada/build/
 
 # Binários e arquivos intermediários Go/C/Java.
@@ -14,6 +14,7 @@
 *.obj
 *.a
 *.class
+/apps/gerador-jornada/cmd/gerador-jornada/icon_windows_amd64.syso
 
 # Relatórios locais de testes, cobertura e profiling da aplicação.
 /apps/gerador-jornada/coverage/

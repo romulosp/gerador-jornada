@@ -53,6 +53,14 @@ A duração de cada ocorrência é soma de suas etapas. Para uma última ocorrê
 
 Não remover animação para contornar problema de compatibilidade sem emitir erro. Uma saída estática não atende a US4.
 
+## Transições visuais — atualização de 2026-10-18
+
+O diálogo de exportação permite `fade`, `push` (deslizar), `wipe` (revelar) e `none`. O padrão é fade com duração 300 ms; a escolha pertence à operação de exportação, não ao modelo de navegação. As transições são nativas, sem Morph, e não substituem o timing de cursor/clique/digitação.
+
+Exploração, menu e encerramento não recebem `advTm`, nem avançam por clique no fundo. Links continuam sendo o mecanismo de navegação exploratória. Nas ocorrências demonstrativas, preservar `advTm` calculado pelo roteiro. Conferir a percepção e duração da entrada no PowerPoint separadamente do tempo das etapas; a conformidade estrutural não equivale a homologação visual.
+
+Usar `p:fade`, `p:push` ou `p:wipe` no `p:transition`, com duração `p14:dur` e declaração de compatibilidade do namespace. [Referência Microsoft](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.presentation.transition?view=openxml-3.0.1).
+
 ## Diagnósticos
 
 Além dos erros gerais: `PPT_TARGET_INVALID`, `PPT_RELATIONSHIP_INVALID`, `PPT_ANIMATION_UNSUPPORTED`, `PPT_TEXT_OVERFLOW` (warning) e `PPT_FONT_SUBSTITUTED` (warning de homologação). Apontar ocorrência/etapa quando houver falha temporal.

@@ -89,3 +89,21 @@ Como autor, quero salvar, reabrir e exportar a composição sem perda ou altera�
 - O DESIGN.md é um contrato de personalização e revisão, não um arquivo de configuração lido automaticamente pelo executável.
 - A entrega desta especificação não significa implementação integral ou homologação. Lacunas devem ser tratadas no planejamento da feature coordenadora.
 - A saída Java continua condicionada ao perfil EFL real e ao ambiente Java 6; documentos e dublês não substituem a homologação. A interface do editor não é exportada como parte da tela da jornada.
+
+## Atualização solicitada em 2026-10-18 — Alinhamento do texto da faixa
+
+- **FR-008**: Oferecer alinhamento horizontal do texto da faixa: esquerda, centro e direita; preservar X, Y, largura e altura da faixa ao mudar somente essa propriedade.
+- **FR-009**: Conservar alinhamento ao salvar/reabrir e reproduzi-lo no editor, prévia, demonstração e PPT, mantendo texto editável. A faixa pronta inicia com texto à direita.
+
+### Aceitação da atualização
+
+1. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-008, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+2. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-009, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+
+### Cenário concreto do texto
+
+Dada uma faixa em X=0, Y=100, largura=800 e altura=28, escolher Centro no campo Alinhamento do texto e Salvar alterações. O texto aparece centralizado e os quatro valores geométricos não mudam. Repetir para Esquerda/Direita, salvar/reabrir e conferir o mesmo alinhamento no PPT. Undo restaura o alinhamento anterior.
+
+## ID das instâncias
+
+Toda instância visual desta responsabilidade possui ID de arquivo conforme [Tela](../004-tela/spec.md#identidade-de-arquivo--2026-10-18) e [Catálogo](../003-catalogo/spec.md#atributo-compartilhado-das-instâncias). Campo comum no [painel de propriedades](../028-propriedades/spec.md#campo-id-comum), sem prefixo Pnl obrigatório para componentes e sem substituir UUIDs ou conteúdo visual. Em conjuntos prontos, a regra vale para cada controle efetivamente criado.

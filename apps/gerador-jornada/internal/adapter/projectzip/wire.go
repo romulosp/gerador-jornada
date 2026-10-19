@@ -64,9 +64,12 @@ func wire(value reflect.Value) any {
 
 // EncodeManifest serializa os campos explícitos da raiz e as propriedades planas dos componentes.
 func EncodeManifest(document application.Document) ([]byte, error) {
+	if err := document.ValidateFileIDs(); err != nil {
+		return nil, fmt.Errorf("PROJECT_SCHEMA_INVALID: %w", err)
+	}
 	// root reúne os metadados e coleções independentes somente na fronteira JSON.
 	root := wire(reflect.ValueOf(document.Project)).(map[string]any)
-	root["schemaVersion"] = 1
+	root["schemaVersion"] = 2
 	root["screens"] = wire(reflect.ValueOf(document.Screens))
 	root["journey"] = wire(reflect.ValueOf(document.Journey))
 	root["scenarios"] = wire(reflect.ValueOf(document.Scenarios))
@@ -82,7 +85,7 @@ func DecodeManifest(data []byte) (application.Document, error) {
 	if err := json.Unmarshal(data, &root); err != nil {
 		return application.Document{}, fmt.Errorf("PROJECT_CORRUPT: %w", err)
 	}
-	if string(root["schemaVersion"]) != "1" || string(root["catalogVersion"]) != "1" {
+	if (string(root["schemaVersion"]) != "1" && string(root["schemaVersion"]) != "2") || string(root["catalogVersion"]) != "1" {
 		return application.Document{}, fmt.Errorf("PROJECT_VERSION_UNSUPPORTED")
 	}
 	// metadata contém os campos pertencentes ao domínio Projeto.
@@ -141,6 +144,12 @@ func DecodeManifest(data []byte) (application.Document, error) {
 	document.Resources = map[string][]byte{}
 	if err = document.Project.Validate(); err != nil {
 		return document, err
+	}
+	if string(root["schemaVersion"]) == "1" {
+		application.EnsureFileIDs(&document)
+	}
+	if err = document.ValidateFileIDs(); err != nil {
+		return document, fmt.Errorf("PROJECT_SCHEMA_INVALID: %w", err)
 	}
 	return document, nil
 }

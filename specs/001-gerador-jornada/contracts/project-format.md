@@ -1,6 +1,6 @@
 # Contract: formato de projeto .jornada
 
-**Version**: 1 | **Consumers**: editor e adaptador projectzip | **Requirements**: FR-001, FR-009, FR-010, NFR-005.
+**Version**: 2 | **Consumers**: editor e adaptador projectzip | **Requirements**: FR-001, FR-009, FR-010, NFR-005.
 
 ## Pacote e wire format
 
@@ -10,7 +10,7 @@ Manifesto usa camelCase, sem funções. Os campos de raiz são:
 
 | Campo | Tipo | Regra |
 | --- | --- | --- |
-| schemaVersion | integer | Exatamente 1. |
+| schemaVersion | integer | Writer: 2. Reader: 1 com migração, ou 2 com validação de fileId. |
 | catalogVersion | integer | Exatamente 1. |
 | id, name | string | UUID e nome não vazio. |
 | revision | integer | Inteiro não negativo; identifica a revisão salva. |
@@ -20,15 +20,15 @@ Manifesto usa camelCase, sem funções. Os campos de raiz são:
 | assets | array | Asset; vazio quando não há imagens. |
 | javaOptions | object | packageName e profileId, strings; podem estar vazios no rascunho. |
 
-Screen contém `id`, `name`, `size:{width,height}`, `background:{color,assetId}` e `components`. Component contém `id`, `name`, `kind`, `bounds:{x,y,width,height}`, `style` e `properties`. assetId nulo significa sem imagem. Style permite os campos descritos no modelo, omitindo os não personalizados.
+Screen contém `id`, `name`, `fileId`, `size:{width,height}`, `background:{color,assetId}` e `components`. Component contém `id`, `name`, `fileId`, `kind`, `bounds:{x,y,width,height}`, `style` e `properties`. assetId nulo significa sem imagem. Style permite os campos descritos no modelo, omitindo os não personalizados.
 
-Todos os arrays são obrigatórios, inclusive vazios. Propriedades e campos de outras entidades seguem [catálogo](component-catalog.md) e [jornada/roteiro](navigation-scenario.md). Campos desconhecidos são recusados no leitor v1, com localização; não são ignorados silenciosamente.
+Todos os arrays são obrigatórios, inclusive vazios. Propriedades e campos de outras entidades seguem [catálogo](component-catalog.md) e [jornada/roteiro](navigation-scenario.md). Campos desconhecidos são recusados pelo leitor, com localização; não são ignorados silenciosamente.
 
 ### Exemplo mínimo válido como rascunho
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "catalogVersion": 1,
   "id": "8be7fa20-bf51-4d26-9bc9-cae9fd075d01",
   "name": "Atendimento",
@@ -45,7 +45,7 @@ Esse arquivo pode ser salvo/reaberto; exportação retorna `JOURNEY_START_MISSIN
 
 ## Recursos e limites de leitura
 
-Asset contém `id`, `path`, `mediaType`, `sha256` hexadecimal minúsculo e `sizeBytes`. Aceitar somente PNG/JPEG decodificáveis e dimensões até 8192 × 8192. Sem SVG executável ou URLs remotas na v1.
+Asset contém `id`, `path`, `mediaType`, `sha256` hexadecimal minúsculo e `sizeBytes`. Aceitar somente PNG/JPEG decodificáveis e dimensões até 8192 × 8192. Sem SVG executável ou URLs remotas nas versões 1 e 2.
 
 Limites iniciais para leitura: manifesto descomprimido até 10 MiB, recurso até 25 MiB, pacote até 250 MiB descomprimidos no total e até 1000 entradas. Verificar os bytes efetivamente lidos, não apenas o tamanho informado no cabeçalho. Mensagem deve indicar o limite excedido.
 
@@ -66,7 +66,7 @@ Ordenar entradas e manter metadados ZIP normalizados para comparação determin�
 
 ## Autosave e recuperação
 
-Após comando confirmado, debounce de 2 s grava cópia em `%LOCALAPPDATA%/GeradorJornada/recovery/<projectId>.jornada`. Máximo uma cópia válida por projeto, substituída com o mesmo procedimento seguro.
+Após comando confirmado, debounce de 2 s grava cópia no diretório de recuperação do usuário: Windows `%LOCALAPPDATA%/GeradorJornada/recovery/<projectId>.jornada`; Linux `$XDG_CONFIG_HOME/GeradorJornada/recovery` (ou `~/.config`); macOS `~/Library/Application Support/GeradorJornada/recovery`. A resolução pertence ao adaptador; erro não deve cair em diretório relativo. Máximo uma cópia válida por projeto, substituída com o mesmo procedimento seguro.
 
 Autosave não sobrescreve arquivo explícito nem marca sessão limpa. Em interrupção, oferecer recuperar a revisão mais recente válida; recuperação abre como alterado e exige salvar explicitamente. Descartar recuperação requer ação do usuário. Autosave falho é indicado sem interromper edição.
 
@@ -75,3 +75,13 @@ Salvar/fechar com sucesso pode remover a recuperação apenas quando ela não co
 ## Testes de contrato
 
 Round-trip de todas as famílias; preservação de IDs/ordem; campos desconhecidos; versão futura; JSON truncado; UUID repetido; path traversal; recurso alterado; limites ZIP; falha antes da substituição; arquivo bloqueado; recuperação e edição concorrente ao salvamento.
+
+## Nome-base de arquivos e migração v1 → v2
+
+Screen.fileId e Component.fileId são obrigatórios na versão 2. O campo `id` continua sendo UUID interno, e `name` continua sendo nome amigável Unicode. FileID não substitui UUID em ações, roteiros, recursos ou vínculos de teclado.
+
+Regra comum: `^[A-Za-z][A-Za-z0-9]{0,39}$`, sem extensão. Telas exigem adicionalmente prefixo exato Pnl e ao menos um caractere após ele; prefixo conta no limite de 40. Componentes não exigem Pnl. Recusar dispositivos Windows CON, PRN, AUX, NUL, COM1–COM9 e LPT1–LPT9 sem distinguir caixa. Unicidade: telas por projeto e componentes por tela, sem distinguir caixa.
+
+O leitor aceita v1 e preenche somente fileIds ausentes, sem alterar UUIDs ou conteúdo. Sugestão de tela remove a ordenação numérica inicial e acentos: `01 · Identificação` → `PnlIdentificacao`. Sugestões vazias usam PnlTela/Componente; colisões de sugestões recebem sufixos 2, 3, … com espaço reservado dentro de 40 caracteres. Valores explícitos não são renomeados. O próximo salvamento grava v2; o arquivo original não é escrito durante a leitura. V2 com valor ausente, inválido ou duplicado gera PROJECT_SCHEMA_INVALID; versões fora de 1/2 geram PROJECT_VERSION_UNSUPPORTED. Software 1.0.0.0 e catalogVersion 1 permanecem independentes da versão do manifesto.
+
+Exercitar migração, estabilidade das sugestões, UUID/navegação preservados, round-trip v2, colisões de caixa, 40/41 caracteres, acentos, caminhos e nomes Windows reservados.

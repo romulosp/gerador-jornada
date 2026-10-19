@@ -89,3 +89,15 @@ Como autor, quero salvar, reabrir e exportar a composição sem perda ou altera�
 - O DESIGN.md é um contrato de personalização e revisão, não um arquivo de configuração lido automaticamente pelo executável.
 - A entrega desta especificação não significa implementação integral ou homologação. Lacunas devem ser tratadas no planejamento da feature coordenadora.
 - A saída Java continua condicionada ao perfil EFL real e ao ambiente Java 6; documentos e dublês não substituem a homologação. A interface do editor não é exportada como parte da tela da jornada.
+
+## Atualização solicitada em 2026-10-18 — Interação e custo de renderização
+
+- **FR-008**: Compartilhar as regras de seleção com Elemento editável; manter seleção múltipla e caixa de seleção fora do documento persistido.
+- **FR-009**: Reutilizar primitivas e recursos da mesma revisão e escala; selecionar não deve reconstruir as formas de todos os componentes. Registrar benchmark comparável de seleção com 500 controles.
+- **FR-010**: Atualizar o painel de propriedades apenas quando a seleção efetivamente mudar; arraste usa estado provisório e só publica histórico no fim.
+
+### Aceitação da atualização
+
+1. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-008, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+2. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-009, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+3. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-010, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.

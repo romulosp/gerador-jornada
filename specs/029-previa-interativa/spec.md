@@ -89,3 +89,16 @@ Como autor, quero trocar de seleção ou modo e voltar ao painel sem perda ou al
 - O DESIGN.md é um contrato de personalização e revisão, não um arquivo de configuração lido automaticamente pelo executável.
 - A entrega desta especificação não significa implementação integral ou homologação. Lacunas devem ser tratadas no planejamento da feature coordenadora.
 - A saída Java continua condicionada ao perfil EFL real e ao ambiente Java 6; documentos e dublês não substituem a homologação. A interface do editor não é exportada como parte da tela da jornada.
+
+## Prévia Tela Atual — 2026-10-18
+
+- **FR-008**: Disponibilizar sessão exclusiva da tela selecionada pelo autor, mesmo que ela não seja a tela inicial. O snapshot inclui somente essa tela e seus recursos disponíveis; não inclui ações de navegação ou roteiro. Botões não saem da tela; campos, escolhas e teclado permanecem interativos.
+- **FR-009**: Validar os dados da tela selecionada e referências locais necessárias, sem bloquear por geometria ou navegação incompletas de outras telas. Tela inexistente ou composição local inválida produz erro em português. Não modificar o projeto, sua tela inicial, seleção do editor, revisão ou histórico; alterações de valores existem somente durante a sessão.
+- **FR-010**: Manter a prévia de projeto completo iniciada na tela inicial e com navegação; a prévia individual tem título Prévia Tela Atual seguido do nome da tela e informa que a navegação entre telas está desativada. Exibir o conteúdo confirmado do modelo; alterações no formulário ainda não salvas não entram no snapshot.
+
+### Acceptance Scenarios
+
+1. **Given** três telas com a primeira como inicial e a segunda ativa no editor, **When** escolher Prévia Tela Atual, **Then** somente a segunda abre; clicar em botão de navegação não troca de tela.
+2. **Given** uma tela atual válida e outra com dimensões inválidas ou destino inexistente na jornada, **When** abrir a prévia individual, **Then** a tela atual é apresentada; a prévia do projeto mantém sua validação completa.
+3. **Given** a prévia individual aberta, **When** editar um campo e fechar, **Then** documento, tela inicial, seleção e histórico do editor permanecem iguais.
+4. **Given** nenhuma tela existente ativa, **When** consultar o cabeçalho, **Then** Prévia Tela Atual fica desabilitado.

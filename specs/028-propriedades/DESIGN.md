@@ -68,3 +68,16 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 - Conferir os estados descritos, casos inválidos e retorno ao estado anterior.
 - Registrar versão/hash do build, fixture, resolução, DPI, executor e resultado em [quickstart.md](../001-gerador-jornada/quickstart.md).
 - Homologação humana permanece pendente até o usuário testar a revisão entregue.
+
+## Revisão de interação — 2026-10-18
+
+- **FR-008**: Manter botão Salvar alterações visível fora da rolagem do formulário, inclusive quando o último campo estiver fora da área visível.
+- **FR-009**: Aplicar o rascunho válido em uma ação reversível e atualizar a tela imediatamente após salvar; Descártá-lo pelo botão Descartar restaura os valores confirmados.
+- **FR-010**: Exibir Alinhamento do texto, com esquerda, centro e direita, em controles textuais. A alteração modifica texto dentro da caixa, sem mover o elemento.
+- **FR-011**: Com seleção múltipla, mostrar quantidade e comandos coletivos; não exibir formulário de um único componente como se editasse todos.
+
+Os novos requisitos são normativos; verificar todos os estados afetados antes de considerar esta revisão homologada.
+
+## ID do arquivo
+
+Adicionar ID logo após Tela/Nome, usando o mesmo campo de entrada dos dados comuns. Tela: dica `Pnl + nome, até 40 caracteres`, exemplo `PnlIdentificacao → PnlIdentificacao.java`. Componente: `até 40 letras/números, sem acentos; Pnl não obrigatório`. O ID técnico UUID não aparece como campo editável. Texto amigável continua podendo ter acentos. Limpeza de acentos/pontuação acontece na digitação; erro de tamanho/prefixo/colisão é explícito e não salva valor inválido. Nome e ID são independentes após a sugestão inicial.

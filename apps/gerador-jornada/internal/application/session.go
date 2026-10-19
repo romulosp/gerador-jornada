@@ -18,7 +18,9 @@ type Session struct {
 
 // NewSession cria uma sessão de edição com dados independentes do documento recebido.
 func NewSession(document Document) *Session {
-	return &Session{Document: document.Copy(), Sequence: document.Project.Revision, SavedRevision: document.Project.Revision}
+	document = document.Copy()
+	EnsureFileIDs(&document)
+	return &Session{Document: document, Sequence: document.Project.Revision, SavedRevision: document.Project.Revision}
 }
 
 // Change aplica uma operação atômica; erros preservam o documento e o histórico.
@@ -27,6 +29,9 @@ func (s *Session) Change(operation func(*Document) error) error {
 	next := s.Document.Copy()
 	// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
 	if err := operation(&next); err != nil {
+		return err
+	}
+	if err := next.ValidateFileIDs(); err != nil {
 		return err
 	}
 	s.UndoStack = append(s.UndoStack, s.Document.Copy())

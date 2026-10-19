@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0.0",
+  "os": "windows",
+  "arch": "amd64",
+  "cgo": true,
+  "go": "go version go1.27.2 windows/amd64",
+  "buildHost": "Windows-10-10.0.19045-SP0",
+  "libc": [
+    "",
+    ""
+  ],
+  "signing": "unsigned",
+  "manualApproval": "pending",
+  "binary": "JornadaStudio.exe",
+  "compiler": "gcc.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r2) 16.2.0"
+}

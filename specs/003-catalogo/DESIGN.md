@@ -34,3 +34,7 @@ A aba Paleta (componentes) deve listar todas as famílias com nomes em portuguê
 Conjuntos prontos expandem-se em componentes das famílias existentes; não introduzem novos discriminadores no arquivo .jornada. A definição de uma família não contém widgets nem comandos de exportação. Alterar tokens aqui não modifica automaticamente o EXE: implementar os adaptadores responsáveis e revisar o DESIGN da família afetada.
 
 O catálogo representa intenção funcional, enquanto as imagens originais dão referência visual. Templates Java antigos e suas assinaturas não comprovam compatibilidade EFL.
+
+## Identificação das instâncias
+
+Todas as famílias compartilham o campo ID descrito no [design de propriedades](../028-propriedades/DESIGN.md#id-do-arquivo). Não mostrar o ID como legenda no desenho, PPT ou prévia; é metadado de nomeação de arquivos, distinto do conteúdo visual. Conjuntos prontos atribuem IDs aos controles efetivamente criados, sem inventar uma entidade de agrupamento persistida.

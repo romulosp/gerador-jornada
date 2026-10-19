@@ -6,7 +6,7 @@
 
 Kind é identificador estável em inglês; nome exibido e mensagens são em português. Catálogo é embutido no editor. Um projeto referencia `catalogVersion: 1`; não instala componentes externos.
 
-Todo componente tem UUID, nome lógico único na tela, bounds inteiros e propriedades específicas. Defaults: x/y do ponto de drop, dimensões da tabela, texto em Arial 12 unidades lógicas, cor `#4864A0`, preenchimento branco e borda cinza quando a família tiver caixa.
+Todo componente tem UUID interno, nome lógico único na tela, fileId de arquivo, bounds inteiros e propriedades específicas. FileID é atributo comum da instância em Tela, não uma variante de Properties; segue o [contrato de projeto v2](project-format.md#nome-base-de-arquivos-e-migração-v1--v2), com até 40 caracteres ASCII e sem Pnl obrigatório. Defaults: x/y do ponto de drop, dimensões da tabela, texto em Arial 12 unidades lógicas, cor `#4864A0`, preenchimento branco e borda cinza quando a família tiver caixa.
 
 Arraste conserva o deslocamento entre ponteiro e origem. Novo drop ou drag que exceda a tela é ajustado para caber; se a tela for menor que o default, reduzir bounds até caber sem valores zero. Alteração de tamanho da tela pode deixar elementos inválidos destacados, sem reposicioná-los.
 
@@ -32,7 +32,7 @@ O teclado vincula apenas textField da mesma tela, aceita dígitos, apagar últim
 
 ## Aparência e capacidade por alvo
 
-Style opcional: fontFamily string não vazia, fontSize positivo em unidades lógicas, textColor/fillColor/borderColor em `#RRGGBB`, backgroundAssetId UUID ou null. Ausência significa default do catálogo; nunca inferir propriedades do widget Fyne.
+Style opcional: fontFamily string não vazia, fontSize positivo em unidades lógicas, textColor/fillColor/borderColor em `#RRGGBB`, backgroundAssetId UUID ou null e textAlign em `left`, `center` ou `right`. Ausência de textAlign mantém esquerda nos arquivos anteriores. Alinhamento é do texto dentro dos bounds, independente de mover/alinha-los na tela. A faixa pronta usa direita. Ausência das demais propriedades significa default do catálogo; nunca inferir propriedades do widget Fyne.
 
 Na v1 usar texto horizontal de uma linha para label/title/button e linhas explícitas em relatório. Não implementar rich text, HTML, rotação ou layout responsivo. Conteúdo que não cabe recebe warning de overflow; o usuário deve ajustar bounds antes da homologação visual.
 

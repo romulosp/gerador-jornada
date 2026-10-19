@@ -89,3 +89,11 @@ Como autor, quero trocar de seleção ou modo e voltar ao painel sem perda ou al
 - O DESIGN.md é um contrato de personalização e revisão, não um arquivo de configuração lido automaticamente pelo executável.
 - A entrega desta especificação não significa implementação integral ou homologação. Lacunas devem ser tratadas no planejamento da feature coordenadora.
 - A saída Java continua condicionada ao perfil EFL real e ao ambiente Java 6; documentos e dublês não substituem a homologação. A interface do editor não é exportada como parte da tela da jornada.
+
+## Atualização solicitada em 2026-10-18 — Suspensão temporária de acesso
+
+- **FR-008**: Enquanto a capacidade Java/EFL estiver suspensa por decisão do usuário, sua ação permanece visível e desabilitada. Não remover o gerador nem desbloquear perfil sem homologação.
+
+### Aceitação da atualização
+
+1. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-008, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.

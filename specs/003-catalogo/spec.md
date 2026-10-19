@@ -76,3 +76,7 @@ O detalhamento abaixo mantém este domínio como responsável pelo modelo e pela
 - [Relatório/lista — EFLReportEvent](../012-relatorio-efl/spec.md) — [DESIGN.md](../012-relatorio-efl/DESIGN.md).
 - [Teclado numérico — EFLVirtualKeyboardNumeric](../013-teclado-numerico-efl/spec.md) — [DESIGN.md](../013-teclado-numerico-efl/DESIGN.md).
 - [Paleta — ComponentTab](../023-paleta-componentes/spec.md) — [DESIGN.md](../023-paleta-componentes/DESIGN.md).
+
+## Atributo compartilhado das instâncias
+
+- **FR-006**: Todas as sete famílias e componentes criados por conjuntos prontos expõem ID de arquivo como atributo comum da instância no domínio Tela. Não duplicar essa regra nas variantes Properties do catálogo. Componentes não exigem Pnl; seus IDs seguem as regras de 004-tela/FR-011–FR-012, enquanto os tipos e versões do catálogo continuam estáveis.

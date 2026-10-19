@@ -27,12 +27,17 @@ func (e *Editor) exportPPT() {
 	// demonstration mantém roteiros explícitos no arquivo.
 	demonstration := widget.NewCheck("Incluir todos os roteiros não vazios", nil)
 	demonstration.SetChecked(true)
-	dialog.ShowCustomConfirm("Exportar PowerPoint", "Escolher destino", "Cancelar", container.NewVBox(exploration, demonstration, widget.NewLabel("Textos e controles permanecem editáveis.\nA digitação é simulada, sem entrada real no PPT.")), func(yes bool) {
+	// transition permite um acabamento de apresentação sem alterar o roteiro de negócio.
+	transition := newSelect([]string{"Fade suave", "Deslizar", "Revelar", "Sem transição"}, nil)
+	transition.SetSelected("Fade suave")
+	dialog.ShowCustomConfirm("Exportar PowerPoint", "Escolher destino", "Cancelar", container.NewVBox(exploration, demonstration,
+		widget.NewForm(widget.NewFormItem("Transição (300 ms)", transition)),
+		widget.NewLabel("Textos e controles permanecem editáveis.\nA digitação é simulada, sem entrada real no PPT.")), func(yes bool) {
 		if !yes {
 			return
 		}
 		// options diferencia seleção vazia de todos os roteiros.
-		options := pptx.Options{Exploration: exploration.Checked}
+		options := pptx.Options{Exploration: exploration.Checked, Transition: map[string]string{"Fade suave": "fade", "Deslizar": "push", "Revelar": "wipe", "Sem transição": "none"}[transition.Selected]}
 		if !demonstration.Checked {
 			options.ScenarioIDs = []string{}
 		}
@@ -86,6 +91,9 @@ func (e *Editor) startExport(path string, export func(context.Context, applicati
 
 // exportJava conserva o gate de homologação sem inventar assinaturas EFL.
 func (e *Editor) exportJava() {
+	if javaExportPaused {
+		return
+	}
 	// profile só se torna verificado depois de evidência real da biblioteca.
 	profile := javaefl.CurrentProfile()
 	if !profile.Verified {
@@ -112,3 +120,6 @@ func (e *Editor) exportJava() {
 		}, e.Window)
 	}, e.Window)
 }
+
+// javaExportPaused preserva a suspensão temporária solicitada, sem remover o gerador.
+const javaExportPaused = true

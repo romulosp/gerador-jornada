@@ -22,12 +22,27 @@ func (e *Editor) preview() {
 	if !e.check(err) {
 		return
 	}
-	// window é exclusiva da sessão de prévia.
-	window := e.App.NewWindow("Prévia · " + e.Session.Document.Project.Name)
+	e.showPreview(state, "Prévia · "+e.Session.Document.Project.Name, "Prévia interativa · campos e escolhas são reiniciados a cada visita")
+}
+
+// previewCurrentScreen abre somente a tela ativa, sem mudar a tela inicial ou percorrer a jornada.
+func (e *Editor) previewCurrentScreen() {
+	// state contém uma cópia da tela atual sem ações de navegação entre telas.
+	state, err := application.NewScreenPreview(e.Session.Document, e.PageID)
+	if !e.check(err) {
+		return
+	}
+	e.showPreview(state, "Prévia Tela Atual · "+state.Document.Screen(state.ScreenID).Name, "Tela atual · campos e escolhas interativos; navegação entre telas desativada")
+}
+
+// showPreview compartilha a apresentação visual sem confundir os escopos de tela e projeto.
+func (e *Editor) showPreview(state *application.Preview, title, description string) {
+	// window é exclusiva da sessão de prévia e não altera a seleção do editor.
+	window := e.App.NewWindow(title)
 	// redraw reconstrói apenas após uma navegação, não a cada tecla.
 	var redraw func()
 	redraw = func() {
-		window.SetContent(container.NewBorder(widget.NewLabel("Prévia interativa · campos e escolhas são reiniciados a cada visita"), nil, nil, nil, container.NewScroll(previewPage(state, redraw))))
+		window.SetContent(container.NewBorder(widget.NewLabel(description), nil, nil, nil, container.NewScroll(previewPage(state, redraw))))
 		// page resolve a composição corrente sem confundir sua identidade com o nome exibido.
 		page := state.Document.Screen(state.ScreenID)
 		window.Resize(fyne.NewSize(float32(page.Size.Width+48), float32(page.Size.Height+96)))
@@ -160,6 +175,7 @@ func previewPrimitives(document application.Document, component screen.Component
 			text := canvas.NewText(primitive.Text, rgb(primitive.Color))
 			text.TextSize = float32(primitive.FontSize)
 			text.TextStyle.Bold = primitive.Bold
+			setTextAlignment(text, primitive.TextAlign)
 			place(text, primitive.Bounds)
 			objects = append(objects, text)
 		}

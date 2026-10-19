@@ -26,24 +26,42 @@ func (e *Editor) toolsPanel() fyne.CanvasObject {
 
 // refreshStructure mantém nomes, seleção e ordem de camadas sincronizados com o canvas.
 func (e *Editor) refreshStructure() {
-	e.Structure.RemoveAll()
 	if e.page() == nil {
+		e.Structure.RemoveAll()
 		return
 	}
+	if e.StructurePage == e.PageID && e.StructureRevision == e.Session.Document.Project.Revision && len(e.Structure.Objects) == len(e.page().Components) {
+		// object conserva os botões existentes; somente mudanças de realce provocam refresh.
+		for index, object := range e.Structure.Objects {
+			if item, ok := object.(*widget.Button); ok {
+				// importance reflete a seleção sem reconstruir a lista nem seus callbacks.
+				importance := widget.MediumImportance
+				if e.isSelected(e.page().Components[len(e.page().Components)-1-index].ID) {
+					importance = widget.HighImportance
+				}
+				if item.Importance != importance {
+					item.Importance = importance
+					item.Refresh()
+				}
+			}
+		}
+		return
+	}
+	e.StructurePage, e.StructureRevision = e.PageID, e.Session.Document.Project.Revision
+	e.Structure.RemoveAll()
 	// index percorre as camadas do primeiro plano para o fundo.
 	for index := len(e.page().Components) - 1; index >= 0; index-- {
 		// component mantém a identidade correta no callback de seleção.
 		component := e.page().Components[index]
 		// item apresenta o nome lógico sem depender da legenda visível.
 		item := widget.NewButton(component.Name, func() {
-			e.Selected = component.ID
 			e.Window.Canvas().Unfocus()
-			e.refreshInspector()
-			e.refreshStructure()
-			e.Board.Refresh()
+			if e.setSelection([]string{component.ID}) {
+				e.selectionChanged()
+			}
 		})
 		item.Alignment = widget.ButtonAlignLeading
-		if component.ID == e.Selected {
+		if e.isSelected(component.ID) {
 			item.Importance = widget.HighImportance
 		}
 		e.Structure.Add(item)

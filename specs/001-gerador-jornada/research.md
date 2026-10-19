@@ -190,3 +190,33 @@ As 24 features abaixo são especificações individuais em estado Draft; não eq
 Properties/index.js era somente um contêiner vazio; os formulários funcionais estavam em ToolsRight. JComponent é uma base abstrata, mapeada ao modelo compartilhado do Catálogo, sem um controle fictício na paleta. O relógio de DateInfo era atualizado no navegador; na jornada nova os valores são ilustrativos e editáveis para manter demonstrações determinísticas. Code usava templates com inconsistências; a visualização/publicação Java permanece condicionada à homologação EFL real.
 
 Foi tentada execução de uma cópia isolada do legado em .tools/legacy-preview, sem alterar material-legado. A inicialização encontrou dependência AJV inconsistente; os navegadores desta sessão não estão disponíveis pelo conector. A análise usada para as specs foi do código, CSS e imagens locais, sem afirmar teste visual do legado em execução.
+
+## Revisão de interação e transições — 2026-10-18
+
+O usuário solicitou suspensão temporária de Java/EFL, transições de apresentação, confirmação de propriedades acessível, seleção múltipla/atalhos, cursor contextual, redução do custo de seleção e alinhamento do texto da faixa. Esses pontos foram registrados nas specs individuais e no domínio responsável, com rastreabilidade na spec coordenadora.
+
+Decisão de edição: confirmar por botão fixo Salvar alterações, em vez de publicar cada caractere ou número intermediário inválido. Descartar reconstrói o rascunho a partir dos dados confirmados. O custo é uma confirmação explícita; o benefício é uma edição transacional compreensível, sem centenas de entradas de Undo.
+
+Decisão de renderização: cache de formas e imagens por sessão/tela/revisão/zoom, reaproveitando posições e contornos de seleção. Se a seleção não muda, não reconstruir o inspector. Não introduzir índices espaciais ou paralelismo no domínio sem medição que os justifique.
+
+No mesmo microbenchmark `BenchmarkSelect500`, Windows amd64, Intel Core i5-13600KF, Go 1.27.2 e driver Fyne de teste, dez iterações: antes 14.251.660 ns/op, 1.776.739 B/op e 27.175 alocações/op; após a correção 704.540 ns/op, 483.956 B/op e 9.004 alocações/op. O tempo por seleção medido caiu de aproximadamente 14,25 ms para 0,70 ms. Trata-se de benchmark de teste com rótulos, não latência garantida da janela nativa ou de projetos com muitas imagens.
+
+Decisão de transições: fade de 300 ms por padrão, push/wipe opcionais e opção sem efeito. São recursos disponíveis no PresentationML das versões-alvo; duração usa p14:dur com namespace de compatibilidade. Não adotar Morph nem rasterizar controles. A execução visual/temporal real permanece dependente de homologação no PowerPoint. [Transições](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.presentation.transition?view=openxml-3.0.1), [Push](https://learn.microsoft.com/en-us/dotnet/api/documentformat.openxml.presentation.pushtransition?view=openxml-3.0.1).
+
+Na API Fyne instalada, Ctrl+A chega como ShortcutSelectAll e Shift+setas passa por evento de tecla com modificador do driver, sem CustomShortcut de Shift. O adaptador trata esses caminhos e preserva foco textual. Casos de integração em janela Windows continuam no roteiro manual.
+
+## ID de arquivo separado de UUID e nome amigável — 2026-10-18
+
+Confirmação do usuário: Pnl obrigatório somente em telas, sem prefixo obrigatório em componentes. Adotado FileID ASCII alfanumérico de até 40 caracteres, com início em letra; limite inclui prefixo e exclui extensão. A decisão preserva UUIDs internos, nomes amigáveis Unicode e navegação ao editar o arquivo de destino. A UI remove acentos/especiais; validação de domínio/aplicação continua protegendo gravação e importação independentes da UI.
+
+Manifesto passou a schemaVersion 2 para impedir perda silenciosa do atributo em leitores antigos. Leitura v1 migra nomes ausentes com sugestões/sufixos determinísticos; leitura não grava nem renomeia IDs explícitos. Duplicação gera nomes disponíveis, enquanto exportação preserva o nome confirmado e recusa colisões/palavras reservadas Java. ID de componente é local à tela; diretórios/pacotes separados permitem repetição em outras telas. Variáveis Java usam prefixo técnico component para evitar colisões com host/navigator/factory, sem alterar o nome-base do arquivo principal.
+
+Verificado: suíte Go e vet; nove testes Python da toolchain Java 6; compilação ECJ + assinatura SE 6 dos fontes estruturais com arquivos individuais, incluindo ID livre host para detectar ocultação de parâmetros. Não altera a suspensão do botão Java/EFL nem comprova compatibilidade com EFL real.
+
+## Builds nativos e documentação de produto — 2026-10-18
+
+A documentação oficial do [Fyne para preparação](https://docs.fyne.io/started/quick/), [cross-compilation](https://docs.fyne.io/started/cross-compiling/) e [pacotes desktop](https://docs.fyne.io/started/packaging/) confirma o custo das ferramentas/bibliotecas nativas. Adotado build por sistema com CGO, evitando alegar que mudar GOOS basta para distribuir uma GUI. Docker foi iniciado pelo usuário e disponibiliza compilação Linux local; não fornece o SDK Apple.
+
+A [referência oficial de runners](https://docs.github.com/en/actions/reference/runners/github-hosted-runners) distingue macos-15-intel de macos-15 ARM64. A matriz explicita arquitetura e verifica o formato do binário; o macOS não é tratado como um único pacote universal. Assinatura ad-hoc serve ao teste interno e não representa assinatura Developer ID/notarização. Ações do workflow fixadas por commits consultados nos repositórios oficiais, sem execução remota nesta entrega.
+
+Tradeoff: builds nativos/Docker exigem mais infraestrutura do que uma compilação Go sem CGO, mas respeitam as dependências gráficas e produzem artefatos verificáveis. O usuário final não precisa instalar a toolchain; Linux ainda requer bibliotecas gráficas compatíveis. O manual separa essas duas classes de pré-requisitos e os estados configurado/gerado/homologado.

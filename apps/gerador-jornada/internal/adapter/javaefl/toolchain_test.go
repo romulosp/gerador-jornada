@@ -24,6 +24,8 @@ func TestGeneratedSourcesJava6(t *testing.T) {
 	document := application.Example()
 	document.JavaOptions.PackageName = "br.exemplo.jornada"
 	document.Screens[0].Components[0].Properties.Title.Text = "Olá 😀 \\u000a */"
+	// O ID livre host deve nomear um arquivo sem esconder os parâmetros de integração gerados.
+	document.Screens[0].Components[0].FileID = "host"
 	// profile usa somente Swing público para testar a estrutura, sem afirmar compatibilidade EFL.
 	profile := Profile{ID: "somente-teste-estrutural", PanelType: "javax.swing.JPanel",
 		HostSource: "/** Contexto vazio usado exclusivamente pelo teste estrutural. */ public final class HostBindings { }",

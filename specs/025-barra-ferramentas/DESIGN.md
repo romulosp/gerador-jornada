@@ -70,3 +70,26 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 - Conferir os estados descritos, casos inválidos e retorno ao estado anterior.
 - Registrar versão/hash do build, fixture, resolução, DPI, executor e resultado em [quickstart.md](../001-gerador-jornada/quickstart.md).
 - Homologação humana permanece pendente até o usuário testar a revisão entregue.
+
+## Revisão de interação — 2026-10-18
+
+- **FR-008**: Manter Java/EFL visível e desabilitado temporariamente, sem abrir diálogo de exportação; preservar código e contratos de geração para retomada posterior.
+- **FR-009**: Oferecer atalhos de seleção e movimento previstos em 020-elemento-edicao, respeitando foco de entrada de texto e histórico.
+
+Os novos requisitos são normativos; verificar todos os estados afetados antes de considerar esta revisão homologada.
+
+## Identidade do programa
+
+FR-010 usa o ícone definido no [design integrado](../001-gerador-jornada/DESIGN.md#ícone-do-programa--2026-10-18), com o mesmo desenho no EXE e no Fyne. Não converter a marca em botão de ação. A identificação visual da janela deve permanecer disponível offline e sem arquivo externo ao EXE.
+
+## Excluir componente
+
+Ordem no grupo do canvas: zoom → Ajustar → Excluir → espaço flexível → Fundo. Excluir tem texto e ícone de lixeira e usa o estado desabilitado do tema sem seleção válida. O botão permanece visível, inclusive desabilitado. Confirmação compartilhada com menu e Delete: título Excluir componente, quantidade selecionada, respostas Sim/Não. Conferir largura da barra em 1366 × 768 e DPI 100/150/200%.
+
+## Versão da distribuição
+
+Exibir `JORNADA STUDIO · 1.0.0.0` no cabeçalho e `Gerador de Jornada 1.0.0.0` no título da janela. A identificação discreta mantém os estilos tipográficos existentes. A versão vem de `internal/adapter/buildinfo/VERSION`, também utilizada pelo build dos metadados Windows.
+
+## Prévia da tela ativa
+
+Acrescentar o botão com ícone de olho e legenda Prévia Tela Atual imediatamente após Prévia. O primeiro continua abrindo o projeto completo. A nova ação fica visível e desabilitada sem tela ativa; a disponibilidade não depende da seleção de componente. Conferir a largura do cabeçalho na resolução nominal e DPIs homologados.

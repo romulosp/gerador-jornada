@@ -70,3 +70,9 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 - Conferir os estados descritos, casos inválidos e retorno ao estado anterior.
 - Registrar versão/hash do build, fixture, resolução, DPI, executor e resultado em [quickstart.md](../001-gerador-jornada/quickstart.md).
 - Homologação humana permanece pendente até o usuário testar a revisão entregue.
+
+## Revisão de interação — 2026-10-18
+
+- **FR-008**: Enquanto a capacidade Java/EFL estiver suspensa por decisão do usuário, sua ação permanece visível e desabilitada. Não remover o gerador nem desbloquear perfil sem homologação.
+
+Os novos requisitos são normativos; verificar todos os estados afetados antes de considerar esta revisão homologada.

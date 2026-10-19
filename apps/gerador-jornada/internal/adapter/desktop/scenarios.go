@@ -59,7 +59,7 @@ func (e *Editor) scenarioCard(script scenario.Scenario) fyne.CanvasObject {
 		}
 	}
 	// initial é preparado antes do callback para evitar um comando ao renderizar.
-	initial := widget.NewSelect(initialLabels, nil)
+	initial := newSelect(initialLabels, nil)
 	initial.SetSelected(current)
 	initial.OnChanged = func(value string) {
 		e.editScenario(script.ID, func(target *scenario.Scenario) { target.StartScreenID = initialIDs[value] })
@@ -177,7 +177,7 @@ func (e *Editor) stepDialog(scriptID string, index int) {
 		step = script.Steps[index]
 	}
 	// kind seleciona a semântica, não uma função serializada.
-	kind := widget.NewSelect([]string{"moveCursor", "click", "typeText", "wait", "navigate"}, nil)
+	kind := newSelect([]string{"moveCursor", "click", "typeText", "wait", "navigate"}, nil)
 	kind.SetSelected(step.Kind)
 	// pages e pageIDs representam as composições possíveis.
 	pages := []string{}
@@ -197,12 +197,12 @@ func (e *Editor) stepDialog(scriptID string, index int) {
 		}
 	}
 	// page permite corrigir uma referência após reordenar etapas.
-	page := widget.NewSelect(pages, nil)
+	page := newSelect(pages, nil)
 	page.SetSelected(selectedPage)
 	// targets vincula legendas de controles aos IDs corretos.
 	targets := map[string]string{}
 	// target indica um componente ou uma posição absoluta.
-	target := widget.NewSelect([]string{}, nil)
+	target := newSelect([]string{}, nil)
 	// refreshTargets restringe alvos conforme a ação e a tela.
 	refreshTargets := func() {
 		targets = map[string]string{"Posição absoluta": ""}

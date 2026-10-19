@@ -69,3 +69,10 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 - Conferir os estados descritos, casos inválidos e retorno ao estado anterior.
 - Registrar versão/hash do build, fixture, resolução, DPI, executor e resultado em [quickstart.md](../001-gerador-jornada/quickstart.md).
 - Homologação humana permanece pendente até o usuário testar a revisão entregue.
+
+## Revisão de interação — 2026-10-18
+
+- **FR-008**: Reservar rodapé fixo para Salvar alterações e Descartar, ligado ao formulário corrente e fora da sua rolagem.
+- **FR-009**: Distinguir propriedade de texto, geometria do elemento e comandos para seleção múltipla; trocar seleção não deve publicar rascunho incompleto.
+
+Os novos requisitos são normativos; verificar todos os estados afetados antes de considerar esta revisão homologada.

@@ -89,3 +89,27 @@ Como autor, quero trocar de seleção ou modo e voltar ao painel sem perda ou al
 - O DESIGN.md é um contrato de personalização e revisão, não um arquivo de configuração lido automaticamente pelo executável.
 - A entrega desta especificação não significa implementação integral ou homologação. Lacunas devem ser tratadas no planejamento da feature coordenadora.
 - A saída Java continua condicionada ao perfil EFL real e ao ambiente Java 6; documentos e dublês não substituem a homologação. A interface do editor não é exportada como parte da tela da jornada.
+
+## Atualização solicitada em 2026-10-18 — Disponibilidade e atalhos
+
+- **FR-008**: Manter Java/EFL visível e desabilitado temporariamente, sem abrir diálogo de exportação; preservar código e contratos de geração para retomada posterior.
+- **FR-009**: Oferecer atalhos de seleção e movimento previstos em 020-elemento-edicao, respeitando foco de entrada de texto e histórico.
+- **FR-010**: Identificar a aplicação com a imagem escolhida pelo usuário como ícone incorporado da janela, barra de tarefas e EXE Windows; não depender de caminhos externos. O ícone pertence à identidade do editor, não aos componentes exportados da jornada.
+
+### Aceitação da atualização
+
+1. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-008, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+2. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-009, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+
+## Exclusão junto ao ajuste de zoom — 2026-10-18
+
+- **FR-011**: Exibir botão Excluir com ícone de lixeira imediatamente à direita de Ajustar. Iniciar desabilitado e habilitar somente enquanto houver ao menos um componente válido selecionado na tela ativa. Atualizar após seleção, clique vazio, Escape, troca de tela, exclusão e histórico.
+- **FR-012**: O botão usa a mesma confirmação Sim/Não e a mesma operação de exclusão que o menu contextual e Delete, sem caminhos de remoção divergentes.
+
+**Aceitação**: ao iniciar ou trocar de tela sem seleção, Excluir fica desabilitado. Selecionar componente habilita; Não mantém a seleção e o botão habilitado; Sim remove e desabilita. Limpar seleção também desabilita. Excluir deve permanecer visível logo após Ajustar.
+
+- **FR-013**: Mostrar a versão 1.0.0.0 no título da janela e na identificação do produto, usando a mesma fonte dos metadados FileVersion/ProductVersion do executável; não confundir versão do software com versões de contratos de domínio.
+
+## Botão Prévia Tela Atual — 2026-10-18
+
+- **FR-014**: Acrescentar Prévia Tela Atual ao lado de Prévia no cabeçalho, com ícone de visualização e texto visível. Prévia mantém o percurso completo do projeto; a nova ação usa a tela ativa. Desabilitar a nova ação quando não houver tela existente selecionada e atualizar seu estado na troca/remoção de tela ou projeto.

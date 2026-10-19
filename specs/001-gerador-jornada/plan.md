@@ -178,3 +178,48 @@ As evidências futuras devem registrar versão do editor, toolchain, bibliotecas
 ## Complexity Tracking
 
 Nenhuma violação da constituição exige exceção. O exportador Open XML próprio aumenta o esforço, mas evita runtimes externos e oferece controle das animações; seu risco é tratado na primeira sprint. O perfil Java/EFL isola a tecnologia antiga do editor.
+
+## Revisão de arquitetura da edição — 2026-10-18
+
+- `internal/screen/selection.go`: interseção, caixa conjunta e translação limitada; regras geométricas sem widgets ou seleção persistida.
+- `internal/application/transform.go` e `edit_selection.go`: comandos coletivos de movimento/duplicação/remoção, com transação e histórico únicos.
+- `internal/screen.Style.TextAlign` e `internal/presentation.Primitive.TextAlign`: alinhamento textual compartilhado; adaptadores Fyne/DrawingML traduzem para suas tecnologias.
+- `internal/adapter/desktop/selection.go`, `keyboard.go` e `board.go`: estado e eventos de interação; `board_renderer.go` contém o cache visual por sessão/revisão/escala.
+- `properties_*.go`: formulários coesos por família e navegação. `inspector_actions.go` mantém confirmação fixa; `arrangement.go` trata posicionamento geométrico, separado de alinhamento do texto.
+- `internal/adapter/pptx/transition.go`: efeitos de entrada nativos; o modelo de Demonstração e seu timing continuam independentes de PresentationML.
+
+A suspensão Java/EFL afeta somente a disponibilidade da ação no desktop. Domínios e geração permanecem no código. A alteração de seleção não copia documentos nem grava histórico; alterações confirmadas continuam transacionais.
+
+O ícone é um recurso do adaptador `builtinassets`, fornecido ao Fyne na composição em `cmd/gerador-jornada/main.go`. `scripts/windows-icon.ps1`, chamado pelo build, converte a imagem versionada em ICO multirresolução e gera `icon_windows_amd64.syso` com o windres já instalado. Essa dependência permanece no desenvolvimento; os modelos de domínio e os arquivos `.jornada` não recebem a identidade visual do programa.
+
+## Menu e comandos de exclusão — 2026-10-18
+
+`internal/adapter/desktop/component_menu.go` concentra hit-test compartilhado, menu contextual e foco de propriedades. `selection.go` atualiza a disponibilidade do botão Excluir após eventos de seleção e refresh. `operations.go` captura IDs e tela antes da confirmação Sim/Não e reutiliza `Session.DeleteComponents`; `keyboard.go` preserva o foco textual. Nenhuma nova dependência ou mudança no formato persistido é necessária.
+
+Validação: testes de interação com o driver Fyne verificam alvo, foco, exclusão por menu/botão/teclado, cancelamento, confirmação única, grupo, Undo e disponibilidade após clique vazio e troca de tela. Geometria visual, driver Windows nativo e aceitação continuam sujeitos ao roteiro manual.
+
+A distribuição 1.0.0.0 utiliza `internal/adapter/buildinfo/VERSION` como fonte única, incorporada em Go e lida pelo script de recursos Windows para FileVersion/ProductVersion. Essa identidade de build não altera o modelo ou a versão persistida dos projetos.
+
+## Sessão de prévia da tela atual
+
+`internal/application/screen_preview.go` resolve a tela por ID e prepara um escopo isolado de uma tela, sem ações de jornada ou roteiros, reutilizando validação, cópia profunda e estado runtime de Preview. `internal/adapter/desktop/preview.go` mantém entradas distintas para projeto/tela e compartilha montagem de janela/renderização em showPreview. Não adicionar dependências Fyne ao domínio ou persistir o modo de prévia. A identidade de distribuição continua 1.0.0.0, conforme solicitado; o hash do EXE identifica esta revisão.
+
+## Arquitetura do ID de arquivo
+
+- Tela: `internal/screen/file_id.go` centraliza limpeza, sugestões, prefixo e validação de valor. Screen/Component mantêm FileID e UUID separados.
+- Aplicação: `internal/application/file_ids.go` coordena unicidade e migração; Session.Change valida somente IDs de arquivo além das regras específicas da operação, preservando rascunhos com outras pendências. Criação e duplicação sugerem IDs livres, sem reescrever originais.
+- Desktop: `internal/adapter/desktop/file_id.go` trata a entrada comum; formulários de tela/componente salvam em transação. Não acoplar o domínio ao widget.
+- Persistência: writer schemaVersion 2; reader v1 migra explicitamente e reader v2 exige campos válidos. A alteração de formato é intencional para que editores antigos rejeitem novos arquivos, em vez de descartarem o atributo.
+- Java: usar FileID exato para painel e arquivo individual do componente; fábricas individuais ficam em `component/<fileIdDaTelaEmMinusculas>/<fileIdDoComponente>.java`, separando contextos que reutilizam nomes. A fábrica por tela delega aos arquivos individuais. Suportes derivados continuam distintos dos arquivos principais nomeados pelo usuário. O botão Java/EFL permanece suspenso.
+
+Tradeoff: um atributo a mais evita misturar nome amigável, UUID e classe gerada. Uma pequena migração versionada custa mais que reutilizar Name, mas preserva as referências e impede renomeações silenciosas durante exportação. IDs de componentes são locais à tela para reduzir conflitos e permitir reutilização.
+
+## Distribuição desktop de 64 bits
+
+`apps/gerador-jornada/README.md` é o manual de produto/desenvolvimento; README da raiz aponta para ele. `scripts/build.py` coordena builds nativos, checa cabeçalhos PE/ELF/Mach-O sem executar o editor e gera pacote + inventário + SHA-256 em dist/<os>-<arch>. Windows mantém build.ps1, recursos PE e link estático de suporte C; o caminho legado dist/JornadaStudio.exe só é atualizado quando não está em uso. O novo pacote continua disponível sem encerrar o processo antigo.
+
+Linux amd64 pode ser compilado em Docker, com imagem Go 1.27.2/Debian 12 fixada por digest e dependências gráficas de desenvolvimento. Seu binário depende das bibliotecas gráficas/glibc do sistema; não prometer portabilidade universal ou binário totalmente estático. A toolchain Windows passa a ser fixada em scripts/toolchains-windows.json, fora de .tools ignorada.
+
+MacOS usa runner/Mac nativo Intel ou ARM64, SDK/Clang Apple e bundle .app com ícone ICNS, metadados e assinatura ad-hoc sem notarização. O workflow manual .github/workflows/desktop-distribution.yml possui os quatro alvos e ações fixadas por commit; não publica release nem dispara aprovação. A existência do workflow não comprova builds remotos executados.
+
+`internal/adapter/desktop/recovery_path.go` isola a resolução nativa da recuperação. Não alterar regras de negócio ou formato .jornada por causa dos novos alvos. Manter versão 1.0.0.0, schemaVersion 2 e catalogVersion 1 independentes.

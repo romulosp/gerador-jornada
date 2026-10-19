@@ -69,3 +69,11 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 - Conferir os estados descritos, casos inválidos e retorno ao estado anterior.
 - Registrar versão/hash do build, fixture, resolução, DPI, executor e resultado em [quickstart.md](../001-gerador-jornada/quickstart.md).
 - Homologação humana permanece pendente até o usuário testar a revisão entregue.
+
+## Revisão de interação — 2026-10-18
+
+- **FR-008**: Compartilhar as regras de seleção com Elemento editável; manter seleção múltipla e caixa de seleção fora do documento persistido.
+- **FR-009**: Reutilizar primitivas e recursos da mesma revisão e escala; selecionar não deve reconstruir as formas de todos os componentes. Registrar benchmark comparável de seleção com 500 controles.
+- **FR-010**: Atualizar o painel de propriedades apenas quando a seleção efetivamente mudar; arraste usa estado provisório e só publica histórico no fim.
+
+Os novos requisitos são normativos; verificar todos os estados afetados antes de considerar esta revisão homologada.

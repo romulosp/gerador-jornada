@@ -64,3 +64,13 @@ Scenario, Step, ocorrência, evento temporizado e estado de execução; os três
 - Contratos compartilhados: [navigation-scenario.md](../001-gerador-jornada/contracts/navigation-scenario.md).
 - Não grava uso do mouse, não cria macros, não contém lógica condicional e não emite XML PPT ou eventos Fyne.
 - Esta entrega contém especificação, não código implementado ou testes executados.
+
+## Atualização solicitada em 2026-10-18 — Transições da apresentação
+
+- **FR-007**: A exportação permite fade, deslizar, revelar ou nenhuma transição, com fade de 300 ms por padrão; não substituir animações de cursor, clique e digitação por transições entre slides.
+- **FR-008**: Transições não criam avanço automático na exploração nem no menu/final; ocorrências da demonstração conservam o tempo de avanço do roteiro. Homologar o custo visual de entrada separadamente dos tempos das etapas.
+
+### Aceitação da atualização
+
+1. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-007, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+2. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-008, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.

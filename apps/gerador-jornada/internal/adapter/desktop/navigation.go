@@ -64,7 +64,7 @@ func (e *Editor) navigationFor(pageID string, component screen.Component) fyne.C
 		}
 	}
 	// control é configurado antes de registrar seu callback.
-	control := widget.NewSelect(options, nil)
+	control := newSelect(options, nil)
 	control.SetSelected(selected)
 	control.OnChanged = func(value string) {
 		e.check(e.Session.Change(func(document *application.Document) error {

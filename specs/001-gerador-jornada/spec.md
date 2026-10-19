@@ -195,3 +195,60 @@ Os tempos são metas futuras em Windows x64, CPU de quatro núcleos, 8 GB de RAM
 - Fora da primeira versão: importação `.page`, compilação Java no editor, geração Go da jornada, banco de negócio, APIs externas, multiusuário, plugins executáveis e gravação automática.
 - A entrega atual é documental. Os testes e capacidades descritos são trabalho futuro.
 - A implementação é decomposta nas features de domínio [Projeto](../002-projeto/spec.md), [Catálogo](../003-catalogo/spec.md), [Tela](../004-tela/spec.md), [Jornada](../005-jornada/spec.md) e [Demonstração](../006-demonstracao/spec.md); esta feature mantém a visão integrada e as duas saídas.
+
+## Revisão de usabilidade e apresentação — 2026-10-18
+
+- **FR-029**: Manter a ação Java/EFL na tela, desabilitada temporariamente por decisão do usuário, preservando o gerador para retomada.
+- **FR-030**: Exportar transições fade/deslizar/revelar ou nenhuma; fade de 300 ms é o padrão. Manter separados efeitos de entrada e animações do roteiro.
+- **FR-031**: Manter Salvar alterações e Descartar acessíveis fora da rolagem do inspector; confirmar o formulário em uma edição reversível e renderizar o estado confirmado imediatamente.
+- **FR-032**: Oferecer seleção múltipla, caixa de seleção, Ctrl+A, Ctrl/Shift+clique, setas, Shift+setas, Ctrl+D e Delete coletivos, respeitando foco textual e os limites geométricos do conjunto.
+- **FR-033**: Oferecer alinhamento horizontal do texto dentro da faixa, independente da posição/tamanho do elemento; persistir e reproduzir o alinhamento nas representações.
+- **FR-034**: Evitar reconstruções de primitivas/imagens e de formulários em seleção inalterada; medir o custo de seleção com 500 controles e registrar ambiente e limites da medição.
+
+### Rastreabilidade da revisão
+
+| Requisitos | Responsabilidade | Validação |
+| --- | --- | --- |
+| FR-029 | 025-barra-ferramentas/FR-008; 030-visualizacao-codigo/FR-008 | Java/EFL aparece desabilitado no EXE |
+| FR-030 | 006-demonstracao/FR-007–FR-008; contrato PPT | Opcões e efeitos no arquivo; homologação PowerPoint separada |
+| FR-031 | 027-painel-direito/FR-008–FR-009; 028-propriedades/FR-008–FR-011 | Rodapé, confirmação, descartar e histórico |
+| FR-032 | 004-tela/FR-006–FR-007; 020-elemento-edicao/FR-008–FR-013 | Grupo, foco, bordas, atalhos e Undo |
+| FR-033 | 004-tela/FR-008; 018-faixa-titulo/FR-008–FR-009 | Texto alinha sem mover bounds; persistência e PPT |
+| FR-034 | 019-canvas-edicao/FR-009–FR-010 | Benchmark antes/depois e revisão manual |
+
+## Identidade da aplicação — 2026-10-18
+
+- **FR-035**: Usar a imagem fornecida pelo usuário como ícone da janela, da barra de tarefas e do executável Windows, incorporada ao programa e disponível offline; preservar a imagem original e gerar representações adequadas às escalas do sistema. Responsabilidade do adaptador desktop/distribuição, sem alterar os modelos de domínio. Detalhamento: 025-barra-ferramentas/FR-010.
+
+**Aceitação**: com o EXE copiado para outra pasta, sem imagens externas, o Windows apresenta o ícone escolhido no Explorer e na janela/barra de tarefas. Verificar tamanhos pequeno/grande e DPI 100/150/200%; inspeção de recursos PE comprova incorporação, mas não substitui essa revisão visual.
+
+## Ações contextuais e exclusão — 2026-10-18
+
+- **FR-038**: Identificar esta distribuição como versão 1.0.0.0 no título/cabeçalho da aplicação e nas propriedades de versão do arquivo/produto do EXE Windows. Manter uma fonte única para esses valores; a versão do software não modifica a versão do manifesto `.jornada`, do catálogo ou de contratos de domínio.
+
+- **FR-036**: Clique com botão direito sobre um componente deve selecionar o alvo e abrir as ações Alterar propriedades e Excluir elemento. Ao clicar num membro de uma seleção múltipla, preservar o grupo para exclusão; Alterar propriedades deve editar somente o alvo clicado. Clique direito vazio não oferece ações de componente.
+- **FR-037**: Oferecer Excluir imediatamente à direita de Ajustar; habilitar somente com seleção válida da tela ativa. Menu, botão e Delete compartilham confirmação Sim/Não; Não não altera documento/histórico, Sim remove o conjunto em uma única ação reversível. Delete em campo de texto não remove componentes. Não acumular confirmações simultâneas.
+
+Responsabilidades: domínio Tela mantém remoção, referências e histórico por meio da aplicação; adaptador desktop mantém seleção, menu, foco, confirmação e disponibilidade das ações. Rastreabilidade: 004-tela/FR-009, 020-elemento-edicao/FR-014–FR-016, 025-barra-ferramentas/FR-011–FR-012; T088–T090.
+
+## Prévia da tela atual — 2026-10-18
+
+- **FR-039**: Oferecer botão separado Prévia Tela Atual, mantendo Prévia para o projeto completo. Abrir somente a tela ativa em janela independente, com fundo, controles e valores temporários interativos, sem navegar para outras telas, mudar a tela inicial, persistir dados ou alterar histórico. Validar a tela solicitada sem exigir uma jornada completa válida ou outras telas válidas; sem tela ativa, desabilitar a ação. Exibir valores confirmados no modelo; rascunhos de propriedades precisam de Salvar alterações antes da prévia.
+
+Rastreabilidade: 004-tela/FR-010 (composição), 029-previa-interativa/FR-008–FR-010 (sessão de prévia) e 025-barra-ferramentas/FR-014 (entrada na interface). Implementação: T092.
+
+## ID editável para arquivos — 2026-10-18
+
+- **FR-040**: Oferecer atributo ID em todas as telas e instâncias de componentes visuais, separado do UUID interno. Nas telas, prefixo Pnl obrigatório (`01 · Identificação` sugere `PnlIdentificacao`); nos componentes, nome livre sem prefixo obrigatório, conforme confirmação do usuário. O ID é nome-base sem extensão, com 1–40 caracteres ASCII alfanuméricos e início em letra. Não aceitar acentos, espaços, símbolos, caminhos ou nomes de dispositivos Windows. O limite inclui Pnl quando presente. Nome amigável pode continuar acentuado.
+- **FR-041**: Preservar IDs confirmados ao renomear legendas e ao exportar; gerar arquivos principais `<ID>.java`. IDs de tela são únicos no projeto e IDs de componente na tela, sem distinguir caixa. Edição inválida/duplicada não altera documento ou histórico; duplicação/criação e migração podem sugerir sufixos numéricos dentro do limite. UUIDs continuam resolvendo vínculos e navegação.
+- **FR-042**: Gravar `.jornada` com schemaVersion 2 e `fileId` obrigatório para Screen/Component. Ler v1 por migração determinística, preservando nomes, UUIDs, geometria e vínculos; versão desconhecida e v2 inválida devem ser recusadas com mensagem. A versão do software permanece 1.0.0.0 e catalogVersion permanece 1. A ação Java/EFL continua visível e desabilitada; alterações no gerador não homologam o perfil proprietário.
+
+**Rastreabilidade**: 004-tela/FR-011–FR-012; 003-catalogo/FR-006; 002-projeto/FR-006; 028-propriedades/FR-012–FR-013; contratos de projeto/catálogo/Java; T093–T096.
+
+## Documentação e distribuição de 64 bits — 2026-10-18
+
+- **FR-043**: Manter README completo em apps/gerador-jornada, com propósito, público, componentes/famílias/conjuntos, propriedades, atalhos, tecnologias e versões, abordagem por domínio, pré-requisitos separados de uso/build, estado real das saídas e links para specs. README da raiz deve orientar a descoberta desse guia.
+- **FR-044**: Preparar distribuição em dist para Windows amd64, Linux amd64 e macOS amd64/arm64. Usar compilação nativa CGO, Docker Linux opcional a partir do Windows e runners nativos para macOS. Cada pacote efetivamente gerado deve identificar software 1.0.0.0, plataforma, arquitetura, inventário e hashes; recusar cabeçalho incompatível e não criar artefato falso para alvo sem toolchain. Configuração/compilação não equivalem a homologação humana.
+- **FR-045**: Armazenar recuperação em diretório nativo por usuário; preservar LOCALAPPDATA no Windows, respeitar XDG_CONFIG_HOME no Linux e Application Support no macOS. Não depender do diretório de execução nem inserir essas regras de plataforma nos domínios.
+
+Windows 10/11 x64 permanece a plataforma inicial. Os pacotes Linux/macOS ampliam os alvos de build; suporte final, DPI, dependências de runtime e operação em máquina limpa precisam de evidência por plataforma. MacOS usa macOS 15 como alvo inicial do bundle. Gate Java/EFL e homologação PowerPoint permanecem independentes. Fontes: T097–T100; 002-projeto/FR-007.

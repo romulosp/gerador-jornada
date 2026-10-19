@@ -28,6 +28,8 @@ type Primitive struct {
 	AssetID string
 	// Role identifica o valor animável de um campo.
 	Role string
+	// TextAlign determina o alinhamento do parágrafo sem mover os limites da forma.
+	TextAlign string
 }
 
 // Group reúne primitivas de um componente.
@@ -71,7 +73,7 @@ func Component(component screen.Component) Group {
 		if color == "" {
 			color = "#4864A0"
 		}
-		return Primitive{Bounds: bounds, Text: value, Color: color, FontSize: size, Bold: bold}
+		return Primitive{Bounds: bounds, Text: value, Color: color, FontSize: size, Bold: bold, TextAlign: component.Style.TextAlign}
 	}
 	// rect cria a forma base do controle.
 	rect := func(fill string) Primitive {

@@ -1,0 +1,26 @@
+{
+    "folders":  [
+                    {
+                        "name":  "gerador-jornada",
+                        "path":  "D:/desenvolvimento/ia/estudo/gerador-jornada"
+                    }
+                ],
+    "launch":  {
+                   "version":  "0.2.0",
+                   "configurations":  [
+                                          {
+                                              "name":  "Abrir JornadaStudio.exe",
+                                              "type":  "cppvsdbg",
+                                              "request":  "launch",
+                                              "program":  "${workspaceFolder}/apps/gerador-jornada/dist/JornadaStudio.exe",
+                                              "args":  [
+
+                                                       ],
+                                              "cwd":  "${workspaceFolder}/apps/gerador-jornada",
+                                              "stopAtEntry":  false,
+                                              "externalConsole":  false,
+                                              "noDebug":  true
+                                          }
+                                      ]
+               }
+}

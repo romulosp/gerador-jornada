@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0.0",
+  "os": "linux",
+  "arch": "amd64",
+  "cgo": true,
+  "go": "go version go1.27.2 linux/amd64",
+  "buildHost": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+  "libc": [
+    "glibc",
+    "2.36"
+  ],
+  "signing": "unsigned",
+  "manualApproval": "pending",
+  "binary": "JornadaStudio",
+  "compiler": "cc (Debian 12.2.0-14+deb12u1) 12.2.0"
+}

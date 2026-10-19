@@ -43,6 +43,8 @@ type Style struct {
 	BorderColor string
 	// BackgroundAssetID identifica uma imagem decorativa opcional.
 	BackgroundAssetID string
+	// TextAlign alinha o texto dentro da caixa; vazio preserva o padrão à esquerda de arquivos anteriores.
+	TextAlign string
 }
 
 // Background define a decoração da tela sem sintetizar controles.
@@ -59,6 +61,8 @@ type Component struct {
 	ID string
 	// Name contém o nome exibido ao usuário; nomes de componentes são únicos na tela.
 	Name string
+	// FileID define o nome-base editável do arquivo gerado, separado do UUID interno.
+	FileID string
 	// Kind seleciona a variante tipada ou a ação pelos discriminadores estáveis do contrato.
 	Kind catalog.Kind
 	// Bounds define a geometria lógica armazenada do componente na tela.
@@ -75,6 +79,8 @@ type Screen struct {
 	ID string
 	// Name contém o nome exibido ao usuário; nomes de componentes são únicos na tela.
 	Name string
+	// FileID define o nome-base do arquivo da tela, com prefixo Pnl e até 40 caracteres ASCII.
+	FileID string
 	// Size define as dimensões lógicas da superfície de desenho.
 	Size Size
 	// Background define a decoração da tela sem sintetizar controles.
@@ -85,7 +91,7 @@ type Screen struct {
 
 // New cria uma tela vazia de 800 por 600 unidades lógicas com fundo branco.
 func New(name string) Screen {
-	return Screen{ID: project.NewID(), Name: name, Size: Size{800, 600}, Background: Background{Color: "#FFFFFF"}, Components: []Component{}}
+	return Screen{ID: project.NewID(), Name: name, FileID: SuggestFileID(name, true), Size: Size{800, 600}, Background: Background{Color: "#FFFFFF"}, Components: []Component{}}
 }
 
 // NewComponent cria uma instância do catálogo com novos identificadores de opções.
@@ -97,7 +103,7 @@ func NewComponent(kind catalog.Kind, name string, x, y int) (Component, error) {
 		return Component{}, fmt.Errorf("tipo de componente desconhecido")
 	}
 	// component contém o controle tipado em processamento, validado nas coordenadas e referências da própria tela.
-	component := Component{ID: project.NewID(), Name: name, Kind: kind, Bounds: Bounds{x, y, definition.Width, definition.Height}}
+	component := Component{ID: project.NewID(), Name: name, FileID: SuggestFileID(name, false), Kind: kind, Bounds: Bounds{x, y, definition.Width, definition.Height}}
 	switch kind {
 	case catalog.Button:
 		component.Properties.Button = &catalog.ButtonProperties{Text: "Continuar", Variant: "confirm"}
@@ -144,6 +150,11 @@ func (b Bounds) Clamp(size Size) Bounds {
 
 // Validate verifica identidade, dimensões, nomes únicos, geometria, propriedades e cores locais da composição.
 func (s Screen) Validate() error {
+	if err := ValidateFileID(s.FileID, true); err != nil {
+		return err
+	}
+	// fileIDs impede colisões de arquivos de componentes na mesma tela, inclusive só de caixa.
+	fileIDs := map[string]bool{}
 	if !project.ValidID(s.ID) || strings.TrimSpace(s.Name) == "" || s.Size.Width < 1 || s.Size.Height < 1 {
 		return fmt.Errorf("tela inválida")
 	}
@@ -151,6 +162,13 @@ func (s Screen) Validate() error {
 	names := map[string]bool{}
 	// component contém o controle tipado em processamento, validado nas coordenadas e referências da própria tela.
 	for _, component := range s.Components {
+		if err := ValidateFileID(component.FileID, false); err != nil {
+			return fmt.Errorf("%s: %w", component.Name, err)
+		}
+		if fileIDs[strings.ToLower(component.FileID)] {
+			return fmt.Errorf("ID de componente repetido na tela: %s", component.FileID)
+		}
+		fileIDs[strings.ToLower(component.FileID)] = true
 		if !project.ValidID(component.ID) || strings.TrimSpace(component.Name) == "" || names[component.Name] {
 			return fmt.Errorf("componente sem identidade ou com nome repetido")
 		}
@@ -164,6 +182,9 @@ func (s Screen) Validate() error {
 		}
 		if component.Style.FontSize < 0 {
 			return fmt.Errorf("tamanho de fonte inválido")
+		}
+		if component.Style.TextAlign != "" && component.Style.TextAlign != "left" && component.Style.TextAlign != "center" && component.Style.TextAlign != "right" {
+			return fmt.Errorf("alinhamento do texto inválido")
 		}
 		// color contém uma substituição opcional de cor.
 		for _, color := range []string{component.Style.TextColor, component.Style.FillColor, component.Style.BorderColor} {

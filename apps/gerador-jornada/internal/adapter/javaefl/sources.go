@@ -12,6 +12,9 @@ import (
 // Sources monta fontes pequenos por tela e contrato de navegação.
 // Não publica nem afirma homologação; Export aplica o gate de evidência real.
 func Sources(document application.Document, profile Profile) (map[string]string, error) {
+	if err := document.ValidateFileIDs(); err != nil {
+		return nil, err
+	}
 	// packageName é um namespace validado antes da geração.
 	packageName := document.JavaOptions.PackageName
 	// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
@@ -33,10 +36,12 @@ func Sources(document application.Document, profile Profile) (map[string]string,
 	for _, page := range document.Screens {
 		// name é o nome normalizado sem renomear a entidade de origem.
 		// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
-		name, err := Identifier(page.Name, true)
+		_, err := Identifier(page.FileID, true)
 		if err != nil {
 			return nil, err
 		}
+		// name preserva exatamente o ID editável como nome de classe e arquivo da tela.
+		name := page.FileID
 		if names[strings.ToLower(name)] {
 			return nil, fmt.Errorf("JAVA_NAME_COLLISION: %s", page.ID)
 		}
@@ -55,10 +60,13 @@ func Sources(document application.Document, profile Profile) (map[string]string,
 		for _, component := range page.Components {
 			// variable identifica o campo Java da instância.
 			// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
-			variable, err := Identifier(component.Name, false)
+			_, err := Identifier(component.FileID, false)
 			if err != nil {
 				return nil, err
 			}
+			// variable evita colisões com parâmetros host/navigator e a fábrica local do painel.
+			// O prefixo técnico não modifica o nome-base confirmado do arquivo individual.
+			variable := "component" + component.FileID
 			if fields[strings.ToLower(variable)] {
 				return nil, fmt.Errorf("JAVA_NAME_COLLISION: %s", component.ID)
 			}
@@ -77,7 +85,7 @@ func Sources(document application.Document, profile Profile) (map[string]string,
 			}
 			factoryImports = append(factoryImports, factory.Imports...)
 			declarations += fmt.Sprintf("    /** %s. */\n    private final %s %s;\n", Comment(component.Name), factory.Type, variable)
-			initialization += fmt.Sprintf("        %s = factory.create%s();\n        add(%s);\n", variable, variable, variable)
+			initialization += fmt.Sprintf("        %s = factory.create%s();\n        add(%s);\n", variable, component.FileID, variable)
 			if component.Kind == catalog.Button {
 				// target resolve o destino da operação na coleção ou no mapa corrente.
 				if target := document.Journey.Destination(component.ID); target != "" {
@@ -87,7 +95,16 @@ func Sources(document application.Document, profile Profile) (map[string]string,
 					initialization += factory.Click(variable, Literal(target))
 				}
 			}
-			factoryMethods += fmt.Sprintf("    /** Cria %s com geometria em pixels lógicos. */\n    public %s create%s() {\n        // component é uma instância independente da família EFL.\n        %s component = %s;\n        component.setBounds(%d, %d, %d, %d);\n        return component;\n    }\n", Comment(component.Name), factory.Type, variable, factory.Type, construction, component.Bounds.X, component.Bounds.Y, component.Bounds.Width, component.Bounds.Height)
+			// componentPackage separa arquivos de telas diferentes que reutilizam o mesmo ID local.
+			componentPackage := packageName + ".component." + strings.ToLower(name)
+			// imported impede que a classe individual esconda um tipo simples exigido pelo perfil.
+			for _, imported := range factory.Imports {
+				if imported[strings.LastIndex(imported, ".")+1:] == component.FileID {
+					return nil, fmt.Errorf("JAVA_NAME_COLLISION: ID %s conflita com import do perfil", component.FileID)
+				}
+			}
+			files[base+"component/"+strings.ToLower(name)+"/"+component.FileID+".java"] = componentSource(componentPackage, packageName, component, factory, construction)
+			factoryMethods += fmt.Sprintf("    /** Cria %s por sua fábrica individual. */\n    public %s create%s() {\n        return %s.%s.create(host);\n    }\n", Comment(component.Name), factory.Type, component.FileID, componentPackage, component.FileID)
 		}
 		// panelImports reúne o painel, fábricas e controles tipados.
 		panelImports := append([]string{}, profile.PanelImports...)

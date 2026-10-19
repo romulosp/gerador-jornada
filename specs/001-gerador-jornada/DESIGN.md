@@ -52,3 +52,15 @@ Data/hora e indicadores informativos são valores ilustrativos editáveis nesta 
 Validar janela 1366 × 768 e DPI 100%, 150% e 200%; zoom 25%, 100%, Ajustar e 400%; acentos, emoji, textos longos e estados vazios. Confirmar contraste, foco por teclado e mensagens contextuais. Cada DESIGN específico acrescenta suas dimensões, tokens, estados e casos de borda.
 
 Registrar build, fixture e resultado em [quickstart.md](quickstart.md). Validação XML, testes de widgets e documentação revisada não equivalem a homologação do PowerPoint, EFL ou aprovação humana.
+
+## Ícone do programa — 2026-10-18
+
+Fonte escolhida pelo usuário: `sugestao_nao_final_icone.png`, 1254 × 1254. Cópia incorporada: `apps/gerador-jornada/internal/adapter/builtinassets/assets/app-icon.png`, SHA-256 `E070BA60470E35331007AFB91F3DB12F8DFB4114F513DA7441C39A269060F8EA`. Preservar a composição e as cores azul/amarelo do original, incluindo seu fundo escuro; não aplicar recortes ou remover o fundo.
+
+O adaptador desktop fornece a imagem ao Fyne. O build gera um grupo ICO com quadros 16, 24, 32, 48, 64, 128 e 256 px, incorporado aos recursos PE por MinGW windres. PNG e scripts são versionados; ICO, RC e SYso gerados são descartáveis e ficam ignorados pelo Git. Nenhuma ferramenta de conversão é necessária no computador do usuário.
+
+Validar Explorer, título da janela e barra de tarefas nos DPIs definidos acima. Este recurso identifica o editor e não é adicionado aos projetos ou às apresentações exportadas.
+
+## IDs de arquivo no painel
+
+Tela e instâncias visuais têm campo ID, separado de Nome, com regras e mensagens do [painel de propriedades](../028-propriedades/DESIGN.md#id-do-arquivo). Prefixo Pnl é obrigatório somente nas telas; exemplos PnlIdentificacao e BtnContinuar. O atributo é metadado e não é desenhado no PPT/prévia. Texto visível e nome amigável continuam aceitando acentos.

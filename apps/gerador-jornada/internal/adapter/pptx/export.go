@@ -21,6 +21,8 @@ type Options struct {
 	Exploration bool
 	// ScenarioIDs seleciona roteiros; nil seleciona todos os não vazios.
 	ScenarioIDs []string
+	// Transition escolhe fade, push, wipe ou none; vazio usa fade.
+	Transition string
 }
 
 // menuLink vincula uma entrada de menu ao número de um slide.
@@ -49,6 +51,8 @@ type slidePlan struct {
 type deck struct {
 	// Document é o snapshot de origem.
 	Document application.Document
+	// Transition conserva somente a preferência da operação de exportação.
+	Transition string
 	// Width é a maior largura lógica das telas.
 	Width int
 	// Height inclui a faixa inferior de navegação.
@@ -143,7 +147,10 @@ func Build(ctx context.Context, document application.Document, options Options, 
 // planDeck separa exploração livre de demonstrações temporizadas.
 func planDeck(document application.Document, options Options) (*deck, error) {
 	// plan começa com o menu, sem destinos ainda resolvidos.
-	plan := &deck{Document: document, Slides: []slidePlan{{Caption: document.Project.Name}}, Exploration: map[string]int{}}
+	if options.Transition != "" && options.Transition != "fade" && options.Transition != "push" && options.Transition != "wipe" && options.Transition != "none" {
+		return nil, fmt.Errorf("PPT_ANIMATION_UNSUPPORTED: transição desconhecida")
+	}
+	plan := &deck{Document: document, Transition: options.Transition, Slides: []slidePlan{{Caption: document.Project.Name}}, Exploration: map[string]int{}}
 	// page determina o tamanho único do arquivo.
 	for _, page := range document.Screens {
 		plan.Width = max(plan.Width, page.Size.Width)
@@ -218,14 +225,14 @@ func (d *deck) renderSlide(plan slidePlan) (string, string, error) {
 	}
 	render.content.WriteString("</p:spTree>")
 	// transition fica separado da árvore de animações.
-	transition := ""
+	transition := transitionXML(d.Transition, 0)
 	if plan.Visit != nil {
 		// duration expressa em milissegundos o tempo da ocorrência exportada.
 		duration := plan.Visit.DurationMS
 		if len(plan.Visit.Events) == 0 || plan.Visit.Events[len(plan.Visit.Events)-1].Step.Kind != "navigate" {
 			duration += 1000
 		}
-		transition = fmt.Sprintf(`<p:transition advClick="0" advTm="%d"/>`, max(1, duration))
+		transition = transitionXML(d.Transition, max(1, duration))
 	}
 	// timing contém somente animações nativas do roteiro selecionado.
 	timing := render.timingXML()

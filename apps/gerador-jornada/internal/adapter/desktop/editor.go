@@ -12,6 +12,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"gerador-jornada.local/editor/internal/adapter/buildinfo"
 	"gerador-jornada.local/editor/internal/application"
 	"gerador-jornada.local/editor/internal/screen"
 )
@@ -28,6 +29,14 @@ type Editor struct {
 	PageID string
 	// Selected identifica um componente selecionado.
 	Selected string
+	// Selection contém IDs selecionados somente na interface, em ordem estável.
+	Selection []string
+	// DeleteButton permite excluir somente quando há componentes válidos selecionados.
+	DeleteButton *widget.Button
+	// DeleteDialog impede confirmações simultâneas para a mesma operação de exclusão.
+	DeleteDialog *dialog.ConfirmDialog
+	// CurrentScreenPreview abre a tela ativa e fica desabilitado quando não há tela existente.
+	CurrentScreenPreview *widget.Button
 	// FilePath é o destino explícito atual.
 	FilePath string
 	// Zoom afeta somente o desenho.
@@ -38,8 +47,13 @@ type Editor struct {
 	Screens *fyne.Container
 	// Inspector exibe propriedades da seleção.
 	Inspector *fyne.Container
+	// InspectorActions mantém Salvar alterações e Descartar fora da área rolável.
+	InspectorActions *fyne.Container
 	// Structure relaciona os controles da tela e permite selecioná-los por nome.
 	Structure *fyne.Container
+	// StructurePage e StructureRevision identificam o conteúdo já montado na árvore.
+	StructurePage     string
+	StructureRevision uint64
 	// Drawing mantém a área disponível para ajustar o zoom à janela.
 	Drawing *container.Scroll
 	// ZoomLabel informa a escala efetiva sem um valor fixo enganoso.
@@ -63,7 +77,7 @@ type Editor struct {
 // New monta a interface e mantém composição de dependências fora dos domínios.
 func New(app fyne.App, document application.Document) *Editor {
 	// editor recebe uma sessão completamente isolada.
-	editor := &Editor{App: app, Window: app.NewWindow("Gerador de Jornada"), Session: application.NewSession(document), Zoom: 1}
+	editor := &Editor{App: app, Window: app.NewWindow("Gerador de Jornada " + buildinfo.Version()), Session: application.NewSession(document), Zoom: 1}
 	if len(document.Screens) > 0 {
 		editor.PageID = document.Screens[0].ID
 	}
@@ -74,6 +88,7 @@ func New(app fyne.App, document application.Document) *Editor {
 	editor.Title.TextStyle.Bold = true
 	editor.Screens = container.NewVBox()
 	editor.Inspector = container.NewVBox()
+	editor.InspectorActions = container.NewVBox()
 	editor.Structure = container.NewVBox()
 	editor.ZoomLabel = widget.NewLabel("100%")
 	editor.JourneyPanel = container.NewVBox()
@@ -117,7 +132,7 @@ func (e *Editor) page() *screen.Screen { return e.Session.Document.Screen(e.Page
 // header reúne identidade, ações e informações essenciais sem poluir o canvas.
 func (e *Editor) header() fyne.CanvasObject {
 	// brand identifica o produto, separado do título da jornada.
-	brand := canvas.NewText("JORNADA STUDIO", rgb("#2563EB"))
+	brand := canvas.NewText("JORNADA STUDIO · "+buildinfo.Version(), rgb("#2563EB"))
 	brand.TextSize = 12
 	brand.TextStyle.Bold = true
 	// subtitle orienta a tarefa principal.
@@ -126,7 +141,11 @@ func (e *Editor) header() fyne.CanvasObject {
 	// identity mantém hierarquia tipográfica clara.
 	identity := container.NewVBox(brand, e.Title, subtitle)
 	// actions disponibiliza fluxos completos de arquivo e exportação.
-	actions := container.NewHBox(widget.NewButtonWithIcon("Novo", theme.DocumentCreateIcon(), e.newProject), widget.NewButtonWithIcon("Abrir", theme.FolderOpenIcon(), e.openProject), widget.NewButtonWithIcon("Salvar", theme.DocumentSaveIcon(), func() { e.saveProject(false) }), widget.NewButtonWithIcon("Prévia", theme.VisibilityIcon(), e.preview), widget.NewButtonWithIcon("PowerPoint", theme.MediaPlayIcon(), e.exportPPT), widget.NewButtonWithIcon("Java / EFL", theme.ComputerIcon(), e.exportJava))
+	// java mantém a capacidade identificável enquanto seu acesso está suspenso pelo usuário.
+	java := widget.NewButtonWithIcon("Java / EFL", theme.ComputerIcon(), e.exportJava)
+	java.Disable()
+	e.CurrentScreenPreview = widget.NewButtonWithIcon("Prévia Tela Atual", theme.VisibilityIcon(), e.previewCurrentScreen)
+	actions := container.NewHBox(widget.NewButtonWithIcon("Novo", theme.DocumentCreateIcon(), e.newProject), widget.NewButtonWithIcon("Abrir", theme.FolderOpenIcon(), e.openProject), widget.NewButtonWithIcon("Salvar", theme.DocumentSaveIcon(), func() { e.saveProject(false) }), widget.NewButtonWithIcon("Prévia", theme.VisibilityIcon(), e.preview), e.CurrentScreenPreview, widget.NewButtonWithIcon("PowerPoint", theme.MediaPlayIcon(), e.exportPPT), java)
 	return container.NewPadded(container.NewVBox(container.NewBorder(nil, nil, identity, nil, container.NewVBox(layout.NewSpacer(), actions, layout.NewSpacer())), widget.NewSeparator()))
 }
 
@@ -134,13 +153,16 @@ func (e *Editor) header() fyne.CanvasObject {
 func (e *Editor) design() fyne.CanvasObject {
 	// left organiza telas e componentes sem mistura de propriedades.
 	left := e.toolsPanel()
+	// DeleteButton compartilha a confirmação usada pelo menu contextual e pela tecla Delete.
+	e.DeleteButton = widget.NewButtonWithIcon("Excluir", theme.DeleteIcon(), e.removeComponent)
+	e.DeleteButton.Disable()
 	// controls contém ações de histórico, zoom e organização.
-	controls := container.NewHBox(widget.NewButtonWithIcon("", theme.ContentUndoIcon(), func() { e.check(e.Session.Undo()); e.changed() }), widget.NewButtonWithIcon("", theme.ContentRedoIcon(), func() { e.check(e.Session.Redo()); e.changed() }), widget.NewSeparator(), widget.NewButton("−", func() { e.setZoom(e.Zoom - .25) }), e.ZoomLabel, widget.NewButton("+", func() { e.setZoom(e.Zoom + .25) }), widget.NewButton("Ajustar", e.fitZoom), layout.NewSpacer(), widget.NewButtonWithIcon("Fundo", theme.FileImageIcon(), e.configureBackground))
+	controls := container.NewHBox(widget.NewButtonWithIcon("", theme.ContentUndoIcon(), func() { e.check(e.Session.Undo()); e.changed() }), widget.NewButtonWithIcon("", theme.ContentRedoIcon(), func() { e.check(e.Session.Redo()); e.changed() }), widget.NewSeparator(), widget.NewButton("−", func() { e.setZoom(e.Zoom - .25) }), e.ZoomLabel, widget.NewButton("+", func() { e.setZoom(e.Zoom + .25) }), widget.NewButton("Ajustar", e.fitZoom), e.DeleteButton, layout.NewSpacer(), widget.NewButtonWithIcon("Fundo", theme.FileImageIcon(), e.configureBackground))
 	e.Drawing = container.NewScroll(e.Board)
 	// drawing preserva a área de desenho em uma superfície rolável.
 	drawing := container.NewBorder(container.NewPadded(controls), nil, nil, nil, e.Drawing)
 	// right contém o inspector com largura mínima agradável.
-	right := container.NewBorder(section("PROPRIEDADES"), nil, nil, nil, container.NewVScroll(e.Inspector))
+	right := container.NewBorder(section("PROPRIEDADES"), e.InspectorActions, nil, nil, container.NewVScroll(e.Inspector))
 	// main separa canvas e propriedades.
 	main := container.NewHSplit(drawing, right)
 	main.Offset = .72
@@ -207,6 +229,14 @@ func validSelection(e *Editor) string {
 
 // refresh sincroniza painéis com o estado de aplicação atual.
 func (e *Editor) refresh() {
+	if e.CurrentScreenPreview != nil {
+		if e.page() == nil {
+			e.CurrentScreenPreview.Disable()
+		} else {
+			e.CurrentScreenPreview.Enable()
+		}
+	}
+	e.refreshSelectionActions()
 	e.Title.Text = e.Session.Document.Project.Name
 	e.Title.Refresh()
 	e.refreshScreens()

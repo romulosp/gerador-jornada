@@ -173,7 +173,11 @@ func (e *Editor) scheduleRecovery() {
 	snapshot := e.Session.Document.Copy()
 	e.Autosave = time.AfterFunc(2*time.Second, func() {
 		// directory mantém a recuperação separada do arquivo do usuário.
-		directory := filepath.Join(os.Getenv("LOCALAPPDATA"), "GeradorJornada", "recovery")
+		directory, err := recoveryDirectory()
+		if err != nil {
+			fyne.Do(func() { e.Status.SetText("Recuperação automática indisponível: " + err.Error()) })
+			return
+		}
 		// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
 		if err := os.MkdirAll(directory, 0700); err != nil {
 			fyne.Do(func() { e.Status.SetText("Recuperação automática indisponível: " + err.Error()) })
@@ -189,7 +193,11 @@ func (e *Editor) scheduleRecovery() {
 // OfferRecovery oferece a cópia válida mais recente após inicializar a janela.
 func (e *Editor) OfferRecovery() {
 	// directory contém apenas cópias automáticas de projeto.
-	directory := filepath.Join(os.Getenv("LOCALAPPDATA"), "GeradorJornada", "recovery")
+	directory, err := recoveryDirectory()
+	if err != nil {
+		e.Status.SetText("Recuperação automática indisponível: " + err.Error())
+		return
+	}
 	// files é ordenado por modificação sem alterar os arquivos.
 	files, _ := os.ReadDir(directory)
 	sort.Slice(files, func(i, j int) bool {

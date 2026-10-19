@@ -41,6 +41,7 @@ func main() {
 	}
 	// desktopApp usa recursos de tema embutidos pelo Fyne.
 	desktopApp := app.NewWithID("br.local.geradorjornada")
+	desktopApp.SetIcon(fyne.NewStaticResource("jornada-studio.png", builtinassets.IconPNG()))
 	// editor recebe as dependências concretas sem um contêiner de DI.
 	editor := desktop.New(desktopApp, document)
 	if *smokeScreenshot != "" {

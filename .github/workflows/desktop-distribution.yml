@@ -1,0 +1,84 @@
+name: Distribuição desktop 64 bits
+
+# Execução manual; gerar artefatos não publica release nem aprova teste humano.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: ${{ matrix.target }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2022
+            target: windows
+            arch: amd64
+          - runner: ubuntu-22.04
+            target: linux
+            arch: amd64
+          - runner: macos-15-intel
+            target: darwin
+            arch: amd64
+          - runner: macos-15
+            target: darwin
+            arch: arm64
+    defaults:
+      run:
+        working-directory: apps/gerador-jornada
+    steps:
+      - name: Obter código
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Preparar Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Preparar Go em Linux/macOS
+        if: runner.os != 'Windows'
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version-file: apps/gerador-jornada/go.mod
+          cache-dependency-path: apps/gerador-jornada/go.sum
+      - name: Preparar ferramentas Windows com hashes fixados
+        if: runner.os == 'Windows'
+        run: python -X utf8 scripts/bootstrap.py
+      - name: Instalar bibliotecas de compilação Linux
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc pkg-config libgl1-mesa-dev xorg-dev libwayland-dev libxkbcommon-dev xvfb
+      - name: Validar Windows
+        if: runner.os == 'Windows'
+        run: ./scripts/check.ps1
+      - name: Validar Linux
+        if: runner.os == 'Linux'
+        env:
+          CGO_ENABLED: '1'
+        run: |
+          go vet ./...
+          xvfb-run -a go test ./... -count=1
+          python3 -m unittest discover -s scripts -p test_build.py -v
+      - name: Validar macOS
+        if: runner.os == 'macOS'
+        env:
+          CGO_ENABLED: '1'
+        run: |
+          go vet ./...
+          go test ./... -count=1
+          python3 -m unittest discover -s scripts -p test_build.py -v
+      - name: Gerar distribuição nativa
+        run: python scripts/build.py --target ${{ matrix.target }} --arch ${{ matrix.arch }}
+      - name: Disponibilizar pacotes para teste manual
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: JornadaStudio-${{ matrix.target }}-${{ matrix.arch }}
+          path: |
+            apps/gerador-jornada/dist/JornadaStudio-*-${{ matrix.target }}-${{ matrix.arch }}.*
+          if-no-files-found: error
+          retention-days: 14

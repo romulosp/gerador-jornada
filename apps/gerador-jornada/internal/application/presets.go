@@ -118,6 +118,7 @@ func InsertPreset(document *Document, pageID, presetID string, x, y int) ([]stri
 		if err != nil {
 			return nil, err
 		}
+		component.FileID = UniqueComponentFileID(*page, component.FileID)
 		component.Bounds = line.Bounds
 		component.Bounds.X += origin.X
 		component.Bounds.Y += origin.Y
@@ -129,6 +130,7 @@ func InsertPreset(document *Document, pageID, presetID string, x, y int) ([]stri
 			component.Properties.Title.Text = line.Text
 			component.Style.FontSize = 18
 			component.Style.TextColor = "#FFFFFF"
+			component.Style.TextAlign = "right"
 		}
 		page.Components = append(page.Components, component)
 		ids = append(ids, component.ID)

@@ -40,7 +40,7 @@ Cobrir IDs duplicados, nome vazio, revisão negativa, recurso compartilhado e is
 ### Functional Requirements
 
 - **FR-001**: Representar projeto com UUID estável, nome não vazio, revisão não negativa e coleções ordenadas de telas/roteiros/recursos.
-- **FR-002**: Manter IDs únicos globalmente no projeto; mudanças de nome não alteram referências.
+- **FR-002**: Manter UUIDs internos únicos globalmente no projeto; mudanças de nome não alteram referências.
 - **FR-003**: Representar imagens PNG/JPEG incorporadas por ID, caminho interno, mediaType, hash SHA-256 e tamanho, sem URLs externas.
 - **FR-004**: Permitir documento sem telas como rascunho; sua ausência de inicial deve ser resolvida antes de prévia/exportação.
 - **FR-005**: Fornecer visão consistente para snapshot sem compartilhar mapas ou slices mutáveis com edição; autosave e IO pertencem à aplicação/adaptador.
@@ -63,3 +63,11 @@ Project e Asset; metadados JavaOptions são dados do documento, validados pelo a
 - Contratos compartilhados: [project-format.md](../001-gerador-jornada/contracts/project-format.md).
 - Não implementa filesystem, ZIP, autosave, undo, UI, decodificação de imagens ou geração de artefatos.
 - Esta entrega contém especificação, não código implementado ou testes executados.
+
+## Persistência de IDs de arquivo
+
+- **FR-006**: Gravar manifesto schemaVersion 2 com fileId de telas/componentes. Aceitar schemaVersion 1 por migração explícita: preencher somente IDs ausentes com sugestões sem acentos e sufixos determinísticos para colisões; preservar UUIDs, nomes e referências. Em v2, exigir valores válidos e recusar duplicidade no escopo. Não renomear IDs explícitos silenciosamente. Leitores antigos devem recusar a versão 2 como incompatível.
+
+## Recuperação nos alvos de distribuição
+
+- **FR-007**: O adaptador desktop deve resolver a pasta de recuperação por usuário com APIs nativas, mantendo o caminho anterior no Windows. Linux usa configuração XDG e macOS Application Support. Falha de resolução deve informar indisponibilidade, sem gravar caminho relativo no diretório corrente; Project/Document não carregam caminhos do sistema operacional.

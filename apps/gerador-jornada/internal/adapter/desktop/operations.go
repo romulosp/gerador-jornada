@@ -3,13 +3,9 @@ package desktop
 import (
 	"fmt"
 
-	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/dialog"
-	"fyne.io/fyne/v2/driver/desktop"
 	"gerador-jornada.local/editor/internal/adapter/builtinassets"
 	"gerador-jornada.local/editor/internal/application"
-	"gerador-jornada.local/editor/internal/journey"
-	"gerador-jornada.local/editor/internal/project"
 	"gerador-jornada.local/editor/internal/screen"
 )
 
@@ -17,6 +13,7 @@ import (
 func (e *Editor) addScreen() {
 	// created identifica a composição adicionada.
 	created := screen.New(fmt.Sprintf("Tela %d", len(e.Session.Document.Screens)+1))
+	created.FileID = application.UniqueScreenFileID(e.Session.Document, created.FileID)
 	if e.check(e.Session.Change(func(document *application.Document) error {
 		document.Screens = append(document.Screens, created)
 		if current := document.Screen(e.PageID); current != nil && current.Background.AssetID != "" {
@@ -102,80 +99,40 @@ func (e *Editor) reorderScreen(delta int) {
 	e.changed()
 }
 
-// duplicateComponent cria um controle independente e copia somente sua ação.
+// duplicateComponent duplica a seleção com vínculos internos em uma única transação.
 func (e *Editor) duplicateComponent() {
-	if e.page() == nil || e.page().ComponentByID(e.Selected) == nil {
+	if e.page() == nil || e.Selected == "" {
 		return
 	}
-	// selected é o ID antes de publicar a cópia.
-	selected := e.Selected
-	// created será selecionado após confirmação.
-	created := ""
-	if e.check(e.Session.Change(func(document *application.Document) error {
-		// page representa a tela do comando.
-		page := document.Screen(e.PageID)
-		// duplicate recebe propriedades profundamente copiadas.
-		duplicate := *page.ComponentByID(selected)
-		duplicate.Properties = duplicate.Properties.Copy()
-		duplicate.ID = project.NewID()
-		duplicate.Name = application.UniqueName(*page, duplicate.Name+"_copia")
-		duplicate.Bounds.X += 10
-		duplicate.Bounds.Y += 10
-		duplicate.Bounds = duplicate.Bounds.Clamp(page.Size)
-		page.Components = append(page.Components, duplicate)
-		created = duplicate.ID
-		// action copia somente o binding pertencente ao botão.
-		for _, action := range append([]journey.Action{}, document.Journey.Actions...) {
-			if action.SourceComponentID == selected {
-				action.SourceComponentID = created
-				document.Journey.Actions = append(document.Journey.Actions, action)
-			}
-		}
-		return nil
-	})) {
-		e.Selected = created
+	// created contém as identidades independentes retornadas pela aplicação.
+	created, err := e.Session.DuplicateComponents(e.PageID, e.selectionIDs())
+	if e.check(err) {
+		e.setSelection(created)
 		e.changed()
 	}
 }
 
-// removeComponent preserva referências externas como diagnósticos reparáveis.
+// removeComponent confirma a remoção do conjunto mantendo referências externas diagnosticáveis.
 func (e *Editor) removeComponent() {
-	if e.Selected == "" || e.page() == nil {
+	if e.DeleteDialog != nil || e.page() == nil {
 		return
 	}
-	// id identifica o alvo que será removido.
-	id := e.Selected
-	dialog.ShowConfirm("Remover componente", "Remover o componente? Roteiros ou teclados vinculados poderão precisar de correção. Você pode desfazer.", func(yes bool) {
-		if !yes {
-			return
-		}
-		if e.check(e.Session.Change(func(document *application.Document) error {
-			// page é a composição afetada.
-			page := document.Screen(e.PageID)
-			// components conserva os irmãos e sua ordem.
-			components := []screen.Component{}
-			// component identifica o controle da tela que será consultado ou alterado.
-			for _, component := range page.Components {
-				if component.ID != id {
-					components = append(components, component)
-				}
-			}
-			page.Components = components
-			// actions remove somente bindings de que o controle era dono.
-			actions := []journey.Action{}
-			// action contém a associação de navegação examinada na operação.
-			for _, action := range document.Journey.Actions {
-				if action.SourceComponentID != id {
-					actions = append(actions, action)
-				}
-			}
-			document.Journey.Actions = actions
-			return nil
-		})) {
-			e.Selected = ""
+	// ids e pageID capturam exatamente o conjunto mostrado na confirmação.
+	ids := append([]string{}, e.selectionIDs()...)
+	if len(ids) == 0 {
+		return
+	}
+	pageID := e.PageID
+	e.DeleteDialog = dialog.NewConfirm("Excluir componente", fmt.Sprintf("Deseja realmente excluir %d componente(s) selecionado(s)? Referências de roteiro ou teclado poderão precisar de correção. Você pode desfazer.", len(ids)), func(yes bool) {
+		e.DeleteDialog = nil
+		if yes && e.check(e.Session.DeleteComponents(pageID, ids)) {
+			e.setSelection(nil)
 			e.changed()
 		}
 	}, e.Window)
+	e.DeleteDialog.SetConfirmText("Sim")
+	e.DeleteDialog.SetDismissText("Não")
+	e.DeleteDialog.Show()
 }
 
 // moveSelection aplica deslocamento de teclado somente fora de um campo em edição.
@@ -183,60 +140,6 @@ func (e *Editor) moveSelection(dx, dy int) {
 	if e.Window.Canvas().Focused() != nil || e.Selected == "" || e.page() == nil {
 		return
 	}
-	e.check(e.Session.Change(func(document *application.Document) error {
-		// page identifica a tela ativa.
-		page := document.Screen(e.PageID)
-		// component é o controle selecionado.
-		component := page.ComponentByID(e.Selected)
-		if component == nil {
-			return nil
-		}
-		component.Bounds.X += dx
-		component.Bounds.Y += dy
-		component.Bounds = component.Bounds.Clamp(page.Size)
-		return nil
-	}))
+	e.check(e.Session.MoveComponents(e.PageID, e.selectionIDs(), dx, dy))
 	e.changed()
-}
-
-// installShortcuts integra edição e arquivo sem interceptar texto digitado.
-func (e *Editor) installShortcuts() {
-	e.Window.Canvas().AddShortcut(&desktop.CustomShortcut{KeyName: fyne.KeyS, Modifier: fyne.KeyModifierControl}, func(fyne.Shortcut) { e.saveProject(false) })
-	e.Window.Canvas().AddShortcut(&desktop.CustomShortcut{KeyName: fyne.KeyZ, Modifier: fyne.KeyModifierControl}, func(fyne.Shortcut) {
-		if e.Window.Canvas().Focused() == nil {
-			e.check(e.Session.Undo())
-			e.changed()
-		}
-	})
-	e.Window.Canvas().AddShortcut(&desktop.CustomShortcut{KeyName: fyne.KeyY, Modifier: fyne.KeyModifierControl}, func(fyne.Shortcut) {
-		if e.Window.Canvas().Focused() == nil {
-			e.check(e.Session.Redo())
-			e.changed()
-		}
-	})
-	e.Window.Canvas().AddShortcut(&desktop.CustomShortcut{KeyName: fyne.KeyD, Modifier: fyne.KeyModifierControl}, func(fyne.Shortcut) {
-		if e.Window.Canvas().Focused() == nil {
-			e.duplicateComponent()
-		}
-	})
-	e.Window.Canvas().SetOnTypedKey(func(event *fyne.KeyEvent) {
-		if e.Window.Canvas().Focused() != nil {
-			return
-		}
-		switch event.Name {
-		case fyne.KeyLeft:
-			e.moveSelection(-1, 0)
-		case fyne.KeyRight:
-			e.moveSelection(1, 0)
-		case fyne.KeyUp:
-			e.moveSelection(0, -1)
-		case fyne.KeyDown:
-			e.moveSelection(0, 1)
-		case fyne.KeyDelete:
-			e.removeComponent()
-		case fyne.KeyEscape:
-			e.Board.Dragging = false
-			e.Board.Refresh()
-		}
-	})
 }

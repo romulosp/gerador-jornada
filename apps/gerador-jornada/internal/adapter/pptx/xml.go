@@ -65,7 +65,14 @@ func shape(id int, name string, primitive presentation.Primitive, link, geometry
 	if foreground == "" {
 		foreground = "#334155"
 	}
-	return fmt.Sprintf(`<p:sp><p:nvSpPr><p:cNvPr id="%d" name="%s">%s</p:cNvPr><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr>%s<a:prstGeom prst="%s"><a:avLst/></a:prstGeom>%s%s</p:spPr><p:txBody><a:bodyPr wrap="none" lIns="0" tIns="0" rIns="0" bIns="0" anchor="t"/><a:lstStyle/><a:p><a:pPr/><a:r><a:rPr lang="pt-BR" sz="%d"%s>%s<a:latin typeface="Arial"/></a:rPr><a:t xml:space="preserve">%s</a:t></a:r><a:endParaRPr lang="pt-BR"/></a:p></p:txBody></p:sp>`, id, escape(name), hyperlink, transform(primitive.Bounds), geometry, solid(primitive.Fill), border, size, weight, solid(foreground), escape(primitive.Text))
+	// alignment corresponde ao alinhamento do parágrafo DrawingML, sem alterar a transformação da forma.
+	alignment := "l"
+	if primitive.TextAlign == "center" {
+		alignment = "ctr"
+	} else if primitive.TextAlign == "right" {
+		alignment = "r"
+	}
+	return fmt.Sprintf(`<p:sp><p:nvSpPr><p:cNvPr id="%d" name="%s">%s</p:cNvPr><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr>%s<a:prstGeom prst="%s"><a:avLst/></a:prstGeom>%s%s</p:spPr><p:txBody><a:bodyPr wrap="none" lIns="0" tIns="0" rIns="0" bIns="0" anchor="t"/><a:lstStyle/><a:p><a:pPr algn="%s"/><a:r><a:rPr lang="pt-BR" sz="%d"%s>%s<a:latin typeface="Arial"/></a:rPr><a:t xml:space="preserve">%s</a:t></a:r><a:endParaRPr lang="pt-BR"/></a:p></p:txBody></p:sp>`, id, escape(name), hyperlink, transform(primitive.Bounds), geometry, solid(primitive.Fill), border, alignment, size, weight, solid(foreground), escape(primitive.Text))
 }
 
 // groupStart mantém a geometria das primitivas no mesmo sistema lógico.
@@ -82,7 +89,7 @@ func groupStart(id int, group presentation.Group, link string) string {
 const treeStart = `<p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr>`
 
 // slideNamespaces declara apenas os namespaces usados pelo pacote.
-const slideNamespaces = `xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"`
+const slideNamespaces = `xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:p14="http://schemas.microsoft.com/office/powerpoint/2010/main" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="p14"`
 
 // relation cria um relacionamento OPC interno.
 func relation(id, kind, target string) string {

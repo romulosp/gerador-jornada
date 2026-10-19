@@ -17,8 +17,8 @@ Diretório novo contendo:
 
 ```text
 src/<packagePath>/
-├── screen/         # uma classe de painel por tela
-├── component/      # fábrica de componentes por tela
+├── screen/         # <fileIdDaTela>.java por tela
+├── component/      # fábricas por tela e arquivos individuais em <fileIdDaTelaEmMinusculas>/
 ├── navigation/     # controlador e contrato de navegação
 └── integration/    # adaptação ao contexto real do hospedeiro
 resources/          # recursos referenciados pelo projeto
@@ -49,9 +49,9 @@ Esses nomes não garantem assinaturas. A equipe mantenedora fornece JARs, versõ
 
 ## Identificadores e texto
 
-Preservar nomes visíveis como texto. Para identificadores, normalizar nome lógico removendo marcas de acento, dividir separadores e formar PascalCase de classe/camelCase de campo; garantir regex ASCII Java válida. Prefixar `Screen` para classes e `component` para campos quando a primeira posição não for letra.
+Preservar nomes visíveis como texto. Usar FileID confirmado exatamente, inclusive caixa, como classe/nome-base: `screen/PnlIdentificacao.java` e `component/pnlidentificacao/BtnContinuar.java`. A fábrica individual do componente cria sua instância; a fábrica da tela delega a ela. Arquivos de suporte derivados, como `<IDDaTela>Factory.java`, não alteram o nome-base principal confirmado.
 
-Recusar nome vazio após normalização, palavra reservada ou colisão no escopo gerado, inclusive diferença apenas de maiúsculas em arquivos Windows. Mostrar os IDs envolvidos e solicitar correção no projeto; não aplicar sufixo silencioso durante exportação.
+O valor deve obedecer ao contrato de FileID: ASCII alfanumérico, início em letra, até 40 caracteres sem extensão, Pnl obrigatório somente nas telas; recusar nomes Windows reservados. Palavras reservadas Java e colisões do escopo gerado produzem diagnóstico; não normalizar/renomear silenciosamente IDs confirmados durante exportação. UUIDs internos continuam resolvendo navegação e vínculos; Name aparece somente como conteúdo/comentário. IDs de componente podem se repetir em telas diferentes porque seus arquivos usam contextos de pacote separados.
 
 Escapar aspas, barras, controles e quebras em literais Java. Preservar Unicode no arquivo UTF-8 e no build com encoding explícito. Texto que se parece com escape Unicode, HTML ou `*/` precisa de tratamento próprio ao entrar em Javadoc, sem encerrar comentário ou alterar sintaxe.
 
