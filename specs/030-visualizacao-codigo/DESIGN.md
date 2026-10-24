@@ -1,6 +1,13 @@
 # DESIGN — Código e diagnóstico — Code
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+A ação Java/EFL está visível e desabilitada; o gerador interno e os testes estruturais de fontes Java foram preservados. A revisão visual não habilita exportação nem executa Java.
+
+**Revisão ainda necessária:** A interface completa de arquivos/código e diagnóstico com perfil EFL homologado continua planejada. Sem biblioteca real não há comprovação de integração Java/EFL. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [001-gerador-jornada](../001-gerador-jornada/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
 **Fonte visual/funcional**: [legado](../../material-legado/src/components/Code/index.js). Revisar o comportamento, não apenas a existência da pasta.

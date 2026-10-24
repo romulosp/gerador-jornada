@@ -26,6 +26,17 @@ O projeto `.jornada` guarda a composição editável. O PPT é uma saída de apr
 6. Use **Prévia Tela Atual** para revisar somente a tela selecionada ou **Prévia** para percorrer o projeto.
 7. Salve o `.jornada` e exporte o **PowerPoint**.
 
+### Projeto de teste dos compostos 031–033
+
+O executável aceita dois utilitários locais que não abrem a janela:
+
+```powershell
+JornadaStudio.exe -save-compounds .\dist\teste-compostos.jornada
+JornadaStudio.exe -export-compounds .\dist\teste-compostos.pptx
+```
+
+O primeiro salva uma revisão com uma instância de código de barras, uma ficha processada e o menu da aplicação em duas telas; o segundo exporta a apresentação correspondente. Os valores digitáveis começam vazios, o menu inicia na raiz e nenhum roteiro é criado. Use uma **cópia** do arquivo para a sessão manual e registre a revisão/hash do EXE, o ambiente, o DPI e as capturas exigidas pelo [roteiro de teste humano](../../specs/001-gerador-jornada/quickstart.md#21-teste-humano-consolidado--features-001033-2026-10-24).
+
 ### Requisitos para executar
 
 | Sistema | Arquitetura e requisitos de execução | Situação |
@@ -76,6 +87,21 @@ As sete famílias têm propriedades tipadas. Os tamanhos abaixo são os defaults
 | **Relatório/lista** | Representar resultados e informações de consulta | Cabeçalho e linhas de texto ordenadas | 300 × 345 |
 | **Teclado numérico** | Alimentar um campo da mesma tela | Campo de destino; 0–9, Limpar e apagar último caractere | 200 × 280 |
 
+**Compostos do legado (031–033):**
+
+| Componente | Propósito | Propriedades específicas | Tamanho inicial |
+| --- | --- | --- | --- |
+| **Código de barras** | Simular a linha digitável de um boleto | Rótulo; oito campos derivados e validação local por DV | 610 × 60 |
+| **Código de barras processado** | Exibir uma ficha ilustrativa de leitura | Blocos com título e linhas CPF/CNPJ/Nome/Nome fantasia/Razão social | 530 × 120 |
+| **Menu da aplicação** | Editar e explorar a árvore de serviços e jogos | Submenu, item, legenda, categoria, variante, habilitação, destino e menu inicial | 800 × 600 |
+
+Os três aparecem em **ELEMENTOS DO LEGADO**, não entre as sete famílias primitivas. A árvore inicial do menu e os dados derivados do boleto são ilustrativos: não executam movimento bancário, consulta, autenticação, QR ou rede. O PPT preserva textos e formas editáveis, mas não calcula DV, não abre modal e não opera a árvore. Imagens de referência e as classes reais de módulo SISPL/SIGCB não estão no workspace; fidelidade visual e equivalência bancária continuam pendentes de evidência.
+
+### Skins do acervo legado
+
+O inspector oferece **Skin** para cada componente, com as definições compatíveis com a família lida de `material-legado/elemetos_componente/xml/skin.xml`. Exemplos: 91 rótulos, 55 botões, 48 painéis, campo `type1` e teclado. A escolha é persistida em `style.skin` e aplica cor de fundo, cor/tamanho/peso do texto, imagem decorativa e face declarada. A imagem entra no canvas, na prévia e no PPTX como recurso incorporado; a face é usada no PPTX, mas não há embedding de fonte. **Padrão do editor** mantém a aparência genérica anterior. O acervo de imagens/fontes é embutido no executável, sem leitura de caminhos externos em runtime.
+
+
 **Comportamentos e limites importantes:**
 
 - Botões disparam a navegação configurada na prévia completa. No modo Tela Atual, a navegação entre telas é desativada. Variantes e skins ainda não têm equivalência visual integral em todos os renderizadores.
@@ -107,6 +133,17 @@ Cada instância possui nome amigável, **ID de arquivo**, posição X/Y, largura
 - IDs de tela são únicos no projeto; IDs de componente, na tela, sem distinguir caixa. Renomear a legenda não renomeia um ID confirmado.
 - O ID de arquivo é independente do **UUID interno**, usado em navegação e vínculos. A interface remove acentos/símbolos durante a edição; excesso de tamanho e colisões impedem salvar.
 - O gerador de fontes utiliza o nome-base confirmado, como `PnlIdentificacao.java` e `BtnContinuar.java`. A ação pública Java/EFL permanece desabilitada.
+
+### Hierarquia, habilitação e camadas
+
+- **Pai:** o campo **Pai** do inspector associa o componente a um contêiner da mesma tela. Pai ausente, autorreferência e ciclo são recusados; mover o pai desloca os descendentes uma vez, sem duplicar o deslocamento quando o filho também está selecionado.
+- **Habilitado:** o campo **Habilitado** controla a interação. Componente desabilitado continua visível em contraste reduzido, mas não recebe clique, foco, digitação ou navegação na prévia; a instância e o documento não são apagados.
+- **Sobreposição:** o inspector oferece **Manter posição atual**, **À frente do objeto**, **Atrás do objeto**, **Trazer para a frente** e **Enviar para o fundo**, com **Objeto de referência** opcional. A posição é persistida apenas como a ordem canônica da tela, sem campo extra; **Frente ↑ / Fundo ↓** continuam movendo um passo.
+- Remover um pai mantém os filhos na tela como raízes, sem referência inválida. Duplicar tela remapeia pai, filhos, teclado e destinos internos de menu.
+
+### Log de aplicação
+
+O cabeçalho oferece **Log de aplicação**. O popup mostra o caminho efetivo e permite **Registrar diagnóstico agora**, **Copiar caminho** e **Abrir pasta**. O arquivo JSONL registra startup, erros de interface e contagens técnicas (telas, componentes, famílias e habilitados); **não** grava textos digitados, nomes de projeto/componente, caminhos de arquivo ou conteúdo de recursos. No Windows, a pasta fica em `%LOCALAPPDATA%\GeradorJornada\logs`; há rotação de 2 MiB por segmento e retenção de 20 arquivos.
 
 ## Áreas da aplicação e edição
 
@@ -308,3 +345,11 @@ Permanecem separados: homologação do PowerPoint, EFL real, DPI/driver gráfico
 ## Responsáveis e licença
 
 O repositório concentra o conhecimento do projeto e as decisões discutidas com seus mantenedores. A aplicação ainda não possui um arquivo LICENSE próprio definido neste repositório. Recursos visuais do legado, marcas e dependências mantêm suas condições de origem; este README não define uma licença para eles.
+
+## Revisão visual 1.0.0.1 — 2026-10-24
+
+As sete famílias atuais e os compostos de código de barras/menu usam as decorações e fontes disponíveis do legado. Defaults são aplicados mesmo sem escolher skin; cores/fonte/alinhamento podem ser personalizados no inspector. A prévia mantém essa cena durante a interação, com captura de texto transparente, cursor e valores locais. Teclado novo usa 14 teclas em 200 × 350; instâncias antigas conservam seus bounds. LIMPAR emite Backspace e TAB percorre os campos habilitados.
+
+A biblioteca é gerada em desenvolvimento por `python -X utf8 scripts/import_legacy_skin.py`; `--check` confere o resultado sem escrever. Runtime carrega somente os dados JSON e recursos incorporados. Oito definições com imagens ausentes não são oferecidas; escolhas antigas indisponíveis exibem diagnóstico e impedem exportação sem apagar o projeto.
+
+O PPT conserva decorações originais e texto/formas editáveis, com famílias SFNT reais. As fontes não são incorporadas ao PPT: validar sua disponibilidade e licença no computador do Office. A revisão não conclui a expansão integral dos tipos descritos nas specs. Build, capturas, resultados e roteiro manual estão na [seção 22 do quickstart](../../specs/001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24).

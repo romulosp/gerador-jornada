@@ -1,9 +1,16 @@
 # DESIGN — Título — EFLLabelTitulo1
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Título 300 × 28; default label_titulo_1, família física Futura Medium, tamanho 14 e #3E578D. O destaque genérico de tamanho 22 foi substituído pela skin; bounds antigos continuam explícitos.
+
+**Revisão ainda necessária:** Referência Java/Office e todos os estados/variantes continuam sem homologação visual. A faixa de página é um preset separado desta família de título simples. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [003-catalogo](../003-catalogo/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
-**Fonte visual/funcional**: [legado](../../material-legado/src/components/ListComponents/EFLLabelTitulo1/index.js). Revisar o comportamento, não apenas a existência da pasta.
+**Fonte visual/funcional**: primária [EFLLabel.java](../../material-legado/elemetos_componente/component/EFLLabel.java)/[skin.xml](../../material-legado/elemetos_componente/xml/skin.xml); [React](../../material-legado/src/components/ListComponents/EFLLabelTitulo1/index.js) é referência secundária histórica.
 
 ## Responsabilidade visual
 
@@ -11,7 +18,7 @@ O componente deve permitir destacar o assunto de uma área da tela com texto ind
 
 ## Geometria e composição
 
-Legado: 150 × 40 com fonte 14; catálogo atual usa destaque 22 quando o tamanho não foi sobrescrito. A escolha visual deve ser explícita.
+Referência React histórica: 150 × 40. O catálogo atual mantém bounds iniciais 300 × 28 e resolve label_titulo_1, fonte física Futura Medium de tamanho 14; o destaque genérico anterior de 22 foi substituído. Bounds e tamanho de fonte personalizados são preservados.
 
 A ordem é fundo da tela → decoração do componente → formas e textos → indicadores de edição. Textos permanecem editáveis. O fundo não recebe seleção ou arraste de componente.
 
@@ -21,9 +28,9 @@ Valores abaixo são a referência desta feature; diferenças do código atual de
 
 | Token / parte | Valor de referência | Onde personalizar / responsabilidade |
 | --- | --- | --- |
-| texto | #4864A0 | Style.TextColor |
+| texto | #3E578D (label_titulo_1) | Style.TextColor |
 | tamanho | 14 na referência legada | Style.FontSize |
-| peso | negrito | definição da família title |
+| peso histórico React/XML | negrito declarado; efeito depende de face e transformação Java | aparência comprovada por skin, não Bold implícito |
 | fundo | transparente | decoração opcional |
 
 Conteúdo e opções configuráveis: Texto, posição, dimensões, fonte, tamanho e cor; imagem decorativa opcional.
@@ -52,7 +59,7 @@ Normal; selecionado; vazio; texto extenso.
 
 - Título longo, múltiplos títulos, remoção da imagem decorativa e fontes indisponíveis.
 - Manter fonte legível, foco visível e mensagens que não dependam exclusivamente de cor.
-- Fonte ausente usa fallback documentado; o conteúdo e a geometria não podem mudar silenciosamente. Verificar acentos, emoji e texto longo.
+- Fonte/asset/delegate ausente bloqueia fidelidade; fallback exploratório explicitado não homologa. Conferir glifos, métricas e texto longo com face real.
 - Imagens são apenas decoração; nunca substituir todos os textos e controles por uma captura de tela.
 
 ## Referências de implementação
@@ -73,3 +80,7 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 ## ID de arquivo compartilhado
 
 Aplicar o [design do campo ID](../028-propriedades/DESIGN.md#id-do-arquivo) na instância. O atributo não é texto desenhado no componente e não altera sua tipografia ou geometria. Todas as cores, textos e legendas continuam independentes do nome-base ASCII.
+
+## Paridade pós-v1 — 2026-10-19
+
+14 React/22 do renderer inicial não definem um único tamanho Java de título. Variantes label_titulo e demais skins aplicáveis têm fonte/face/tamanho/alpha próprios, por inventário. Override explícito prevalece; campo não sobrescrito adota nova skin, sem mudar bounds. SkinBuilderImpl calcula flags bold/italic sem aplicar style ao Font; fonte física pode já ser face pesada/itálica. Distinguir declaração, transformação e referência visual na [matriz C03/D-11](../001-gerador-jornada/research.md#matriz-de-cobertura-javaefl--expansão-2026-10-19). Fontes em outras_fontes não são ausentes por nome, mas licença/métricas e EFLLabelUI seguem pendentes. Tarefas 003/T011 e 001/T109–T122 conforme responsabilidade.

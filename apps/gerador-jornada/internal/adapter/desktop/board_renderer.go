@@ -157,35 +157,15 @@ func (r *boardRenderer) rebuild(page screen.Screen) {
 func (r *boardRenderer) component(component screen.Component) *boardGroup {
 	// group mantém posições fixas e formas independentes das alças do editor.
 	group := &boardGroup{Bounds: component.Bounds}
+	// primitive é uma parte compartilhada com a prévia e o PPT.
 	for _, primitive := range presentation.Component(component).Shapes {
-		if primitive.AssetID != "" {
-			if image := resourceImage(r.board.Editor.Session.Document, primitive.AssetID, primitive.Bounds); image != nil {
-				r.place(image, primitive.Bounds)
-				group.Objects = append(group.Objects, image)
-			}
-			continue
-		}
-		if primitive.Fill != "" || primitive.Stroke != "" {
-			// box representa preenchimento e borda, preservando transparência sem fundo explícito.
-			box := canvas.NewRectangle(transparent())
-			if primitive.Fill != "" {
-				box.FillColor = rgb(primitive.Fill)
-			}
-			if primitive.Stroke != "" {
-				box.StrokeColor, box.StrokeWidth = rgb(primitive.Stroke), 1
-			}
-			r.place(box, primitive.Bounds)
-			group.Objects = append(group.Objects, box)
-		}
-		if primitive.Text != "" {
-			// text mantém caixa completa para alinhar o parágrafo sem mover o elemento.
-			text := canvas.NewText(primitive.Text, rgb(primitive.Color))
-			text.TextSize, text.TextStyle.Bold = float32(primitive.FontSize)*r.board.Editor.Zoom, primitive.Bold
-			setTextAlignment(text, primitive.TextAlign)
-			r.place(text, primitive.Bounds)
-			group.Objects = append(group.Objects, text)
+		// object já contém a escala lógica; somente a margem do canvas é acrescentada aqui.
+		for _, object := range scenePrimitiveObjects(r.board.Editor.Session.Document, primitive, r.board.Editor.Zoom) {
+			object.Move(object.Position().Add(fyne.NewPos(24, 24)))
+			group.Objects = append(group.Objects, object)
 		}
 	}
+
 	for _, object := range group.Objects {
 		group.Positions = append(group.Positions, object.Position())
 	}

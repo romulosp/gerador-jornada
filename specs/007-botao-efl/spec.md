@@ -2,10 +2,19 @@
 
 **Feature Branch**: `007-botao-efl` (identificador documental; nenhuma branch criada)
 **Created**: 2026-10-18
-**Status**: Draft — especificação individual; aceite funcional e visual pendente
+**Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Pedido do usuário: especificar cada componente do legado e permitir personalização em DESIGN.md.
 **Domínio responsável**: [003-catalogo](../003-catalogo/spec.md); integração em [001-gerador-jornada](../001-gerador-jornada/spec.md).
 **Referência observada**: [legado](../../material-legado/src/components/ListComponents/EFLButton/index.js). Contrato visual específico em [DESIGN.md](DESIGN.md).
+
+<a id="estado-verificado-1-0-0-1"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.1
+
+**Implementação existente:** Botão 110 × 60; variantes confirm/cancel/yes/no resolvem botao_confirmar/botao_cancelar/botao_sim/botao_nao quando Skin está vazia. Imagem e legenda permanecem separadas. Prévia usa legacyControl, com estado de pressão e foco.
+
+**Pendências e limites:** Duas legendas tipadas, cobertura de todos os estados/skins e comparação independente de métricas Java/Office permanecem pendentes. Hover não é um estado demonstrado por este incremento.
+
+**Fontes verificadas:** [scene.go](../../apps/gerador-jornada/internal/presentation/scene.go), [legacy_control.go](../../apps/gerador-jornada/internal/adapter/desktop/legacy_control.go), [legacy_style_test.go](../../apps/gerador-jornada/internal/presentation/legacy_style_test.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -93,3 +102,9 @@ Como autor, quero salvar, reabrir e exportar a composição sem perda ou altera�
 ## ID das instâncias
 
 Toda instância visual desta responsabilidade possui ID de arquivo conforme [Tela](../004-tela/spec.md#identidade-de-arquivo--2026-10-18) e [Catálogo](../003-catalogo/spec.md#atributo-compartilhado-das-instâncias). Campo comum no [painel de propriedades](../028-propriedades/spec.md#campo-id-comum), sem prefixo Pnl obrigatório para componentes e sem substituir UUIDs ou conteúdo visual. Em conjuntos prontos, a regra vale para cada controle efetivamente criado.
+
+## Expansão Java/EFL autorizada — 2026-10-19
+
+- **FR-008**: Cobrir todas skins/estados de EFLButton e a variante EFLTwoLabelButton com duas legendas tipadas/editáveis, sem novo Kind. Preservar click/none/navigate, identidade, bounds e overrides; default atual 110 × 60, não 160 × 44. Fonte/estado/imagem seguem evidência Java, distinguindo flags XML de estilo efetivamente aplicado. Delegate/recurso ausente impede homologação, não autoriza aproximação silenciosa.
+
+**Aceitação**: comparar ambas as legendas e cada skin/estado com referência independente, salvar/reabrir v3 sem mudança de geometria e conferir canvas/prévia/PPT editável. Regras/defaults: [003/T011](../003-catalogo/tasks.md); consumidores 001/T111–T116 e manuais/aceite 001/T120–T122. Matriz C01–C02 em [research.md](../001-gerador-jornada/research.md#matriz-de-cobertura-javaefl--expansão-2026-10-19). Java continua pausado; nada homologado por esta atualização.

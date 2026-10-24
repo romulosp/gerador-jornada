@@ -1,6 +1,13 @@
 # DESIGN — Estrutura — StructureTab
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Estrutura lista os componentes da tela ativa na ordem de camadas e permite selecionar objetos sobrepostos. Nomes/seleção são sincronizados com o canvas; ParentID existe no modelo.
+
+**Revisão ainda necessária:** A lista atual é plana: não há árvore expansível de contêineres com arraste entre nós. Requisitos de novas famílias/contêineres continuam no backlog; não deduzir UI hierárquica da existência de ParentID. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [004-tela](../004-tela/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
 **Fonte visual/funcional**: [legado](../../material-legado/src/components/StructureTab/index.js). Revisar o comportamento, não apenas a existência da pasta.

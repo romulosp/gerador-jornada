@@ -2,10 +2,19 @@
 
 **Feature Branch**: `012-relatorio-efl` (identificador documental; nenhuma branch criada)
 **Created**: 2026-10-18
-**Status**: Draft — especificação individual; aceite funcional e visual pendente
+**Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Pedido do usuário: especificar cada componente do legado e permitir personalização em DESIGN.md.
 **Domínio responsável**: [003-catalogo](../003-catalogo/spec.md); integração em [001-gerador-jornada](../001-gerador-jornada/spec.md).
 **Referência observada**: [legado](../../material-legado/src/components/ListComponents/EFLReportEvent/index.js). Contrato visual específico em [DESIGN.md](DESIGN.md).
+
+<a id="estado-verificado-1-0-0-1"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.1
+
+**Implementação existente:** Relatório 300 × 345 com título e linhas simples. Cena recompõe painel, cabeçalho e rodapé originais; título/linhas usam label_report_titulo/label_report e permanecem editáveis no PPT.
+
+**Pendências e limites:** As oito classes Java de Report, linhas estruturadas, seleção/rolagem e diagnóstico integral de overflow não estão implementados. Hoje a cena limita as linhas ao corpo visível; isso não conclui FR-008–FR-009.
+
+**Fontes verificadas:** [legacy_parts.go](../../apps/gerador-jornada/internal/presentation/legacy_parts.go), [legacy_style_test.go](../../apps/gerador-jornada/internal/presentation/legacy_style_test.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -93,3 +102,10 @@ Como autor, quero salvar, reabrir e exportar a composição sem perda ou altera�
 ## ID das instâncias
 
 Toda instância visual desta responsabilidade possui ID de arquivo conforme [Tela](../004-tela/spec.md#identidade-de-arquivo--2026-10-18) e [Catálogo](../003-catalogo/spec.md#atributo-compartilhado-das-instâncias). Campo comum no [painel de propriedades](../028-propriedades/spec.md#campo-id-comum), sem prefixo Pnl obrigatório para componentes e sem substituir UUIDs ou conteúdo visual. Em conjuntos prontos, a regra vale para cada controle efetivamente criado.
+
+## Piloto e expansão Java/EFL autorizados — 2026-10-19
+
+- **FR-008**: Usar EFLReportEvent como piloto completo do fluxo domínio→editor→prévia→salvar/reabrir v3→PPT editável, com topo/título/corpo/linhas/rodapé, seleção, vazio/overflow/scroll e fontes/skins efetivas. Não tratar o corpo simplificado atual como paridade; reconciliar medidas React/Java antes de afirmar fidelidade.
+- **FR-009**: Cobrir como variantes de Report todas as classes Report, Report2, Report3, ReportEvent, ReportEvent2, ReportNotificacao, ReportSelecaoMultipla e EFLInternalReport, com tipos de linha/seleção/altura e partes comprovados por classe. Piloto/reuso não homologa as demais variantes. Sem banco/serviços/regras externas; faltas de recurso/delegate/referência mantêm entradas bloqueadas.
+
+**Aceitação**: fixture Event com título/linhas acentuadas, seleção inicial, vazio e excedente conserva IDs/bounds/overrides no round-trip, preserva cabeçalho e recorte, muda seleção/scroll só em runtime e exporta formas/textos editáveis com face real. Comparar referência independente por estado e DPI; cada outra classe exige fixture/evidência próprias. Modelo em 003/T014, partes Panel em 003/T015, persistência 002/T009–T012 e consumidores 001/T111–T116. [plan.md](plan.md)/[tasks.md](tasks.md) locais verificam o piloto sem duplicar esses donos; manuais/aceite 001/T120–T122. Java permanece pausado; nenhuma homologação nesta documentação.

@@ -24,6 +24,12 @@ const (
 	Report Kind = "report"
 	// NumericKeyboard representa um teclado de entrada numérica.
 	NumericKeyboard Kind = "numericKeyboard"
+	// BarcodeInput representa a linha digitável de um boleto com oito campos derivados.
+	BarcodeInput Kind = "barcodeInput"
+	// BarcodeProcessed representa uma ficha de leitura com blocos e linhas parametrizáveis.
+	BarcodeProcessed Kind = "barcodeProcessed"
+	// ApplicationMenu representa uma árvore de menus e submenus de serviços e jogos.
+	ApplicationMenu Kind = "applicationMenu"
 )
 
 // Definition descreve uma família sem depender da implementação da interface.
@@ -108,17 +114,31 @@ type Properties struct {
 	Report *ReportProperties
 	// Keyboard é preenchido somente para numericKeyboard.
 	Keyboard *KeyboardProperties
+	// BarcodeInput é preenchido somente para barcodeInput.
+	BarcodeInput *BarcodeInputProperties
+	// BarcodeProcessed é preenchido somente para barcodeProcessed.
+	BarcodeProcessed *BarcodeProcessedProperties
+	// Menu é preenchido somente para applicationMenu.
+	Menu *ApplicationMenuProperties
 }
 
-// Definitions retorna uma nova paleta ordenada.
+// Definitions retorna a paleta das sete famílias base.
 func Definitions() []Definition {
-	return []Definition{{Button, "Botão", 110, 60}, {Label, "Rótulo", 150, 20}, {Title, "Título", 300, 28}, {TextField, "Campo", 150, 25}, {Radio, "Seleção", 180, 60}, {Report, "Relatório", 300, 345}, {NumericKeyboard, "Teclado numérico", 200, 280}}
+	return []Definition{{Button, "Botão", 110, 60}, {Label, "Rótulo", 150, 20}, {Title, "Título", 300, 28}, {TextField, "Campo", 150, 25}, {Radio, "Seleção", 180, 60}, {Report, "Relatório", 300, 345}, {NumericKeyboard, "Teclado numérico", 200, 350}}
 }
 
-// Lookup resolve uma família pelo discriminador estável.
+// LegacyDefinitions retorna os compostos do acervo legado em ordem estável.
+// Eles são ofertados em grupo próprio, separados das sete famílias base.
+func LegacyDefinitions() []Definition {
+	return []Definition{{BarcodeInput, "Código de barras", 610, 60}, {BarcodeProcessed, "Código de barras processado", 530, 120}, {ApplicationMenu, "Menu da aplicação", 800, 600}}
+}
+
+// Lookup resolve uma família pelo discriminador estável, inclusive os compostos legados.
 func Lookup(kind Kind) (Definition, bool) {
+	// definitions contém as famílias base seguidas pelos compostos legados.
+	definitions := append(Definitions(), LegacyDefinitions()...)
 	// definition contém as dimensões padrão da família solicitada no catálogo.
-	for _, definition := range Definitions() {
+	for _, definition := range definitions {
 		if definition.Kind == kind {
 			return definition, true
 		}
@@ -149,6 +169,15 @@ func (p Properties) Validate(kind Kind) error {
 		count++
 	}
 	if p.Keyboard != nil {
+		count++
+	}
+	if p.BarcodeInput != nil {
+		count++
+	}
+	if p.BarcodeProcessed != nil {
+		count++
+	}
+	if p.Menu != nil {
 		count++
 	}
 	if count != 1 {
@@ -196,6 +225,18 @@ func (p Properties) Validate(kind Kind) error {
 	case NumericKeyboard:
 		if p.Keyboard != nil {
 			return nil
+		}
+	case BarcodeInput:
+		if p.BarcodeInput != nil {
+			return p.BarcodeInput.Validate()
+		}
+	case BarcodeProcessed:
+		if p.BarcodeProcessed != nil {
+			return p.BarcodeProcessed.Validate()
+		}
+	case ApplicationMenu:
+		if p.Menu != nil {
+			return p.Menu.Validate()
 		}
 	}
 	return fmt.Errorf("propriedades inválidas para %s", kind)

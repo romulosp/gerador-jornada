@@ -1,6 +1,13 @@
 # DESIGN — Gerador de Jornada
 
-**Status**: referência visual e regras de personalização; homologação manual pendente.
+## Aplicação na revisão 1.0.0.1
+
+Editor Go/Fyne com sete famílias base, três compostos, autoria de telas/jornada/roteiros, persistência 3/3, prévia e PPT. A revisão 1.0.0.1 aplica skins e fontes do legado ao recorte existente.
+
+**Revisão ainda necessária:** FR-049–FR-054 e a expansão de 16 famílias não estão integralmente atendidos. Faltam tipos adicionais, perfil visual portátil por documento, inventário completo de direitos/recursos e homologação Windows/DPI/Office. Java/EFL continua desabilitado. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Implementação**: [apps/gerador-jornada](../../apps/gerador-jornada).
 
 ## Duas superfícies visuais
@@ -35,7 +42,7 @@ Esses valores pertencem ao tema da interface. Overrides de texto, fonte, preench
 
 ## Contrato de personalização por componente
 
-Cada feature individual tem `spec.md`, `DESIGN.md` e checklist de qualidade. O inventário completo fica em [research.md](research.md#inventário-de-componentes-e-designs-individuais). O catálogo das sete famílias também tem seu [DESIGN.md](../003-catalogo/DESIGN.md).
+Cada feature individual tem spec, DESIGN e checklist de qualidade. O inventário histórico fica em [research.md](research.md#inventário-de-componentes-e-designs-individuais); a expansão Java/EFL acrescenta a matriz integral referenciada abaixo. O catálogo, inicialmente de sete famílias, tem seu [DESIGN.md](../003-catalogo/DESIGN.md).
 
 Alterar um DESIGN.md declara uma intenção visual para implementação e revisão. O EXE não lê Markdown como configuração. Antes de considerar uma alteração pronta, implementar o token correspondente, testar comportamento e comparar os estados de referência. Não apresentar um token planejado como controle de personalização já disponível.
 
@@ -68,4 +75,22 @@ Tela e instâncias visuais têm campo ID, separado de Nome, com regras e mensage
 
 ## Temas e saída em tela cheia
 
+O isolamento de tema continua obrigatório no alvo pós-v1; skins/fontes da jornada não alteram a chrome.
+
 A barra de ferramentas define as paletas e controles em [025/DESIGN.md](../025-barra-ferramentas/DESIGN.md#sair-e-seletor-de-tema). Claro é padrão; Escuro e Azul são preferências locais. As superfícies do editor mudam, enquanto fundo, texto e componentes da jornada mantêm os valores do projeto. Sair aparece à direita somente em tela cheia e usa a confirmação de encerramento com Sim/Não. Rascunhos são protegidos conforme [028-propriedades](../028-propriedades/spec.md).
+
+## Paridade Java/EFL pós-v1 — 2026-10-19
+
+Escopo autorizado é todo o acervo visual, preservando a história das sete famílias. Referência primária Java/XML/builder/pintura e [matriz de evidência](research.md#matriz-de-cobertura-javaefl--expansão-2026-10-19); React é secundária identificada. Biblioteca skin estática gerada de dados puros + recursos no adaptador, cena/métricas comuns a canvas/miniatura/prévia/PPT, sem executar Java ou ler XML legado em runtime.
+
+Aplicar aparência nova a antigos conservando bounds/IDs/FileIDs/conteúdo/vínculos/ordem/overrides e left histórico. Fonte/face/RGBA/spacement/estados exigem evidência; bold/italic XML não são estilo aplicado pelo builder. Não resolver paridade com tema global, widget nativo opaco, rasterização ou substituição silenciosa. Fontes em outras_fontes existem por nome, mas licenças/métricas/recursos/delegates continuam gates. Defaults geométricos novos não redimensionam antigos.
+
+Piloto Report e teclado têm [plano 012](../012-relatorio-efl/plan.md) e [plano 013](../013-teclado-numerico-efl/plan.md). Demais famílias seguem donos de domínio/adaptadores, sem backlog avulso. Comparação Windows/DPI e PowerPoint e aceite explícito da revisão são etapas separadas. Este DESIGN não comprova implementação/homologação ou reativa Java.
+
+## Aplicação efetiva dos estilos — 2026-10-24
+
+A cena agora resolve os defaults do acervo mesmo sem escolha explícita de skin. Imagens de botão/relatório/faixa continuam decorações; legendas, campos, opções e linhas permanecem texto e formas. O tema Claro/Escuro/Azul personaliza o editor; a jornada usa as fontes e cores resolvidas de sua cena.
+
+A implementação corrente está em `internal/presentation/{scene,legacy_parts,menus,barcodes}.go` e no renderer Fyne comum `internal/adapter/desktop/scene_render.go`. Prévia usa botões/opções/teclas com renderer próprio e entrada transparente sobre a decoração EFL. Editor e prévia carregam as faces físicas incorporadas. Skins ausentes mostram diagnóstico e bloqueiam PPT, preservando o documento.
+
+Referência renderizada em memória: `apps/gerador-jornada/build/legacy-preview.png`. Inspeção visual do agente não equivale a teste Windows em DPI 100/150/200% ou aceite do usuário; veja seção 22 do quickstart.

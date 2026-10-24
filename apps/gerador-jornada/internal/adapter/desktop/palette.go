@@ -41,6 +41,24 @@ func (e *Editor) palette() fyne.CanvasObject {
 	return items
 }
 
+// legacyPalette monta os três compostos tipados do acervo legado no grupo já existente.
+func (e *Editor) legacyPalette() fyne.CanvasObject {
+	// items preserva a ordem estável das definições legadas.
+	items := container.NewVBox()
+	// definition representa um composto arrastável ou clicável.
+	for _, definition := range catalog.LegacyDefinitions() {
+		// item reutiliza o mesmo comportamento de inserção e arraste das famílias base.
+		item := &paletteItem{Editor: e, Kind: definition.Kind}
+		item.Text = definition.Name
+		item.Icon = theme.ContentAddIcon()
+		item.Alignment = widget.ButtonAlignLeading
+		item.OnTapped = func() { e.insert(item.Kind, 48, 48) }
+		item.ExtendBaseWidget(item)
+		items.Add(item)
+	}
+	return items
+}
+
 // Dragged memoriza o destino do ponteiro no canvas da janela.
 func (p *paletteItem) Dragged(event *fyne.DragEvent) {
 	p.LastPosition = event.AbsolutePosition

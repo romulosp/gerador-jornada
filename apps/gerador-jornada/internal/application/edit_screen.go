@@ -81,9 +81,16 @@ func (s *Session) DuplicateScreen(id string) (string, error) {
 			mapping[duplicate.Components[index].ID] = project.NewID()
 			duplicate.Components[index].ID = mapping[duplicate.Components[index].ID]
 			duplicate.Components[index].Properties = duplicate.Components[index].Properties.Copy()
+			// compostos recebem identidades internas novas para não colidirem com o original.
+			duplicate.Components[index].Properties.RegenerateCompoundIDs(project.NewID)
 		}
-		// index localiza o item atual na coleção sem alterar sua ordem.
+		// screenMapping remapeia destinos de menu que apontavam para a própria tela copiada.
+		screenMapping := map[string]string{id: duplicate.ID}
+		// index percorre os componentes já copiados para ajustar referências internas.
 		for index := range duplicate.Components {
+			// Pai da tela copiada recebe a identidade correspondente na cópia.
+			duplicate.Components[index].ParentID = mapping[duplicate.Components[index].ParentID]
+			catalog.RemapMenuTargets(duplicate.Components[index].Properties.Menu, screenMapping)
 			if duplicate.Components[index].Properties.Keyboard != nil {
 				duplicate.Components[index].Properties.Keyboard.TargetComponentID = mapping[duplicate.Components[index].Properties.Keyboard.TargetComponentID]
 			}

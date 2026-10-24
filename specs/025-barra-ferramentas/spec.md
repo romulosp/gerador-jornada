@@ -2,10 +2,19 @@
 
 **Feature Branch**: `025-barra-ferramentas` (identificador documental; nenhuma branch criada)
 **Created**: 2026-10-18
-**Status**: Draft — especificação individual; aceite funcional e visual pendente
+**Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Pedido do usuário: especificar cada componente do legado e permitir personalização em DESIGN.md.
 **Domínio responsável**: [001-gerador-jornada](../001-gerador-jornada/spec.md); integração em [001-gerador-jornada](../001-gerador-jornada/spec.md).
 **Referência observada**: [legado](../../material-legado/src/components/Header/index.js). Contrato visual específico em [DESIGN.md](DESIGN.md).
+
+<a id="estado-verificado-1-0-0-1"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.1
+
+**Implementação existente:** Barra oferece arquivos, prévias, PPT, histórico, zoom, ajuste, exclusão, fundo, tema e janela/tela cheia. Java/EFL permanece visível e desabilitado; tema é preferência local e não recolore a jornada.
+
+**Pendências e limites:** Equivalências nativas de atalhos e toda a matriz de foco/DPI/encerramento ainda exigem teste humano. Não há liberação Java por esta revisão.
+
+**Fontes verificadas:** [editor.go](../../apps/gerador-jornada/internal/adapter/desktop/editor.go), [window_mode.go](../../apps/gerador-jornada/internal/adapter/desktop/window_mode.go), [theme_preferences_test.go](../../apps/gerador-jornada/internal/adapter/desktop/theme_preferences_test.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -144,3 +153,7 @@ Como autor, quero sair sem restaurar a janela e escolher um tema confortável, p
 - **FR-018**: Aplicar contraste coerente a painéis, textos, cabeçalho, menus, diálogos, campos e estados de foco/seleção/desabilitado. Tema não altera dados/canvas do projeto, prévias ou exportadores. Manter os adaptadores de apresentação separados dos domínios existentes.
 
 **Success Criteria**: usuário encerra com uma ação acessível sem restaurar; três temas selecionáveis, preferência reaplicada na reabertura e nenhuma revisão do projeto causada pela troca. Homologação visual em Windows e DPI reais permanece manual.
+
+### Decisão prevalente — ações sem integração retiradas
+
+- **FR-019**: Conforme [001/FR-059](../001-gerador-jornada/spec.md#dependencias-ausentes-fr-059), excluir a ação Java/EFL e seu callback, sem botão visível/desabilitado ou integração residual. Supera as disposições anteriores de manter essa ação suspensa. Preservar Novo, Abrir, Salvar, Prévia, Prévia Tela Atual e PowerPoint, assim como tema, tela cheia, saída e log. Eventual reintegração depende de change com a biblioteca real. Regressão do cabeçalho foi escrita e compilada, não executada; revisar UI nativa em [001/T133](../001-gerador-jornada/tasks.md#t133-dependencias-ausentes).

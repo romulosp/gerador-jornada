@@ -1,9 +1,18 @@
 # Implementation Plan: Gerador de Jornada
 
+## Situação corrente — revisão 1.0.0.1
+
+Composição em application.Document; sete famílias base e três compostos; Style/Enabled/ParentID na instância. JSON schemaVersion=3/catalogVersion=3. Não existe Document.AppearanceProfile, appearance tipada, skin.Profile ou adaptador visualprofile no código atual.
+
+Este quadro e a [spec](spec.md#estado-verificado-1-0-0-1) descrevem a implementação atual. As seções datadas de expansão conservam decisões/requisitos e registros históricos: tipos, arquivos, testes e perfis ali citados só são evidência atual quando existem na árvore e estão cobertos pela seção 22 do [quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Não atribuir ao build atual resultados de uma revisão antiga.
+
+
 **Branch**: `001-gerador-jornada` (identificador, sem branch Git criada) | **Date**: 2026-10-17 | **Spec**: [spec.md](spec.md)
 **Input**: Especificação funcional aprovada e análise estática do material legado.
 
 ## Summary
+
+**Referência vigente:** consultar a situação corrente 1.0.0.1 acima. A regra de filtragem de dependências ausentes permanece; os inventários de perfis 214/206 e suas APIs são históricos/alvo de expansão.
 
 Construir um editor desktop offline em Go/Fyne para Windows. Um projeto compartilhado descreve componentes EFL, telas, navegação e roteiro; adaptadores independentes exportam PPTX editável com links/animações e fontes Java 1.6/Swing com EFL.
 
@@ -17,13 +26,13 @@ Recursos originais ficam em `internal/adapter/builtinassets`, incorporados com G
 
 **Language/Version**: Go 1.27.2 Windows amd64, fixado nas ferramentas locais e em go.mod; as versões e hashes de preparação Windows são fixados em scripts/toolchains-windows.json; .tools contém apenas ferramentas/cache locais. Alvo gerado: Java SE 6, classfile 50.0.
 **Primary Dependencies**: Fyne v2.8.2 e MinGW GCC 16.2.0 UCRT, com versões e hashes fixados; biblioteca padrão Go para JSON, ZIP, XML, templates e hashing. Sem Node, WebView, automação Office, framework DI ou biblioteca Java na execução do editor.
-**Storage**: `.jornada`, ZIP com manifesto JSON schemaVersion 2 e recursos incorporados; reader aceita versão 1 por migração explícita; autosave local separado do arquivo explícito.
+**Storage**: writer `.jornada` schemaVersion 3/catalogVersion 3; leitura dos pares 1/1, 2/1, 3/2 e 3/3 nos campos suportados. Sem perfil visual privado por documento; recursos de skin incorporados no executável.
 **Testing**: testes Go unitários, contrato e integração; testes de widgets Fyne, fixtures determinísticas e homologação manual em Windows/PowerPoint/Java-EFL reais.
 **Java Validation Tooling**: JDK 17 do usuário executa ECJ 3.33.0 com source/target 1.6; verificação estática com Animal Sniffer 1.24 e assinatura java16:1.1, além de classfile major 50. Scripts externos em `scripts/java6.py` e `scripts/java6/CheckJava6.java`; hashes em `scripts/java6-tools.json`. Sem compilação no editor. Execução Java 6/EFL permanece gate externo.
 **Target Platform**: Windows 10 22H2 e Windows 11 x64; validar DPI 100%, 150% e 200%, hardware gráfico/driver disponível e ambiente de referência de spec.md.
 **Project Type**: aplicação desktop, monólito modular, um módulo Go.
 **Performance Goals**: NFR-007; exportação em worker com cancelamento cooperativo e progresso.
-**Constraints**: offline, janela própria, EXE sem runtimes externos, sete famílias EFL, PowerPoint editável; Java fonte compilado fora do editor.
+**Constraints**: offline, janela própria, EXE sem runtimes externos, sete famílias na v1 e todo o acervo visual Java/EFL na expansão de 2026-10-19, PowerPoint editável; Java permanece pausado.
 **Scale/Scope**: uso individual; conjunto nominal de 10 telas com 50 componentes cada e roteiro de 50 etapas. Não é limite de negócio: arquivos maiores são admitidos dentro dos limites de leitura do contrato e têm desempenho a medir.
 
 ## Constitution Check
@@ -208,7 +217,7 @@ A distribuição 1.0.0.0 utiliza `internal/adapter/buildinfo/VERSION` como fonte
 - Tela: `internal/screen/file_id.go` centraliza limpeza, sugestões, prefixo e validação de valor. Screen/Component mantêm FileID e UUID separados.
 - Aplicação: `internal/application/file_ids.go` coordena unicidade e migração; Session.Change valida somente IDs de arquivo além das regras específicas da operação, preservando rascunhos com outras pendências. Criação e duplicação sugerem IDs livres, sem reescrever originais.
 - Desktop: `internal/adapter/desktop/file_id.go` trata a entrada comum; formulários de tela/componente salvam em transação. Não acoplar o domínio ao widget.
-- Persistência: writer schemaVersion 2; reader v1 migra explicitamente e reader v2 exige campos válidos. A alteração de formato é intencional para que editores antigos rejeitem novos arquivos, em vez de descartarem o atributo.
+- Persistência histórica deste incremento: writer schemaVersion 2; reader v1 migra explicitamente e reader v2 exige campos válidos. Atual: writer3/reader1/2/3, conforme continuação abaixo. A alteração de formato impede que editores antigos descartem atributos silenciosamente.
 - Java: usar FileID exato para painel e arquivo individual do componente; fábricas individuais ficam em `component/<fileIdDaTelaEmMinusculas>/<fileIdDoComponente>.java`, separando contextos que reutilizam nomes. A fábrica por tela delega aos arquivos individuais. Suportes derivados continuam distintos dos arquivos principais nomeados pelo usuário. O botão Java/EFL permanece suspenso.
 
 Tradeoff: um atributo a mais evita misturar nome amigável, UUID e classe gerada. Uma pequena migração versionada custa mais que reutilizar Name, mas preserva as referências e impede renomeações silenciosas durante exportação. IDs de componentes são locais à tela para reduzir conflitos e permitir reutilização.
@@ -221,7 +230,7 @@ Linux amd64 pode ser compilado em Docker, com imagem Go 1.27.2/Debian 12 fixada 
 
 MacOS usa runner/Mac nativo Intel ou ARM64, SDK/Clang Apple e bundle .app com ícone ICNS, metadados e assinatura ad-hoc sem notarização. O workflow manual .github/workflows/desktop-distribution.yml possui os quatro alvos e ações fixadas por commit; não publica release nem dispara aprovação. A existência do workflow não comprova builds remotos executados.
 
-`internal/adapter/desktop/recovery_path.go` isola a resolução nativa da recuperação. Não alterar regras de negócio ou formato .jornada por causa dos novos alvos. Manter versão 1.0.0.0, schemaVersion 2 e catalogVersion 1 independentes.
+`internal/adapter/desktop/recovery_path.go` isola a resolução nativa da recuperação. Não alterar regras de negócio ou formato .jornada por causa dos novos alvos. Versão 1.0.0.0, schemaVersion e catalogVersion são independentes: eram 2/1 nesta etapa histórica; atuais 3/2 por requisito visual posterior, não por plataforma.
 
 ## Apresentação da janela e captura Windows
 
@@ -260,3 +269,209 @@ Entrega corrente: somente Windows x64. A base Linux/macOS e seus resultados ante
 permanecem como referência histórica; novos builds nesses alvos estão fora do escopo.
 EFL real, PowerPoint nas duas versões-alvo e máquina Windows limpa continuam gates
 próprios. A presença de código ou configuração não conclui essas homologações.
+
+## Plano aprovado de paridade do acervo — 2026-10-19
+
+Plano aprovado com implementação parcial já entregue; o estado da continuação está abaixo e no [quickstart](quickstart.md#7-incremento-do-acervo-javaefl--2026-10-19-evidência-vigente). Decisões D-10–D-16 e matriz de cobertura em [research.md](research.md); contratos evoluem no diretório existente. A constituição 1.2.0 continua vigente: sete famílias são o escopo inicial, a expansão foi autorizada depois, sem afrouxar arquitetura, evidências ou gate Java.
+
+### Fronteiras e fluxo previsto
+
+1. **Importação/fonte/skin (T108–T110)**: conversor de desenvolvimento nos scripts existentes lê o XML e o acervo somente para leitura; gera manifesto determinístico e biblioteca estática versionada. Caminhos físicos alternativos de fontes são explícitos; não mover originais. Implementação em `internal/skin/skin.go` e `data_generated.go` para dados puros sem filesystem/Fyne/XML Java/PPT; `internal/adapter/legacyskin` resolve e incorpora bytes via go:embed e hashes. Pacotes adicionais usam a raiz comprovada `outros_materiais/*/src/images`; cópias bin ficam fora da importação. Guardar todas as origens, bloquear colisões e aplicar apenas escolhas explícitas fixadas por origem/hash em configuração versionada (D-15). O domínio referencia dados tipados, nunca factories de adaptadores.
+2. **Domínios**: Catálogo mantém união tipada/defaults/capacidades; Tela mantém aparência/overrides e hierarquia opcional; Projeto e projectzip cuidam de recursos/migração v3. Jornada valida capacidades locais sem negócio; Demonstração adapta alvos e estados sem comandos implícitos. Execução nos backlogs locais 002–006, não duplicada em 001.
+3. **Apresentação (T111)**: evoluir `presentation.Component/Build/Primitive/Group` com contexto imutável, estado, fonte identificada, baseline, line-height/spacement, RGBA, fit e clipping. Resolver override explícito → skin/estado → default comprovado. Medição/quebra com face real; `TEXTBOX_BORDER=10` não significa padding simétrico 10. Estado inexistente exige herança comprovada ou diagnóstico.
+4. **Desktop e prévia (T112–T115)**: canvas/miniaturas e widgets de interação compartilham cena/pintura; eventos/hit regions separados. FontSource por controle, sem troca de tema global; invalidar cache por revisão/zoom/perfil/hash/estado, não reler fontes por frame. Aplicação mantém sessão runtime independente, incluindo foco/cursor/seleção/scroll/modal. Preservar escopo de Prévia Tela Atual.
+5. **PPT (T116)**: nomes internos das fontes, unidades calibradas, alpha/clipping/linhas e formas editáveis. Validar incorporação permitida; bloquear fidelidade portátil quando impossível, ou explicitar fontes exigidas no ambiente de homologação. Não achatar controles.
+
+### Lotes e dependências
+
+| Lote | Conteúdo e dono | Condição de saída |
+| --- | --- | --- |
+| A | T108–T110; Catálogo T009; contratos de Projeto/Tela | Inventário de cada referência, dados estáticos e recursos validados; faltantes localizados |
+| B | 002/T009–T012, 003/T010–T016, 004/T009–T012; T111 | Modelo/migração/scene válidos e testes antes de UI por família |
+| Piloto | Button/Label/Title, partes Panel e ReportEvent; 012/T001–T003 | Slice editor → prévia → salvar/reabrir → PPTX editável, pronto para comparação, não homologado automaticamente |
+| C1 | 003/T011: duas legendas, Toggle, Radio/grupos, skins de rótulo/título | Cada classe/skin/estado com evidência própria |
+| C2 | 003/T012: campos/máscaras/Password/TextArea, Combo/UF/Table; T013: teclados | Foco/edição/seleção local e geometria comprovados; 013 detalha teclado numérico |
+| C3 | 003/T014: todas variantes Report e ProgressBar | Linha tipada, seleção, vazio/overflow/scroll e capacidade por alvo |
+| C4 | 003/T015 e 004/T011: Panel/scroll/Dialog/Frame e composições 014–018 | Hierarquia/recorte e presets sem serviços reais; faltas de referência bloqueiam homologação |
+| D | T117–T125 | Automatizados, revisão executável, manuais Windows/PPT e aprovação separados |
+
+T112–T116 acompanham cada lote após estabilizar contrato; não liberar Kind somente por adicionar enum. Cobrir criação, Validate, deep-copy, duplicação/remapeio, remoção, Undo/Redo, inspector, codec, cena e capacidades de cada alvo. Piloto não substitui cobertura das outras classes. Fontes adicionais estão presentes, mas análise binária/licenças e recursos/delegates faltantes são gates, não testes aprovados.
+
+### Estado técnico da continuação — 2026-10-19
+
+`application.Document` contém `AppearanceProfile *skin.Profile`, com deep-copy.
+`internal/skin/profile.go` sela/valida schema 1, até 16 revisões diretas e hash
+determinístico incluindo arquivos; `library.go` resolve cópias privadas imutáveis
+por revisão exata. `internal/adapter/visualprofile` conserva todos os metadados da
+biblioteca original em cópias privadas: definições, fontes, aliases, recursos e
+todas as revisões arquivadas, inclusive não usadas e todos os estados. Não enriquece
+perfis privados com builtin nem faz upgrade; uso só limita diagnósticos e acréscimo
+de entrada missing. Desvio arquitetural motivado pelo bug crítico save/reopen →
+AddComponent `defaultconfirm`, preserva inserção de famílias/troca de variantes
+futura. Não é incorporação binária integral: alvo SUBSET de bytes usados e permitidos
+permanece e o payload selado mais amplo altera o hash. Sem copiar novos binários,
+resolve recursos por
+AssetID/hash/tamanho/MIME ou builtin de bytes exatos. O reader v3 aceita ausência
+transitória de perfil; v1/v2 recusam o campo. Não consultar biblioteca global como
+fallback de perfil inválido ou revisão desconhecida.
+
+Desktop e PPT usam perfis por documento e cache por SHA/face exata. Galerias estáticas
+das 16 famílias têm proveniência Java/XML, não screenshots Java nem validação DPI.
+PPT mantém `FontEmbedding=false`/`CompleteFidelity=false` e recusa
+`EmbedFonts`/`StrictFidelity` com `PPT_FONT_EMBEDDING_UNSUPPORTED`. Java/EFL segue desabilitado.
+
+Mapeamento transitório: `Style` transporta skin/version e overrides suportados;
+`Fonts/Aliases/Resources` transportam o perfil. Normalização `component.appearance`,
+presença tipada completa, RGBA e descritores-alvo ainda são lacunas de implementação,
+não requisitos removidos. `Capture` não autoriza cópia por declaração JSON `allowed`.
+
+Evidências do main após correção integral de Capture: gofmt/vet PASS;
+`go test -c -o ./build/compile-tests/ ./...` PASS de compilação de **15 suítes,
+não executadas**, bloqueio prévio por política Windows preservado. Python **28 PASS**
+(15 importador + 4 packaging + 9 Java 6, incluindo erro esperado de `String.strip`,
+não homologação EFL); importer `--check` PASS, mesmo inventário 214/8/270/47.
+Tarefa VS Code de compilação Windows PASS, novo EXE amd64 construído com hash/tamanho
+no [quickstart](quickstart.md#novo-exe-pós-capture--pacote-e-homologação-pendentes).
+Distribuição Windows gerada e verificada; checksum do ZIP no sidecar externo
+`.zip.sha256`. Reempacotar documentos preserva o EXE. Entrega de build para revisão
+realizada; T125 segue aberta pelo escopo dependente de T118/T123 e gates restantes.
+Homologações e aceite continuam pendentes.
+
+## Remoção do campo Recursos / referência — 2026-10-23
+
+A pedido do usuário (o campo “nunca funcionou” e não é necessário), foram removidos o item **Recursos / referência** do inspector, o botão **Diagnóstico de recursos / referência…** da prévia e o registro automático no log via inspector (`appearanceFieldsWithLog`, `Editor.InspectorLogCapture`). `appearanceFields` mantém somente Skin, Face da fonte e Versão do perfil, aplicando o rascunho sem publicar. `componentDiagnostics`/`componentDiagnosticsWithLog` e `visualprofile.ComponentDiagnostics` permanecem como núcleo do **Log de aplicação**, cuja captura manual cobre o componente selecionado ou os componentes da tela atual (estado salvo). Sem mudança de schema/catálogo/domínio/perfil/recursos, de travas de exportação ou de aprovações `pending`. Seções de 2026-10-21 abaixo/acima sobre o campo e a captura automática são históricas. Tarefa: [T134](tasks.md#t134-remocao-recursos-referencia); evidências na [seção 16 do quickstart](quickstart.md#16-remocao-do-campo-recursos--referencia).
+
+## Correção de Recursos / referência — 2026-10-21
+
+Clarifica os diagnósticos existentes de FR-026/FR-050/FR-052 e 028/FR-016, sem mudança de domínio ou formato. A nova API `visualprofile.ComponentDiagnostics(document, component)`, em component_diagnostics.go (referência histórica/proposta sem arquivo nesta árvore: `../../apps/gerador-jornada/internal/adapter/visualprofile/component_diagnostics.go`), reutiliza `Diagnostics` com `Screens` temporárias contendo somente o componente/rascunho recebido. Limpa `ParentID` **apenas na cópia local**, evitando fabricar `PARENT_CLIP_UNRESOLVED` pela exclusão deliberada dos ancestrais. Não valida ancestralidade nesse recorte nem muda o componente original. Perfil completo, assets e recursos permanecem disponíveis à validação global: corrupção inclusive fora da revisão/uso selecionados continua `PROFILE_INVALID`; resolução por `SkinVersion` exata, sem fallback.
+
+No adaptador desktop, inspector_appearance.go (referência histórica/proposta sem arquivo nesta árvore: `../../apps/gerador-jornada/internal/adapter/desktop/inspector_appearance.go`) passa a combinar essa API com a cena local em `componentDiagnostics`. Reúne todas as `group.Definitions`, partes compostas e fontes/imagens de todos os estados, além das primitivas; filtra diagnóstico de biblioteca pela definição exata quando há tipo/nome, ou por dependência de recurso quando não há definição, nunca só por caminho compartilhado entre variantes. Após medição local SFNT bem-sucedida, remove `TEXT_METRICS_REQUIRED` correspondente; prefere condições locais detalhadas às genéricas e deduplica por código/tipo/nome/estado/recurso, independentemente da mensagem.
+
+`appearanceFields` mantém `widget.Label` completo/não editável com quebra em `container.NewVScroll`, mínimo configurado de 160 unidades lógicas e dica **Avisos somente deste componente. Role a lista para consultar os detalhes.** Skin/fonte/versão atualizam a consulta do rascunho sem publicar alterações. A ação de prévia completa já reutiliza `componentDiagnostics` para cada componente e recebe a correção sem novo caminho: deixa de multiplicar os avisos globais pelo número de componentes.
+
+Regressões existentes novas: visualprofile/component_diagnostics_test.go (referência histórica/proposta sem arquivo nesta árvore: `../../apps/gerador-jornada/internal/adapter/visualprofile/component_diagnostics_test.go`) e desktop/resource_diagnostics_test.go (referência histórica/proposta sem arquivo nesta árvore: `../../apps/gerador-jornada/internal/adapter/desktop/resource_diagnostics_test.go`). Cobrem isolamento/rascunho/revisão exata, integridade global/imobilidade dos argumentos, partes/estados futuros, métricas/deduplicação e UI rolável/seletores. **Evidência final do executor principal para esta correção:** gofmt em quatro arquivos PASS; `go vet ./...` PASS; `go test -c -o ./build/compile-tests/ ./...` PASS, com 15 suítes **somente compiladas, não executadas**; quatro testes Python de empacotamento PASS; build Windows pela tarefa process do VS Code na raiz e empacotamento Python PASS. Integridade do pacote PASS (CRC, SHA256SUMS, sidecar SHA-256, PE amd64, README exato, inventário exato, ausência de backups terminados em `~` e ambas as cópias do EXE idênticas). Testes Go não executados por política Windows, sem contorno; UI nativa, DPI, revisão manual e aceite não realizados. T128 permanece aberta como verificação mista; identidades finais somente na [seção 10](quickstart.md#10-correção-de-recursos--referência--2026-10-21), sem equiparar compilação a execução ou build a homologação. Não alterar schemas, catálogo, domínios ou arquivos de camadas; hashes e aprovações anteriores são históricos, não evidência desta correção.
+
+## Incremento: alinhamento textual universal — 2026-10-20
+
+FR-055 reutiliza `Style.TextAlign` e o resolvedor textual compartilhado, sem schema/catálogo/domínio novo. O inspector mantém **Alinhamento do texto** sempre visível nas 16 famílias, mesmo vazias, depois do conteúdo e antes da aparência avançada; quatro opções (Padrão da skin/Esquerda/Centro/Direita), dica restrita ao texto e **Posição do elemento** separada nos comandos de geometria. Carregamento e Save/Discard/Undo/Redo usam o fluxo transacional existente; Tela conserva suas invariantes em 004/T013.
+
+O resolvedor aplica override às regiões textuais sem alterar caixas externas/internas, pais/filhos, fundos ou hit areas. `showCombo` aplica o alinhamento resolvido aos `PopupOptions`, incluindo **Sem seleção**, antes sem efeito do override nesse popup. Células, áreas de relatório e legendas de teclas alinham texto em seus próprios limites. Persistência e PPT consomem o campo/cena já existentes, sem transformação geométrica ou rasterização adicional.
+
+T126 concentra a integração e verificação incremental, sem repetir T083 ou encerrar as tarefas amplas de paridade. Quatro novos arquivos de regressões em desktop/presentation/projectzip/PPT contemplam 48 combinações (16 famílias × três overrides), com `goregular` permitida nas fixtures de fonte, não como substituição das fontes de produção nem aprovação de licenças do acervo. Após produção e esses testes, o executor principal informou em 20/10: gofmt/vet PASS, 15 suítes Go somente compiladas, quatro testes Python de empacotamento PASS e tarefa VS Code de compilação Windows PASS. Testes Go não executados pelo bloqueio prévio Windows, sem contorno; T126/004-T013 permanecem abertas com verificação parcial. Evidências técnicas e identidade do EXE na [seção 8 do quickstart](quickstart.md#8-alinhamento-textual-universal--2026-10-20); novo ZIP somente após README final e confirmação do executor principal, sem hash antecipado. Os 28 Python e referências de 19/10 são históricos, não reexecutados em 20/10. T120–T122, manuais Windows/DPI/PowerPoint, aceite e gates Java/fontes/PPT permanecem abertos e inalterados.
+
+## Log de aplicação no adaptador desktop — 2026-10-21
+
+**FR-057/T131**, sem novo domínio ou dependência externa. [application_log.go](../../apps/gerador-jornada/internal/adapter/desktop/application_log.go) concentra JSONL, identidade, privacidade e armazenamento usando a stdlib (`encoding/json`, `crypto/sha256`, `os`, `sync`, `log`). O [bootstrap](../../apps/gerador-jornada/cmd/gerador-jornada/main.go) abre `ApplicationLog` antes de criar Fyne, registra startup e injeta a instância em `desktop.New`; encerramento registra shutdown/closing e fecha o arquivo. Cada evento contém timestamp UTC, PID/sessão, basename/SHA-256 do EXE lido sem executá-lo, versão do produto/Go, SO e arquitetura. Standard log/Fyne passa por `Writer`: somente hash/bytes, não texto bruto. Erros de diálogo/status recebem categoria/tipo seguro, errno/código exato de perfil quando reconhecidos e fingerprint, sem transcrever erro/caminho arbitrário.
+
+Armazenamento por `os.UserCacheDir` (**%LOCALAPPDATA%/GeradorJornada/logs** no Windows); cache indisponível/não gravável usa **os.TempDir()/GeradorJornada/logs**. Nome por timestamp UTC/PID, sessão independente, criação exclusiva. Mutex, append/Sync síncronos; **2 MiB/segmento + 3 backups**, retenção de **20 arquivos próprios removíveis**, sem percorrer pastas alheias, seguir symlinks ou encerrar processos para remover bloqueados. Snapshots deduplicados por componente/relatório/revisão em **2 s**, até **256 identidades**; captura manual força nova gravação, sem log por frame. `Path` expõe destino efetivo; `Err` conserva falha de persistência, distinta dos erros da aplicação registrados; status/popup tornam a falha consultável.
+
+inspector_appearance.go (referência histórica/proposta sem arquivo nesta árvore: `../../apps/gerador-jornada/internal/adapter/desktop/inspector_appearance.go`) passa o mesmo resultado de `componentDiagnosticsWithLog` à legenda e ao snapshot: seleção e seletores Skin/Face da fonte/Versão do perfil consultam o rascunho sem salvar. [application_log_ui.go](../../apps/gerador-jornada/internal/adapter/desktop/application_log_ui.go) fornece popup **Log de aplicação**, caminho, **Registrar diagnóstico agora**, **Copiar caminho** e **Abrir pasta**. Abertura/captura explícita usa o callback do rascunho visível ou a tela atual sem seleção. O diagnóstico da prévia reutiliza a consulta com log.
+
+Preservar diagnóstico técnico original por código/tipo/nome/estado/recurso, mesmo quando a UI apresenta disponibilidade amigável. `displayed` apenas indica presença do código no relatório; `report_sha256` correlaciona o texto real, nunca o persiste. Allowlist builtin admite metadados/mensagens exatos; desconhecidos/customizados viram hash ou omissão. Nenhum conteúdo de entrada/senha, nome de projeto/componente ou `FilePath`, nem envio pela rede. Resolução usa `sceneResourceData`/revisão exata, inclusive arquivada e partes/estados futuros: esperado SHA/tamanho/MIME/status/licença versus hash/tamanho observados, resolvido/código de erro. Não muda perfil, recursos, licença, políticas, fallback, documento ou histórico. GoDoc/comentários permanecem em português; schemas/catálogo/produto **3/2/1.0.0.0** e gates Java/PPT inalterados.
+
+**Estado final técnico — pronto para coleta (2026-10-21):** produção concluída; 11 arquivos Go formatados (sete existentes e quatro novos, incluindo os dois de testes). Executor principal: `APPLICATION_LOG_VET_PASS` e `APPLICATION_LOG_COMPILE_ONLY_PASS`, **15 suítes compiladas, ZERO execuções Go**; os 9 testes de [application_log_test.go](../../apps/gerador-jornada/internal/adapter/desktop/application_log_test.go) e 3 de application_log_ui_test.go (referência histórica/proposta sem arquivo nesta árvore: `../../apps/gerador-jornada/internal/adapter/desktop/application_log_ui_test.go`) foram somente compilados. Quatro testes Python de empacotamento PASS; tarefa Windows na raiz exit 0; pacote sem `--check` e integridade somente leitura PASS. Ambos os EXEs atualizados/idênticos e ZIP identificado na [seção 13](quickstart.md#13-log-de-aplicação--2026-10-21); README congelado já empacotado, sem necessidade de alterá-lo.
+
+**Verificação mista, T131 aberta:** fechar a instância antiga e abrir o novo EXE identificado para reproduzir/enviar o log. Falha continua relatada, causa não mapeada e solução não comprovada; nenhum aplicativo foi iniciado, startup/runtime do logger não observado e marcadores no binário não provam execução. Política Windows sem contorno; execução Go, UI nativa/DPI 100/150/200%, Office e aceite pendentes. T130/T120–T122 e aprovações `pending` preservados; não herdar evidência histórica nem gerar logs artificiais. Produto/schema/catálogo **1.0.0.0/3/2** inalterados.
+
+<a id="plano-builtin-filtrado"></a>
+## Plano de redução do builtin — 2026-10-21
+
+Decisão de escopo posterior à expansão integral: variantes com dependências indisponíveis saem do builtin operacional até uma futura change de importação; legado e inventário original não são apagados. [FR-058](spec.md#builtin-filtrado-fr-058) define a regra, os oito nomes e a preservação; [003/FR-012](../003-catalogo/spec.md#builtin-filtrado-fr-012) delimita a disponibilidade no catálogo, sem duplicar implementação.
+
+### Fronteiras e fluxo de dados
+
+1. O [importador de desenvolvimento](../../apps/gerador-jornada/scripts/import_legacy_skin.py) inventaria recursos e projeta o XML original antes de particionar definições. Falhas de referência `imagePath`/`slider`/`font:type` (`RESOURCE_MISSING`, `RESOURCE_PATH_INVALID`, `RESOURCE_TYPE_MISMATCH`) retiram a definição inteira, inclusive estados não usados; falha em filho retira a composição inteira. Vínculos por `(Type, Name)` e raiz tipada real evitam exclusão de homônimos ou parentesco presumido por prefixo.
+2. O manifesto existente (referência histórica/proposta sem arquivo nesta árvore: `../../apps/gerador-jornada/internal/adapter/legacyskin/assets/manifest.json`) mantém `source_tree`, `xml_sha256`, roots/origens, conflitos, seleções/pins, fontes e recursos disponíveis. `deferred_definitions` é aditivo: `type`, `name`, `definition`, `reasons`. As causas ficam auditáveis fora dos diagnósticos operacionais das entradas retiradas; avisos globais de integridade/licença permanecem, sem recuperação fictícia de arquivos.
+3. A biblioteca gerada fornece **206 definições / 8 fontes / 270 recursos / 31 diagnósticos ativos**, com **8 definições adiadas / 16 referências missing**, conservando as **214 originais** entre os dois conjuntos. Versão **`legacy-skin-v1-8c7d5015ddc5d9b4b8903730576d8b03e2351f9ab86bb5eace97b2eb57120b0a`**; manifest/Profile/project/catalog/produto continuam **1/1/3/2/1.0.0.0**.
+4. Novos projetos recebem o builtin filtrado completo. Captura não vira subset de definições por uso; não remover fontes ou bytes disponíveis sem uso. Perfil privado, arquivo/revisão arquivada e documento existente não são reescritos, enriquecidos, podados ou atualizados para essa revisão, nem resolvidos por fallback/homônimo. A redução não introduz migração adicional; políticas históricas de leitura continuam independentes.
+5. Catálogo verifica disponibilidade por família e identidade tipada em [003/T017](../003-catalogo/tasks.md#t017-builtin-filtrado). Integração/resolver/captura/persistência/desktop ficam sob o executor principal e [001/T132](tasks.md#t132-builtin-filtrado); não repetir parser, modelos ou implementação dos lotes T108–T118. Runtime continua sem interpretar XML ou executar Java.
+
+### Verificação e futura reimportação
+
+- Evidência atual: **19 Python do importador PASS**, com descoberta/execução explícitas dos quatro novos métodos após corrigir o aninhamento; **4 Python de empacotamento e importador `--check` PASS**. A primeira execução de 15 casos era parcial e foi substituída por essa execução real de 19.
+- Regressões Go de biblioteca, inserção/seletor, Capture e perfis próprios/arquivados implementadas. Gofmt/vet e **compile-only de 15 suítes PASS, ZERO execuções Go**; tarefa Windows e empacotamento sem `--check` PASS. Integridade somente leitura PASS: 549 referências XML ativas, 270 recursos/264 blobs e todas as origens, XML/pin claro, CRC/checksums/PE/manifesto/README congelado/sidecar e dois EXEs idênticos. Identidades reais na seção 14, sem herdar hashes históricos. Compilar não é executar testes Go; política Windows preservada sem contorno.
+- Após identificar a revisão realmente compilada/empacotada, executar o [roteiro da seção 14](quickstart.md#14-builtin-filtrado): novas inserções, seletor 206/8, composição/homônimos, salvar/reabrir e projeto anterior/perfil próprio/arquivado. UI nativa/DPI, Office e aceite continuam separados e pendentes; fontes/licenças, `DELEGATE_MISSING`, `FIDELITY_UNVERIFIED` e gates Java/PPT não mudam.
+- Reimportação é outra change: obter recursos exatos com origem/hash/licença, regenerar e verificar determinismo, manifesto, bytes, estados/composição e consumidores, preservando perfis/revisões anteriores. Só então rever os adiamentos pertinentes e identificar novo build; não desbloquear por substituição de recurso ou promessa de fidelidade total.
+
+Esta finalização sincroniza as evidências reais da implementação e entrega; não fecha caixas de homologação, não cria domínio nem altera a constituição ou o README da raiz. O README da aplicação foi atualizado antes do empacotamento e permanece congelado no pacote.
+
+### Atualização prevalente — dependências ausentes retiradas
+
+Aplicar [FR-059](spec.md#dependencias-ausentes-fr-059): apresentação exclusivamente local Go, sem produtor/call sites dos delegates externos; excluir ação/callback/adaptador Java/EFL e ferramentas Java 6; retirar calculadora sem layout, mantendo leitura de documentos antigos e bloqueio explícito de suas ações. Não apagar o acervo legado nem dados do usuário, criar fallback, domínio, dependência ou alteração de schema.
+
+O log real da entrega anterior confirmou seis resoluções exatas; o problema de delegates não era falta dos PNGs/fontes. A retirada é estrutural e não um filtro de códigos. Conservam-se condições reais de fonte/licença, escala, métricas, layouts locais e portabilidade. Registros anteriores de manter Java visível/desabilitado e delegates obrigatórios ficam superados por esta decisão.
+
+Verificação vigente: 27 testes Python executados PASS (19 importador, quatro empacotamento, quatro estruturais de remoção); importador `--check`, gofmt/vet PASS; 14 suítes Go compiladas, ZERO execuções por política Windows. O pacote Java removido explica a redução de 15 para 14. Distribuição Windows e integridade são registradas na [seção 15](quickstart.md#15-dependencias-ausentes-removidas); revisão nativa/DPI/Office e aceite não decorrem da compilação. Acompanhar [T133](tasks.md#t133-dependencias-ausentes).
+
+<a id="plano-codigos-barras-2026-10-23"></a>
+## Plano coordenador — códigos de barras (2026-10-23)
+
+**Status**: implementação parcial reconciliada com 1.0.0.1; expansão e homologação pendentes.
+
+### Divisão e ordem por domínio
+
+| Dono | Escopo único | Dependência / saída |
+| --- | --- | --- |
+| 003 Catálogo | União tipada/defaults, DV/conversões/derivados puros, blocos/linhas/enum processados | T018 funda; T019/T020 podem seguir em paralelo em arquivos distintos |
+| 004 Tela | Instâncias, identidade/cópia/duplicação, comandos de configuração e vínculos locais | T015/T016 após tipos; não recalcular DVs |
+| 002 Projeto | Codec estrito, compatibilidade planejada 3/3, migração/cópia/round-trip | T013/T014 após modelo estável; não duplicar entidades de Catálogo/Tela |
+| 005 Jornada | Invariantes de rotas/capacidades, sem condição por DV | T011 após capacidades; reset runtime é aplicação |
+| 006 Demonstração | Quadros estáticos/capacidades, rejeitar typeText não contratado nos compostos | T011 após tipos/instâncias; sem cálculo no PPT |
+| 001 Integração | Sessão de entrada, UI de captura/modal/inspector, cena compartilhada e saída PPT | T135–T139 consomem os domínios acima |
+
+**MVP funcional planejado**: 031/US1 (digitação e correção) com trilha completa modelo→instância→persistência→cena/prévia; depois captura integral/derivados. 032 pode avançar independentemente da matemática de 031 após a fundação de tipos. Compartilhar alterações nos arquivos centrais de catálogo/wire/dispatch de forma serial; marcar paralelismo somente nos arquivos próprios, não por equipe nominal.
+
+### Integração e caminhos
+
+- `internal/application/preview.go` / `preview_interaction.go`: coordenar estado por instância/visita, subcampo ativo, captura integral e conclusão; regras matemáticas são chamadas ao Catálogo, não copiadas. Preferir arquivo coeso planejado `preview_barcode.go` para a sessão local. Reabrir/revisitar limpa entrada e não muda o documento.
+- `internal/adapter/desktop/palette.go`, `properties_family.go` e formulários próprios planejados: ofertar os tipos apenas com suporte completo; inspector de 032 edita listas/combos/valores em rascunho, confirma transação existente de Tela. Não adicionar novo domínio por formulário nem transformar estes seletores em combos dentro da jornada.
+- `internal/adapter/desktop/preview.go`: modo explícito de leitura para dispositivo tipo teclado, colagem e diálogo exato; sem driver/câmera/heurística temporal. Campos não são preenchidos até a captura integral ser validada. Teclado numérico utiliza a mesma sessão de subcampo ativo.
+- `internal/presentation/scene.go` e arquivo próprio planejado `barcodes.go`: gerar texto/formas/hit regions a partir do mesmo modelo e estado; não usar screenshot ou Entry opaca como substituto da pintura. Cores/estados de 031 vêm da skin identificada; 032 tem proposta visual não homologada por falta do anexo.
+- `internal/adapter/pptx`: consumir a mesma cena, preservar textos editáveis e explicar limitações da apresentação. Não executar código de boleto, câmera, consulta ou popup de inspector no PPT. Regras de roteiro sem capacidade são recusadas no domínio 006 antes do job.
+
+### Constituição, compatibilidade e gates
+
+Um módulo Go e pacotes de domínio existentes, sem novas dependências executáveis, serviços, banco, parser Java ou plugin. GoDoc/comentários e variáveis de cada declaração futura seguem o princípio IV, inclusive testes; estado runtime não é configuração persistida. Catálogo 3 é alvo futuro distinto do writer atual 3/2; 002 controla aviso/cópia original para compatibilidade, sem alterar perfis privados/arquivados ou recursos.
+
+Antes de alegar equivalência SISPL, comparar módulos/fixtures com classes reais, sobretudo SIGCB. Antes de alegar fidelidade aos anexos, receber as imagens e revisar os DESIGNs. Não bloquear a redação por essas ausências nem inventar evidência. T138 verifica integração/compilação/testes permitidos; T139 registra revisão executável, Windows/DPI/PPT, resultado observado e aceite explícito, separado da implementação. Não contornar a política Windows que já bloqueou execuções Go, nem reutilizar hashes/PASS de entregas anteriores.
+
+<a id="plano-menu-aplicacao-2026-10-23"></a>
+## Plano coordenador — Menu aplicação e lote autorizado 031/032/033
+
+**Input**: FR-061, [033/spec](../033-menu-aplicacao-efl/spec.md), constituição 1.2.0 e templates Spec Kit vigentes. Incremento em monólito Go/Fyne offline Windows x64, persistência ZIP e cena/PPT existentes, sem dependência nova. Estrutura 033 contém spec/DESIGN/checklist; plano, dados, pesquisa, tarefas e roteiro ficam nos donos canônicos, não em backlog paralelo. Ponteiro ativo 031 preservado deliberadamente na coordenação.
+
+### Fundação, histórias e divisão de trabalho
+
+| Responsável | Trabalho novo, sem duplicar 031/032 | Saída / consumidor |
+| --- | --- | --- |
+| 003 | T021: modelos separados ApplicationMenu/Submenu e seed/regras puras; amplia T018 | Tipos/defaults/cópia para todos |
+| 004 | T017: instância única, transações e identidade/remapeio | Comandos para inspector e snapshots |
+| 002 | T015: codec de árvore e fixtures; reutiliza T013–T014 para matriz/backup | Manifesto 3/3 dos três tipos |
+| 005 | T012: valida destinos explícitos de folhas e impacto de remoção | Índice de referências, não stack local |
+| 006 | T012: quadros fixos pelo menu inicial e capacidades | Sem typeText; click visual até decisão |
+| 001 | T140 sessão; T141 inspector; T142 cena/PPT; T143 integração/oferta; T144 manual/aceite | Revisão testável com evidências próprias |
+
+US1/033 é autoria/persistência com seed; US2/033 é navegação local/destinos; US3/033 é estado fixo/exportado. MVP de menu: US1 com trilha modelo→instância→codec→cena e árvore editável; completar US2/US3 e 031/032 antes da entrega conjunta solicitada. Nenhuma tarefa anterior é fechada, repetida ou renumerada por isso.
+
+### Caminhos e decisões de adaptação
+
+- `internal/application/preview_menu.go` planejado coordena sessão por screenID/componentID/visita; regras/lookup puros vêm de Catálogo, validação de destino vem de Jornada. `preview.go`, `preview_interaction.go`, `screen_preview.go` aplicam escopo completo/individual e reset. Caminho inicial deriva dos ancestrais de InitialMenuID; Sair fecha prévia, sem chamar encerramento do editor.
+- `internal/adapter/desktop/properties_menu.go` planejado edita rascunho tipado em árvore com callbacks dos comandos de Tela, escolha inicial e destino; `palette.go`/`properties_family.go` só roteiam. Itens legados agrupa os três compostos, sem liberar enum sem consumidores.
+- `internal/presentation/application_menu.go` planejado fornece primitivas/medidas e hit regions por itemID; `scene.go`, desktop/preview e `internal/adapter/pptx` consomem o mesmo contrato. Layout do Java é fonte geométrica; não reintroduzir parser/execução Java/EFL. Imagem vazia não é referência visual.
+- Código de movimento/opção/nome/atalho são texto inerte. Menu/Submenu em arquivos separados de Catálogo, composição em Screen, DTO no adaptador projectzip. Nenhuma regra de negócio no inspector ou exportador.
+
+### Constituição e gates após desenho
+
+I/VI: pacotes existentes, sem serviço/domínio financeiro; II: snapshot único/cópia/UUIDs e runtime não persistido; III: offline, sem Java; IV: futura implementação terá GoDoc português e variáveis documentadas; V/VII: tarefas abertas, contratos sincronizados e manual separado. Nenhuma exceção nova à constituição. Não executar setup scripts que troquem o ponteiro ativo; o fluxo usa os templates com destino explícito por domínio.
+
+Preparação paralela apenas após contratos estabilizados: modelos de menu em arquivos próprios podem coexistir com matemática de barcode; codec, cena e formulário podem preparar fixtures em arquivos distintos. Serializar registros centrais/dispatch e edições do mesmo arquivo. T140 depende do contrato de hit regions T142, não da oferta final; T141 prepara formulário sem ativação; T143 só libera após todos os consumidores, evitando ciclo. Gates históricos abertos permanecem e a autorização atual é registrada em pesquisa/quickstart, nunca convertida em aprovação de checklist. Clique demonstrativo por item fica decisão principal; baseline é estático/click visual, sem typeText.
+
+## Implementação visual corrente — 2026-10-24
+
+Preservado o módulo Go/Fyne existente e suas alterações locais. `scripts/import_legacy_skin.py` gera `internal/skin/assets/library.json` a partir do XML e dos recursos disponíveis. `internal/skin/model.go` carrega JSON estático, verifica SHA-256/tamanho e fornece estados, famílias SFNT e flags físicas; o XML não é interpretado em runtime. A biblioteca corrente tem 205 chaves tipadas operacionais, oito definições indisponíveis e 224 recursos referenciados. Esses números descrevem esta implementação, não substituem os inventários históricos da expansão.
+
+`internal/presentation/scene.go`, `legacy_parts.go`, `style_validation.go`, `menus.go` e `barcodes.go` resolvem decoração, tipografia, variantes e layout. `KeyboardKeys` e `RadioOptionBounds` são a origem das regiões de interação. `internal/adapter/desktop/scene_render.go` é compartilhado pelo board, demonstração e prévia; fontes físicas vêm dos bytes incorporados. `legacy_control.go` mantém a cena nos botões/opções/teclas. `legacy_entry.go` conserva o capturador nativo com fundo/borda transparentes sobre a cena. Estado runtime não entra no documento.
+
+O inspector oferece skin compatível, família real incorporada, fonte/tamanho, cores de texto/fundo/borda e alinhamento. O adaptador PPT mantém imagens apenas nas decorações, texto/formas editáveis, fonte real, flags físicas, alpha, centralização e espaçamento entre linhas. Fontes não são redistribuídas dentro do PPT: sua instalação/licença e a renderização no Office de destino precisam de validação manual.
+
+Este incremento não muda o schema vigente do código fornecido, não implementa os tipos adicionais ausentes do backlog e não declara os formatos/perfis portáteis de expansões anteriores como entregues.

@@ -1,0 +1,28 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Jornada Studio: compilar e executar",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/apps/gerador-jornada/dist/windows-amd64/JornadaStudio.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}/apps/gerador-jornada",
+            "preLaunchTask": "Jornada Studio: compilar Windows",
+            "stopAtEntry": false,
+            "externalConsole": false,
+            "noDebug": true
+        },
+        {
+            "name": "Jornada Studio: executar EXE existente",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/apps/gerador-jornada/dist/windows-amd64/JornadaStudio.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}/apps/gerador-jornada",
+            "stopAtEntry": false,
+            "externalConsole": false,
+            "noDebug": true
+        }
+    ]
+}

@@ -17,6 +17,12 @@ func (e *Editor) propertyFields(form *widget.Form, component screen.Component) f
 		return e.optionFields(form, component)
 	case catalog.NumericKeyboard:
 		return e.keyboardFields(form, component)
+	case catalog.BarcodeInput:
+		return e.barcodeInputFields(form, component)
+	case catalog.BarcodeProcessed:
+		return e.barcodeProcessedFields(form, component)
+	case catalog.ApplicationMenu:
+		return e.menuFields(form, component)
 	case catalog.Label, catalog.Title:
 		// content permite compartilhar o formulário textual sem unir variantes do modelo.
 		content := entry("")

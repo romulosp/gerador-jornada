@@ -1,6 +1,13 @@
 # DESIGN — Painel esquerdo — ToolsLeft
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Painel esquerdo separa Telas/Paleta/Estrutura em abas com rolagens; oferece o catálogo existente e preserva os comandos de seleção/inserção.
+
+**Revisão ainda necessária:** Árvore expansível, miniaturas completas e oferta da expansão de tipos permanecem planejadas. Ergonomia em todas as resoluções/DPI ainda não foi homologada. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [001-gerador-jornada](../001-gerador-jornada/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
 **Fonte visual/funcional**: [legado](../../material-legado/src/components/ToolsLeft/index.js). Revisar o comportamento, não apenas a existência da pasta.

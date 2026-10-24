@@ -1,6 +1,13 @@
 # DESIGN — Paleta — ComponentTab
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Paleta oferece sete famílias base, cinco presets e três compostos em ELEMENTOS DO LEGADO. Clique/drop usam as definições tipadas; imagens de skin são aplicadas na cena, não como novos itens inseríveis.
+
+**Revisão ainda necessária:** Galeria de todas as skins/16 famílias e metadados de disponibilidade completos continuam planejados. Panel/Label/ScrollBar declarados no acervo não se tornam automaticamente novos Kinds de paleta. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [003-catalogo](../003-catalogo/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
 **Fonte visual/funcional**: [legado](../../material-legado/src/components/ComponentTab/index.js). Revisar o comportamento, não apenas a existência da pasta.
@@ -70,3 +77,11 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 - Conferir os estados descritos, casos inválidos e retorno ao estado anterior.
 - Registrar versão/hash do build, fixture, resolução, DPI, executor e resultado em [quickstart.md](../001-gerador-jornada/quickstart.md).
 - Homologação humana permanece pendente até o usuário testar a revisão entregue.
+
+## Oferta dos compostos — 2026-10-23
+
+FR-008: duas opções com legendas “Código de barras” e “Código de barras processado”, usando o comportamento de clique/drop já existente. Não inventar ícone do anexo ausente nem gerar oito itens de paleta. Prévia da opção não deve mostrar código/nome/documento fictício como valor inicial. Referências: [031/DESIGN](../031-codigo-barras-efl/DESIGN.md), [032/DESIGN](../032-codigo-barras-processado-efl/DESIGN.md), integração [001/T136](../001-gerador-jornada/tasks.md#tarefas-codigos-barras-2026-10-23). Trabalho planejado, sem implementação/aceite visual nesta revisão.
+
+## Itens legados — Menu aplicação (2026-10-23)
+
+FR-009 acrescenta **Menu aplicação** no mesmo grupo **Itens legados** de Código de barras/Código de barras processado, mantendo clique/drop e rolagem existentes. Uma opção insere um composto, não todos os nós como itens da paleta. Seed serviços/jogos pertence ao Catálogo; miniatura não inventa ícone ou imagem não recebida. Contrato visual único em [033/DESIGN](../033-menu-aplicacao-efl/DESIGN.md); formulário preparado em001/T141 e oferta conjunta após cadeia técnica em001/T143. Implementação autorizada, revisão visual e aceite pendentes; não copiar tarefas nesta feature.

@@ -1,6 +1,13 @@
 # DESIGN — Lista de telas — PageTab
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Lista Telas permite escolher e administrar composições, refletindo nomes/ordem do documento. Estado de seleção pertence ao editor e não ao pacote .jornada.
+
+**Revisão ainda necessária:** Galeria completa de miniaturas e matriz de acessibilidade/performance não são demonstradas por esta revisão; a lista textual existente não equivale a todos os recursos de galeria da expansão. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [004-tela](../004-tela/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
 **Fonte visual/funcional**: [legado](../../material-legado/src/components/PageTab/index.js). Revisar o comportamento, não apenas a existência da pasta.

@@ -1,6 +1,13 @@
 # DESIGN — Cabeçalho informativo da tela
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Cabeçalho completo é preset 426 × 40 que compõe os grupos informativos por rótulos comuns. O fundo da tela e a marca são imagens decorativas independentes; não há novo Kind de cabeçalho.
+
+**Revisão ainda necessária:** Valores permanecem ilustrativos; referências dinâmicas e fidelidade de todas as combinações/DPI não estão homologadas. Cada rótulo continua editável e selecionável independentemente. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [004-tela](../004-tela/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
 **Fonte visual/funcional**: [legado](../../material-legado/src/components/Design/index.js). Revisar o comportamento, não apenas a existência da pasta.
@@ -52,7 +59,7 @@ Completo; personalizado; uma linha selecionada; inclusão desfeita.
 
 - Tela menor que o conjunto, cabeçalho repetido e texto extenso. Não deslocar automaticamente outros controles nem impor um cabeçalho oculto às exportações.
 - Manter fonte legível, foco visível e mensagens que não dependam exclusivamente de cor.
-- Fonte ausente usa fallback documentado; o conteúdo e a geometria não podem mudar silenciosamente. Verificar acentos, emoji e texto longo.
+- Fonte/asset/referência ausente bloqueia fidelidade; fallback explícito de rascunho não homologa. Conferir face real/glifos/métricas e texto longo.
 - Imagens são apenas decoração; nunca substituir todos os textos e controles por uma captura de tela.
 
 ## Referências de implementação
@@ -73,3 +80,7 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 ## ID de arquivo compartilhado
 
 Aplicar o [design do campo ID](../028-propriedades/DESIGN.md#id-do-arquivo) na instância. O atributo não é texto desenhado no componente e não altera sua tipografia ou geometria. Todas as cores, textos e legendas continuam independentes do nome-base ASCII.
+
+## Aparência pós-v1 — 2026-10-19
+
+014–016 continuam presets de controles comuns, não novo Kind ou imagem. Geometria React é referência identificada; face/skin/RGBA/métricas por linha vêm de evidência, separando flags XML e efeito Java. ParentID só se explicitamente criado/validado: migração de plano não agrupa/reordena/redimensiona silenciosamente. Oito textos/IDs/valores estáticos/overrides preservados. 004/T011; [matriz C23](../001-gerador-jornada/research.md#matriz-de-cobertura-javaefl--expansão-2026-10-19); consumidores 001/T111–T116, homologação independente.

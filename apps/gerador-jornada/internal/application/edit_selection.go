@@ -33,6 +33,10 @@ func (s *Session) DeleteComponents(pageID string, ids []string) error {
 			}
 		}
 		page.Components = remaining
+		//Filhos de um componente removido permanecem na tela como raízes, sem referência inválida.
+		for _, id := range ids {
+			page.OrphanChildren(id)
+		}
 		// actions conserva bindings de outros componentes e suas identidades.
 		actions := []journey.Action{}
 		for _, action := range document.Journey.Actions {
@@ -68,6 +72,8 @@ func (s *Session) DuplicateComponents(pageID string, ids []string) ([]string, er
 			// clone separa propriedades mutáveis e mantém o estilo do original.
 			clone := *page.ComponentByID(id)
 			clone.Properties = clone.Properties.Copy()
+			// compostos recebem identidades internas novas para não colidirem com o original.
+			clone.Properties.RegenerateCompoundIDs(project.NewID)
 			clone.ID = project.NewID()
 			clone.Name = UniqueName(*page, clone.Name+"_copia")
 			clone.FileID = UniqueComponentFileID(*page, clone.FileID)
@@ -80,6 +86,10 @@ func (s *Session) DuplicateComponents(pageID string, ids []string) ([]string, er
 			clone := page.ComponentByID(id)
 			if clone.Properties.Keyboard != nil && mapping[clone.Properties.Keyboard.TargetComponentID] != "" {
 				clone.Properties.Keyboard.TargetComponentID = mapping[clone.Properties.Keyboard.TargetComponentID]
+			}
+			// Pai copiado no mesmo conjunto recebe a nova identidade; pai externo é preservado.
+			if mapped := mapping[clone.ParentID]; mapped != "" {
+				clone.ParentID = mapped
 			}
 		}
 		for _, action := range append([]journey.Action{}, document.Journey.Actions...) {

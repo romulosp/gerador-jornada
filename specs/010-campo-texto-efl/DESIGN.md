@@ -1,9 +1,16 @@
 # DESIGN — Campo de texto — EFLTextField
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Campo 150 × 25, textField/type1: Arial 12, fundo branco/texto preto; foco azul #10508E/texto branco. legacyEntry usa captura Fyne transparente sobre a cena, preservando cursor, seleção e clipboard.
+
+**Revisão ainda necessária:** Os formatos existentes validam intenção/comprimento/data; não implementam um motor incremental de máscaras nem consulta/validação fiscal. TextArea/PasswordField continuam tipos planejados, não variantes disponíveis deste campo. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [003-catalogo](../003-catalogo/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
-**Fonte visual/funcional**: [legado](../../material-legado/src/components/ListComponents/EFLTextField/index.js). Revisar o comportamento, não apenas a existência da pasta.
+**Fonte visual/funcional**: primária [EFLTextField.java](../../material-legado/elemetos_componente/component/EFLTextField.java), [documentos](../../material-legado/elemetos_componente/java) e [skin.xml](../../material-legado/elemetos_componente/xml/skin.xml); [React](../../material-legado/src/components/ListComponents/EFLTextField/index.js) é referência secundária histórica.
 
 ## Responsabilidade visual
 
@@ -22,7 +29,7 @@ Valores abaixo são a referência desta feature; diferenças do código atual de
 | Token / parte | Valor de referência | Onde personalizar / responsabilidade |
 | --- | --- | --- |
 | fundo | #FFFFFF | Style.FillColor |
-| texto | #4864A0 | Style.TextColor |
+| texto | #000000 no estado normal; #FFFFFF em foco | Style.TextColor |
 | borda | #000000 na referência | Style.BorderColor |
 | fonte | 12 | Style.FontSize |
 
@@ -52,7 +59,7 @@ Vazio; preenchido; foco; entrada recusada; selecionado no editor.
 
 - Valor vazio, colagem com caracteres inválidos em campo numérico, teclado sem alvo e formatos sem validação fiscal. Formato não significa consulta de CPF ou CEP.
 - Manter fonte legível, foco visível e mensagens que não dependam exclusivamente de cor.
-- Fonte ausente usa fallback documentado; o conteúdo e a geometria não podem mudar silenciosamente. Verificar acentos, emoji e texto longo.
+- Fonte/asset/delegate ausente bloqueia fidelidade; fallback exploratório explícito não homologa. Conferir glifos, métricas, cursor e texto longo com face real.
 - Imagens são apenas decoração; nunca substituir todos os textos e controles por uma captura de tela.
 
 ## Referências de implementação
@@ -74,3 +81,7 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 ## ID de arquivo compartilhado
 
 Aplicar o [design do campo ID](../028-propriedades/DESIGN.md#id-do-arquivo) na instância. O atributo não é texto desenhado no componente e não altera sua tipografia ou geometria. Todas as cores, textos e legendas continuam independentes do nome-base ASCII.
+
+## Paridade pós-v1 — 2026-10-19
+
+Inventariar textField default/focused/disabled, face/RGBA/spacement/alinhamento e pintura efetiva; tokens acima são base histórica, não prova de skin homogênea. Fonte XML bold/italic não é estilo aplicado automaticamente pelo builder; TEXTBOX_BORDER=10 não prova padding de dez em cada lado. Máscaras e documentos recebem fixtures locais sem consultas externas. TextArea/PasswordField têm tipos/skins próprios em 003/T012 e não herdam visual por analogia; Password/Dialog têm referência insuficiente para homologação. Estado de edição runtime não entra no arquivo. [Matriz C06–C08/C26](../001-gerador-jornada/research.md#matriz-de-cobertura-javaefl--expansão-2026-10-19), 001/T111–T116; mesma face/cena nas três superfícies, sem Entry opaca de skin Fyne cobrindo o desenho.

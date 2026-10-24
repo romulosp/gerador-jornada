@@ -2,10 +2,19 @@
 
 **Feature Branch**: `010-campo-texto-efl` (identificador documental; nenhuma branch criada)
 **Created**: 2026-10-18
-**Status**: Draft — especificação individual; aceite funcional e visual pendente
+**Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Pedido do usuário: especificar cada componente do legado e permitir personalização em DESIGN.md.
 **Domínio responsável**: [003-catalogo](../003-catalogo/spec.md); integração em [001-gerador-jornada](../001-gerador-jornada/spec.md).
 **Referência observada**: [legado](../../material-legado/src/components/ListComponents/EFLTextField/index.js). Contrato visual específico em [DESIGN.md](DESIGN.md).
+
+<a id="estado-verificado-1-0-0-1"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.1
+
+**Implementação existente:** Campo 150 × 25, textField/type1: Arial 12, fundo branco/texto preto; foco azul #10508E/texto branco. legacyEntry usa captura Fyne transparente sobre a cena, preservando cursor, seleção e clipboard.
+
+**Pendências e limites:** Os formatos existentes validam intenção/comprimento/data; não implementam um motor incremental de máscaras nem consulta/validação fiscal. TextArea/PasswordField continuam tipos planejados, não variantes disponíveis deste campo.
+
+**Fontes verificadas:** [legacy_entry.go](../../apps/gerador-jornada/internal/adapter/desktop/legacy_entry.go), [preview.go](../../apps/gerador-jornada/internal/application/preview.go), [legacy_preview_test.go](../../apps/gerador-jornada/internal/adapter/desktop/legacy_preview_test.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -93,3 +102,9 @@ Como autor, quero salvar, reabrir e exportar a composição sem perda ou altera�
 ## ID das instâncias
 
 Toda instância visual desta responsabilidade possui ID de arquivo conforme [Tela](../004-tela/spec.md#identidade-de-arquivo--2026-10-18) e [Catálogo](../003-catalogo/spec.md#atributo-compartilhado-das-instâncias). Campo comum no [painel de propriedades](../028-propriedades/spec.md#campo-id-comum), sem prefixo Pnl obrigatório para componentes e sem substituir UUIDs ou conteúdo visual. Em conjuntos prontos, a regra vale para cada controle efetivamente criado.
+
+## Expansão Java/EFL autorizada — 2026-10-19
+
+- **FR-008**: Ampliar documentos/máscaras de TextField para todas regras locais inventariadas, preservando formatos atuais e tipagem. Integrar foco/cursor/teclados com TextArea e PasswordField novos no domínio, sem confundi-los com variantes de textField ou anunciar validação fiscal/serviço pelo nome. Fontes/skins/estados seguem evidência Java, não widget Fyne; dependência/delegate ausente bloqueia fidelidade.
+
+**Aceitação**: fixture por documento/estado demonstra edição/colagem/limites/cursor/TAB e reset isolados, máscara comprovada e diagnóstico de capacidade ausente; preservar valor inicial, IDs, bounds e overrides no round-trip. Modelo [003/T012](../003-catalogo/tasks.md), teclados 003/T013/013, runtime/cena/PPT 001/T111–T116, manuais/aceite T120–T122. Matriz C06–C08/C26; não usar credenciais reais e não reativar Java.

@@ -1,9 +1,16 @@
 # DESIGN — Teclado numérico — EFLVirtualKeyboardNumeric
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Novo teclado 200 × 350 com 14 teclas Java: 7–9, 4–6, 1–3, < / 0 / >, TAB e LIMPAR. Bounds antigos são preservados e as partes escaladas. LIMPAR emite Backspace; setas respeitam cursor e TAB percorre campos habilitados na prévia.
+
+**Revisão ainda necessária:** Teclado alfanumérico e variantes/overrides tipados de toda a expansão não estão disponíveis. O alvo barcodeInput existe, mas a matriz completa de bloqueio/avanço por par com TAB/setas ainda requer validação própria. Não tratar LIMPAR como clear-all. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [003-catalogo](../003-catalogo/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
-**Fonte visual/funcional**: [legado](../../material-legado/src/components/ListComponents/EFLVirtualKeyboardNumeric/index.js). Revisar o comportamento, não apenas a existência da pasta.
+**Fonte visual/funcional**: primária [EFLVirtualKeyboardNumeric.java](../../material-legado/elemetos_componente/component/EFLVirtualKeyboardNumeric.java)/[skin.xml](../../material-legado/elemetos_componente/xml/skin.xml); [React](../../material-legado/src/components/ListComponents/EFLVirtualKeyboardNumeric/index.js) é referência secundária histórica.
 
 ## Responsabilidade visual
 
@@ -11,7 +18,18 @@ O componente deve permitir compor uma entrada numérica com um teclado vinculado
 
 ## Geometria e composição
 
-Legado: 200 × 280, teclas numéricas 52 × 52 e auxiliares 80 × 60. Escalar o arranjo proporcionalmente ao tamanho do componente.
+Default React e do editor anterior: **200 × 280** (histórico). Java chama setSize(200,350); default atual: **200 × 350**, somente para novas inserções. **Migração não redimensiona teclados existentes**, nem altera IDs/alvo/overrides. Componente mantém o arranjo interno de referência abaixo escalado aos bounds explícitos, inclusive margens e área livre, sem reflow pela ordem das teclas.
+
+| Parte Java | Bounds internos x,y,w,h na base 200 × 350 |
+| --- | --- |
+| 7, 8, 9 | x=5/64/123, y=5, 52 × 52 |
+| 4, 5, 6 | x=5/64/123, y=60, 52 × 52 |
+| 1, 2, 3 | x=5/64/123, y=115, 52 × 52 |
+| <, 0, > | x=5/64/123, y=170, 52 × 52 |
+| TAB | x=5, y=225, 80 × 60 |
+| LIMPAR (texto de Messages) | x=98, y=225, 80 × 60; código emitido VK_BACK_SPACE |
+
+As 14 teclas e espaço restante até altura 350 são referência de construtor, não uma grade 4 × 3. O layout ascendente anterior de 12 teclas foi substituído na revisão 1.0.0.1. O teste de prévia demonstra LIMPAR como Backspace no cursor/seleção do campo; equivalência com todos os alvos Java ainda exige evidência. A legenda não significa apagar tudo. Ação clear-all do editor, se mantida, é contrato local explícito distinto, não uma suposta equivalência Java.
 
 A ordem é fundo da tela → decoração do componente → formas e textos → indicadores de edição. Textos permanecem editáveis. O fundo não recebe seleção ou arraste de componente.
 
@@ -23,7 +41,7 @@ Valores abaixo são a referência desta feature; diferenças do código atual de
 | --- | --- | --- |
 | tecla normal | skin botao_released.png | recurso decorativo opcional |
 | tecla auxiliar | skin botao_aux1_released.png | recurso decorativo opcional |
-| texto numérico | #FFFFFF, 24, negrito | Style.TextColor / FontSize |
+| texto numérico histórico | #FFFFFF, 24, negrito declarado; face/efeito Java a comprovar | aparência/face e overrides |
 | texto auxiliar | #FFFFFF, 12 | token específico do renderer |
 
 Conteúdo e opções configuráveis: Campo de destino, posição, tamanho, fonte, cor e skins das teclas normais e auxiliares.
@@ -52,7 +70,7 @@ Sem alvo; alvo válido; alvo removido; tecla pressionada; foco; selecionado no e
 
 - Alvo fora da tela, alvo removido, campo vazio ao apagar, Unicode, cursor no início/fim e TAB sem próximo campo. No PPT as teclas são formas; a digitação vem do roteiro.
 - Manter fonte legível, foco visível e mensagens que não dependam exclusivamente de cor.
-- Fonte ausente usa fallback documentado; o conteúdo e a geometria não podem mudar silenciosamente. Verificar acentos, emoji e texto longo.
+- Fonte/asset/delegate ausente bloqueia fidelidade; fallback exploratório explicitado não homologa. Conferir face/métricas e rótulos com referência independente.
 - Imagens são apenas decoração; nunca substituir todos os textos e controles por uma captura de tela.
 
 ## Referências de implementação
@@ -74,3 +92,7 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 ## ID de arquivo compartilhado
 
 Aplicar o [design do campo ID](../028-propriedades/DESIGN.md#id-do-arquivo) na instância. O atributo não é texto desenhado no componente e não altera sua tipografia ou geometria. Todas as cores, textos e legendas continuam independentes do nome-base ASCII.
+
+## Paridade pós-v1 — 2026-10-19
+
+Usar skins botao_teclado/botao_teclado_auxiliar_1 e seus estados originais por evidência, sem tratar imagem aproximada como homologada. Fonte real e flags XML são registros distintos: builder calcula bold/italic sem aplicar style ao Font. Teclas são partes derivadas, não componentes persistidos individuais; hit regions usam a mesma cena/métricas no desktop, com foco/cursor/TAB isolados da edição. PPT mantém formas/textos editáveis e roteiro demonstra digitação, não teclado executável. [Matriz C15–C17](../001-gerador-jornada/research.md#matriz-de-cobertura-javaefl--expansão-2026-10-19), [plano](plan.md) e [tarefas](tasks.md). Numérico não homologa alfanumérico/calculadora por reuso de renderer.

@@ -23,8 +23,8 @@ func TestFileIDPersistenceAndMigration(t *testing.T) {
 	if err := json.Unmarshal(data, &root); err != nil {
 		t.Fatal(err)
 	}
-	if root["schemaVersion"] != float64(2) {
-		t.Fatal("nova estrutura deve declarar versão 2")
+	if root["schemaVersion"] != float64(3) {
+		t.Fatal("nova estrutura deve declarar versão 3")
 	}
 	// restored comprova preservação de UUID e ID de arquivo com valores explícitos.
 	restored, err := DecodeManifest(data)
@@ -44,6 +44,7 @@ func TestFileIDPersistenceAndMigration(t *testing.T) {
 		t.Fatal("v2 sem ID obrigatório não pode ser aceita")
 	}
 	root["schemaVersion"] = 1
+	root["catalogVersion"] = 1
 	data, _ = json.Marshal(root)
 	restored, err = DecodeManifest(data)
 	if err != nil || restored.Screens[0].FileID != "PnlIdentificacao" || restored.Screens[0].ID != document.Screens[0].ID {

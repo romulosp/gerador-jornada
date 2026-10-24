@@ -2,10 +2,19 @@
 
 **Feature Branch**: `008-rotulo-efl` (identificador documental; nenhuma branch criada)
 **Created**: 2026-10-18
-**Status**: Draft — especificação individual; aceite funcional e visual pendente
+**Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Pedido do usuário: especificar cada componente do legado e permitir personalização em DESIGN.md.
 **Domínio responsável**: [003-catalogo](../003-catalogo/spec.md); integração em [001-gerador-jornada](../001-gerador-jornada/spec.md).
 **Referência observada**: [legado](../../material-legado/src/components/ListComponents/EFLLabel/index.js). Contrato visual específico em [DESIGN.md](DESIGN.md).
+
+<a id="estado-verificado-1-0-0-1"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.1
+
+**Implementação existente:** Rótulo 150 × 20; default label_texto_azul, Futura Medium física, tamanho 12 e #5064AA. Fonte/cor/alinhamento explícitos prevalecem; fundo do rótulo padrão é transparente.
+
+**Pendências e limites:** Variantes compostas e cobertura integral dos rótulos do acervo não são homologadas por esta implementação. Longas palavras, recorte e DPI ainda exigem revisão visual.
+
+**Fontes verificadas:** [scene.go](../../apps/gerador-jornada/internal/presentation/scene.go), [skins_test.go](../../apps/gerador-jornada/internal/presentation/skins_test.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -93,3 +102,9 @@ Como autor, quero salvar, reabrir e exportar a composição sem perda ou altera�
 ## ID das instâncias
 
 Toda instância visual desta responsabilidade possui ID de arquivo conforme [Tela](../004-tela/spec.md#identidade-de-arquivo--2026-10-18) e [Catálogo](../003-catalogo/spec.md#atributo-compartilhado-das-instâncias). Campo comum no [painel de propriedades](../028-propriedades/spec.md#campo-id-comum), sem prefixo Pnl obrigatório para componentes e sem substituir UUIDs ou conteúdo visual. Em conjuntos prontos, a regra vale para cada controle efetivamente criado.
+
+## Expansão Java/EFL autorizada — 2026-10-19
+
+- **FR-008**: Cobrir todas skins EFLLabel e composição EFLValorSurpresaSuperSete (label à direita com toggle opcional), sem portar cálculo/negócio de loteria. Preservar texto, bounds, IDs e overrides, usando fonte/face real, RGBA, baseline/spacement e quebra comprovados. Declaração XML não prova estilo Java aplicado; delegate/asset ausente bloqueia fidelidade.
+
+**Aceitação**: cada skin/composição aparece na matriz C03–C04, com referência e teste próprios, texto editável nas três superfícies e round-trip sem perda. Implementação de regras [003/T011](../003-catalogo/tasks.md), preset [004/T011](../004-tela/tasks.md), consumidores 001/T111–T116 e homologação/aceite 001/T120–T122. Sem homologação nesta revisão e sem reativar Java.

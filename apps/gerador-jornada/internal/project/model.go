@@ -55,14 +55,20 @@ func NewID() string {
 // ValidID informa se o identificador é um UUID v4 canônico.
 func ValidID(id string) bool { return idPattern.MatchString(id) }
 
-// New cria metadados vazios com identidade nova e catálogo na versão 1.
+// New cria metadados vazios com identidade nova e catálogo na versão corrente.
 func New(name string) Project {
-	return Project{ID: NewID(), Name: name, CatalogVersion: 1, Assets: []Asset{}}
+	return Project{ID: NewID(), Name: name, CatalogVersion: 3, Assets: []Asset{}}
 }
+
+// ValidCatalogVersion informa se a versão de catálogo é reconhecida pelo leitor.
+func ValidCatalogVersion(version int) bool { return version >= 1 && version <= 3 }
+
+// RequiresCatalogMigration informa se um documento antigo precisa de aviso e cópia antes do save.
+func RequiresCatalogMigration(version int) bool { return version < 3 }
 
 // Validate verifica identidade, nome não vazio e versão do catálogo sem resolver outros domínios.
 func (p Project) Validate() error {
-	if !ValidID(p.ID) || strings.TrimSpace(p.Name) == "" || p.CatalogVersion != 1 {
+	if !ValidID(p.ID) || strings.TrimSpace(p.Name) == "" || !ValidCatalogVersion(p.CatalogVersion) {
 		return fmt.Errorf("PROJECT_SCHEMA_INVALID: identidade, nome ou catálogo inválido")
 	}
 	return nil

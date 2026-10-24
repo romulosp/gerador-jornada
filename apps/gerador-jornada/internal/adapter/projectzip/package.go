@@ -18,9 +18,11 @@ import (
 
 	"gerador-jornada.local/editor/internal/adapter/atomicfile"
 	"gerador-jornada.local/editor/internal/application"
+	"gerador-jornada.local/editor/internal/project"
 )
 
 // Save codifica o projeto completo e substitui seu destino atomicamente.
+// Documentos antigos recebem uma cópia de segurança integral antes da primeira escrita 3/3.
 func Save(ctx context.Context, destination string, document application.Document) error {
 	// content contém os bytes ou a composição intermediária verificada para a operação atual.
 	// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
@@ -31,7 +33,27 @@ func Save(ctx context.Context, destination string, document application.Document
 	if _, err = Decode(content); err != nil {
 		return err
 	}
+	if err = backupLegacy(ctx, destination, document.Project.CatalogVersion); err != nil {
+		return err
+	}
 	return atomicfile.Write(ctx, destination, content)
+}
+
+// backupLegacy preserva o arquivo original antes do primeiro save de catálogo incompatível.
+// A falha de cópia impede a sobrescrita, conforme o contrato de formato.
+func backupLegacy(ctx context.Context, destination string, catalogVersion int) error {
+	if !project.RequiresCatalogMigration(catalogVersion) {
+		return nil
+	}
+	// original contém os bytes atuais do projeto legado, quando ele já existe.
+	original, err := os.ReadFile(destination)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+	return atomicfile.Write(ctx, destination+".bak", original)
 }
 
 // Load lê um pacote com tamanho limitado sem substituir a sessão quando ocorre erro.

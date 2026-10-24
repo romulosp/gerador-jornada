@@ -15,7 +15,7 @@ func (e *Editor) toolsPanel() fyne.CanvasObject {
 		container.NewVScroll(container.NewVBox(section("TELAS DA JORNADA"), e.Screens)))
 	// components torna todas as famílias alcançáveis sem rolar a lista de páginas.
 	components := container.NewBorder(widget.NewLabel("Arraste para a imagem\nou clique para inserir."), nil, nil, nil,
-		container.NewVScroll(container.NewVBox(e.palette(), widget.NewSeparator(), section("ELEMENTOS DO LEGADO"), e.presetsPalette())))
+		container.NewVScroll(container.NewVBox(e.palette(), widget.NewSeparator(), section("ELEMENTOS DO LEGADO"), e.presetsPalette(), widget.NewSeparator(), e.legacyPalette())))
 	// structure seleciona controles que estejam cobertos por outras camadas.
 	structure := container.NewBorder(widget.NewLabel("Selecione um componente\npelo seu nome na tela."), nil, nil, nil, container.NewVScroll(e.Structure))
 	// tabs preserva o espaço da paleta e não mistura suas alturas com a lista de telas.
@@ -88,6 +88,12 @@ func familyName(kind catalog.Kind) string {
 		return "Relatório · EFLReportEvent"
 	case catalog.NumericKeyboard:
 		return "Teclado · EFLVirtualKeyboardNumeric"
+	case catalog.BarcodeInput:
+		return "Código de barras · entrada"
+	case catalog.BarcodeProcessed:
+		return "Código de barras processado · ficha"
+	case catalog.ApplicationMenu:
+		return "Menu da aplicação · árvore"
 	}
 	return string(kind)
 }

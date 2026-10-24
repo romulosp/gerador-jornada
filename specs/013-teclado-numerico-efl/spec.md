@@ -2,10 +2,19 @@
 
 **Feature Branch**: `013-teclado-numerico-efl` (identificador documental; nenhuma branch criada)
 **Created**: 2026-10-18
-**Status**: Draft — especificação individual; aceite funcional e visual pendente
+**Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Pedido do usuário: especificar cada componente do legado e permitir personalização em DESIGN.md.
 **Domínio responsável**: [003-catalogo](../003-catalogo/spec.md); integração em [001-gerador-jornada](../001-gerador-jornada/spec.md).
 **Referência observada**: [legado](../../material-legado/src/components/ListComponents/EFLVirtualKeyboardNumeric/index.js). Contrato visual específico em [DESIGN.md](DESIGN.md).
+
+<a id="estado-verificado-1-0-0-1"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.1
+
+**Implementação existente:** Novo teclado 200 × 350 com 14 teclas Java: 7–9, 4–6, 1–3, < / 0 / >, TAB e LIMPAR. Bounds antigos são preservados e as partes escaladas. LIMPAR emite Backspace; setas respeitam cursor e TAB percorre campos habilitados na prévia.
+
+**Pendências e limites:** Teclado alfanumérico e variantes/overrides tipados de toda a expansão não estão disponíveis. O alvo barcodeInput existe, mas a matriz completa de bloqueio/avanço por par com TAB/setas ainda requer validação própria. Não tratar LIMPAR como clear-all.
+
+**Fontes verificadas:** [legacy_parts.go](../../apps/gerador-jornada/internal/presentation/legacy_parts.go), [preview.go](../../apps/gerador-jornada/internal/adapter/desktop/preview.go), [legacy_preview_test.go](../../apps/gerador-jornada/internal/adapter/desktop/legacy_preview_test.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -93,3 +102,17 @@ Como autor, quero salvar, reabrir e exportar a composição sem perda ou altera�
 ## ID das instâncias
 
 Toda instância visual desta responsabilidade possui ID de arquivo conforme [Tela](../004-tela/spec.md#identidade-de-arquivo--2026-10-18) e [Catálogo](../003-catalogo/spec.md#atributo-compartilhado-das-instâncias). Campo comum no [painel de propriedades](../028-propriedades/spec.md#campo-id-comum), sem prefixo Pnl obrigatório para componentes e sem substituir UUIDs ou conteúdo visual. Em conjuntos prontos, a regra vale para cada controle efetivamente criado.
+
+## Expansão Java/EFL autorizada — 2026-10-19
+
+- **FR-008**: Novo default numérico 200 × 350, com 14 teclas Java e posições internas comprovadas; aplicar somente a novas inserções, mantendo bounds/IDs/vínculos/overrides dos projetos antigos (inclusive 200 × 280). Reconciliar comando efetivo: legenda LIMPAR Java emite VK_BACK_SPACE, não prova clear-all; conservar requisito de limpar do editor como ação local explícita distinta até evidência do tratamento, sem chamar a divergência de paridade homologada.
+- **FR-009**: Integrar foco/cursor/TAB e alvos habilitados/compatíveis da mesma tela com cena/skin comum; estados são runtime isolado. AlphaKeyboard 800 × 200 integra o Catálogo e não duplica esta família. A pintura é local Go; referências a delegates externos ausentes foram removidas conforme [001/FR-059](../001-gerador-jornada/spec.md#dependencias-ausentes-fr-059). Recursos/métricas e limitações reais continuam verificáveis.
+- **FR-010**: Oferecer somente Padrão/numeric/alpha. Calculadora sem layout não integra oferta, helper de composição, desenho, hit areas ou comandos. Conservar leitura/valor em arquivos antigos no salvamento neutro, sem converter para numeric; somente escolha explícita substitui a variante. Reintrodução exige change com implementação real. Verificações em [001/T133](../001-gerador-jornada/tasks.md#t133-dependencias-ausentes).
+
+**Aceitação**: fixture com dois campos comprova layout 7–9/4–6/1–3, setas/0/TAB/LIMPAR, foco/cursor/limites e reset sem alterar valores iniciais; comparar comando e efeito observado, não inferir comportamento da legenda. Salvar/reabrir arquivo antigo não causa resize; novo teclado usa 200 × 350 e PPT mantém teclas/textos editáveis, sem interação real no PowerPoint. [plan.md](plan.md)/[tasks.md](tasks.md) locais detalham verificação; modelo 003/T013, runtime 001/T114–T115 e PPT T116. Sem reativar Java ou afirmar homologação.
+
+## Alvo composto de código de barras — planejamento 2026-10-23
+
+- **FR-011**: Aceitar [031 — entrada de código de barras](../031-codigo-barras-efl/spec.md) como alvo compatível na mesma tela, escrevendo somente no subcampo ativo da sessão e compartilhando seus limites/validações. TAB não ultrapassa par inválido, apagar atua no campo ativo e desabilitado não recebe entrada. Não criar oito vínculos persistidos nem transformar o processado 032, somente leitura, em alvo de digitação.
+
+**Aceitação**: teclado físico e numérico levam ao mesmo bloqueio/avanço para a fixture F01 e seus DVs adulterados; duplicar tela remapeia alvo ao composto copiado. Modelo/capacidade em 003/T018, composição em 004/T015 e runtime em [001/T135](../001-gerador-jornada/tasks.md#tarefas-codigos-barras-2026-10-23), sem duplicar algoritmo ou tarefas locais de teclado. Incremento parcialmente implementado; cobertura restante e homologação seguem pendentes no estado verificado acima.

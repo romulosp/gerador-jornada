@@ -136,9 +136,18 @@ func (d Document) Validate() []Diagnostic {
 		}
 		seen[id] = true
 	}
+	// assetIDs identifica recursos declarados com bytes portáteis no documento.
+	assetIDs := map[string]bool{}
+	// asset percorre os metadados do projeto.
+	for _, asset := range d.Project.Assets {
+		assetIDs[asset.ID] = assetIDs[asset.ID] || len(d.Resources[asset.Path]) > 0
+	}
 	// page representa a composição atual, resolvida sem alterar o documento original.
 	for _, page := range d.Screens {
 		register(page.ID, page.ID, "")
+		if page.Background.AssetID != "" && !assetIDs[page.Background.AssetID] {
+			add("RESOURCE_MISSING", "Imagem de fundo ausente do pacote", page.ID, "")
+		}
 		// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
 		if err := page.Validate(); err != nil {
 			add("SCREEN_INVALID", err.Error(), page.ID, "")
@@ -146,12 +155,28 @@ func (d Document) Validate() []Diagnostic {
 		// component contém o controle tipado em processamento, validado nas coordenadas e referências da própria tela.
 		for _, component := range page.Components {
 			register(component.ID, page.ID, component.ID)
+			if component.Style.BackgroundAssetID != "" && !assetIDs[component.Style.BackgroundAssetID] {
+				add("RESOURCE_MISSING", "Imagem decorativa ausente do pacote", page.ID, component.ID)
+			}
+			// identidades internas de compostos também são únicas em todo o documento.
+			for _, internalID := range component.Properties.CompoundIDs() {
+				register(internalID, page.ID, component.ID)
+			}
 			if component.Properties.Keyboard != nil && component.Properties.Keyboard.TargetComponentID != "" {
-				// target deve identificar um campo editável na mesma tela.
+				// target deve identificar um campo editável ou uma entrada de código de barras na mesma tela.
 				target := page.ComponentByID(component.Properties.Keyboard.TargetComponentID)
-				if target == nil || target.Kind != catalog.TextField {
-					add("KEYBOARD_TARGET_INVALID", "Teclado deve apontar para um campo da mesma tela", page.ID, component.ID)
+				if target == nil || (target.Kind != catalog.TextField && target.Kind != catalog.BarcodeInput) {
+					add("KEYBOARD_TARGET_INVALID", "Teclado deve apontar para um campo ou entrada da mesma tela", page.ID, component.ID)
 				}
+			}
+			if component.Properties.Menu != nil {
+				// walk verifica destinos explícitos inclusive em ramos desabilitados.
+				_ = component.Properties.Menu.WalkItems(func(item *catalog.MenuItem) error {
+					if item.TargetScreenID != "" && d.Screen(item.TargetScreenID) == nil {
+						add("MENU_TARGET_MISSING", "Destino de menu inexistente", page.ID, component.ID)
+					}
+					return nil
+				})
 			}
 		}
 	}

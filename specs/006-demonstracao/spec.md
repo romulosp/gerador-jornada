@@ -2,8 +2,17 @@
 
 **Feature Branch**: `006-demonstracao` (identificador; sem branch Git criada)
 **Created**: 2026-10-17
-**Status**: Draft — domínio especificado; implementação não iniciada
+**Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Decomposição por domínio da [feature coordenadora](../001-gerador-jornada/spec.md).
+
+<a id="estado-verificado-1-0-0-1"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.1
+
+**Implementação existente:** Roteiros finitos, interpretação temporal, cursor/clique, texto Unicode por grafemas e navegação explícita; player e exportador usam as cenas dos componentes existentes. Compostos aparecem no estado confirmado/inicial.
+
+**Pendências e limites:** typeText permanece restrito aos campos suportados; não opera entrada composta ou árvore de menu. Relógio controlado, reordenação de todos os roteiros, expansão de capacidades e homologação das animações no Office continuam pendentes.
+
+**Fontes verificadas:** [model.go](../../apps/gerador-jornada/internal/scenario/model.go), [playback.go](../../apps/gerador-jornada/internal/application/playback.go), [export_test.go](../../apps/gerador-jornada/internal/adapter/pptx/export_test.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -63,7 +72,7 @@ Scenario, Step, ocorrência, evento temporizado e estado de execução; os três
 - Requisitos pai cobertos: FR-017 a FR-021. IDs FR/US/SC são locais a esta feature.
 - Contratos compartilhados: [navigation-scenario.md](../001-gerador-jornada/contracts/navigation-scenario.md).
 - Não grava uso do mouse, não cria macros, não contém lógica condicional e não emite XML PPT ou eventos Fyne.
-- Esta entrega contém especificação, não código implementado ou testes executados.
+- Evidências da base implementada estão no backlog/quickstart da coordenadora; esta atualização é documental e não executa novos testes.
 
 ## Atualização solicitada em 2026-10-18 — Transições da apresentação
 
@@ -74,3 +83,24 @@ Scenario, Step, ocorrência, evento temporizado e estado de execução; os três
 
 1. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-007, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
 2. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-008, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+
+## Expansão pós-v1 autorizada — 2026-10-19
+
+- **FR-009**: Validar alvos por capacidades tipadas do catálogo 2; typeText alcança TextArea/PasswordField somente quando contratados e com conteúdo ilustrativo/mascaramento suportado. Click continua visual e navigate explícito apenas de button, inclusive twoLabel; não mudar toggle/seleção/modal por click demonstrativo implícito.
+- **FR-010**: Produzir quadros/cena determinísticos com fonte/skin e estados locais/recorte aplicáveis, reiniciados por visita/restart, isolados do documento. Novas famílias sem operação de roteiro suportada recebem diagnóstico de capacidade; não prometer gravação/interação ausente nem introduzir relógio real ou negócio externo.
+
+**Aceitação**: roteiro com novas entradas e A→B→A preserva tempos/ordem/Unicode, restaura estados e produz o mesmo quadro na prévia/PPT; click em toggle não o altera implicitamente. Nova aparência não muda IDs de etapas/rotas nem redimensiona componentes. FR-009–FR-010 ampliam os alvos originalmente limitados a textField sem alterar a semântica dos cinco kinds de Step. T009–T010 locais; 001/T114–T116 integra consumidores; homologação/aceite permanecem separados, Java pausado.
+
+<a id="codigos-barras-2026-10-23"></a>
+## Incremento planejado — representação dos códigos de barras (2026-10-23)
+
+- **FR-011**: Preservar no quadro demonstrativo a configuração de [031](../031-codigo-barras-efl/spec.md) e [032](../032-codigo-barras-processado-efl/spec.md), com ordem/textos/estilo e sem importar estado da prévia livre. Entrada começa vazia e ficha processada mostra seus valores configurados. Nesta entrega, os compostos não ganham `typeText`, processamento por click ou nova etapa de roteiro: uma etapa que exigir capacidade não suportada gera diagnóstico localizado. PPT mostra formas/textos editáveis, não executa validação, leitora, combo de parametrização ou consulta bancária.
+
+**Aceitação**: mesma configuração e instante produzem o mesmo quadro em prévia/PPT; revisita e restart não herdam código digitado na prévia livre. Roteiro tentando digitar na ficha de leitura ou na entrada sem contrato de etapa é recusado com referência de etapa, não simulado como sucesso. Exploração estática continua exportável se válida; roteiro selecionado inválido não é omitido silenciosamente. [T011](tasks.md#tarefas-codigos-barras-2026-10-23) verifica capacidades/quadros; cena/exportador são 001/T137. Digitação animada de boleto ou interação bancária ficam fora deste incremento.
+
+<a id="menu-aplicacao-2026-10-23"></a>
+## Incremento autorizado — quadro estático de menu
+
+- **FR-012**: Produzir quadro de [033](../033-menu-aplicacao-efl/spec.md) a partir da árvore/inicial confirmados, nunca do caminho da prévia livre. Seleção inicial pode ser raiz ou submenu existente; repetir snapshot/tempo produz o mesmo quadro, com títulos/ordem/estilo/enabled. Não oferecer typeText no menu ou nos compostos 031/032; metadados de movimento não criam etapas ou ações. Clique de roteiro continua visual; extensão por item depende de decisão explícita da coordenação e contrato/capacidades sincronizados antes de habilitar.
+
+**Aceitação**: revisita/restart e exploração livre não contaminam quadro exportado; inicial removido/ausente gera erro localizado. PPT estático mantém textos/formas editáveis, sem afirmar interação de árvore. Roteiro selecionado com capacidade não suportada é recusado, não omitido. [T012](tasks.md#tarefas-menu-aplicacao-2026-10-23) cobre dados/capacidades; cena/exportador em 001/T142.

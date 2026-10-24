@@ -2,10 +2,19 @@
 
 **Feature Branch**: `015-dados-loterica` (identificador documental; nenhuma branch criada)
 **Created**: 2026-10-18
-**Status**: Draft — especificação individual; aceite funcional e visual pendente
+**Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Pedido do usuário: especificar cada componente do legado e permitir personalização em DESIGN.md.
 **Domínio responsável**: [004-tela](../004-tela/spec.md); integração em [001-gerador-jornada](../001-gerador-jornada/spec.md).
 **Referência observada**: [legado](../../material-legado/src/components/LotericaInfo/index.js). Contrato visual específico em [DESIGN.md](DESIGN.md).
+
+<a id="estado-verificado-1-0-0-1"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.1
+
+**Implementação existente:** Dados da lotérica é preset 222 × 36 com três rótulos estáticos e editáveis de proprietário, terminal e lotérica. Usa Arial 11/#424344 e não consulta cadastro externo.
+
+**Pendências e limites:** Não há integração de usuário/terminal/unidade. Dados ilustrativos não comprovam valores reais nem homologação de layout em todos os DPIs.
+
+**Fontes verificadas:** [presets.go](../../apps/gerador-jornada/internal/application/presets.go), [presets.go](../../apps/gerador-jornada/internal/adapter/desktop/presets.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -93,3 +102,9 @@ Como autor, quero salvar, reabrir e exportar a composição sem perda ou altera�
 ## ID das instâncias
 
 Toda instância visual desta responsabilidade possui ID de arquivo conforme [Tela](../004-tela/spec.md#identidade-de-arquivo--2026-10-18) e [Catálogo](../003-catalogo/spec.md#atributo-compartilhado-das-instâncias). Campo comum no [painel de propriedades](../028-propriedades/spec.md#campo-id-comum), sem prefixo Pnl obrigatório para componentes e sem substituir UUIDs ou conteúdo visual. Em conjuntos prontos, a regra vale para cada controle efetivamente criado.
+
+## Aparência pós-v1 — 2026-10-19
+
+- **FR-008**: Reusar fontes/skins/métricas comprovadas Java/EFL nas três linhas, sem família nova de negócio, autenticação ou consulta a usuário/terminal/lotérica reais. Atualizar aparência não sobrescrita de antigos preservando textos/IDs/bounds/ordem/overrides e editabilidade nas três superfícies.
+
+**Aceitação**: inserir/personalizar/salvar/reabrir/exportar mantém linhas e identidades; referência/asset ausente bloqueia fidelidade, sem dados fictícios de serviço. Dono [004/T011](../004-tela/tasks.md), matriz C23, consumidores 001/T111–T116 e manual/aceite T120–T122; nenhuma homologação nesta documentação.

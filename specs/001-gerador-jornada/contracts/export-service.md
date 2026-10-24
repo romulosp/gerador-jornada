@@ -1,5 +1,12 @@
 # Contract: serviço de exportação
 
+## Implementação conferida — 1.0.0.1
+
+A coordenação continua no desktop, usando snapshot, contexto e callback de progresso para `pptx.Export`; Java/EFL está suspenso na interface. Não existe a API completa `ExportProject`/request/result/Artifact/eventos de fase descrita como alvo abaixo. A revisão visual não implementou essa refatoração. Publicação PPT usa o adaptador atômico; erros de aparência resolvida são verificados antes da geração do pacote.
+
+Código atual: [wire do projeto](../../../apps/gerador-jornada/internal/adapter/projectzip/wire.go), [cena](../../../apps/gerador-jornada/internal/presentation/scene.go) e [exportador PPT](../../../apps/gerador-jornada/internal/adapter/pptx/export.go). Evidência executada na [seção 22 do quickstart](../quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). O restante do contrato conserva regras normativas e evolução planejada; divergências apontadas aqui não foram apagadas dos requisitos.
+
+
 **Version**: 1 | **Requirements**: FR-026, FR-028, NFR-004, NFR-005.
 
 ## Estado de implementação — 2026-10-18
@@ -65,3 +72,24 @@ Ordenar telas/componentes conforme projeto, imports Java lexicalmente, arquivos 
 ## Testes
 
 Injetar falhas de escrita, validação, publicação e cancelamento. Provar ausência de artefatos publicados em falha, preservação do destino anterior, snapshot estável durante edição e mensagens de localização. Validar cada alvo também pelos contratos específicos.
+
+## Integração da aparência pós-v1 — 2026-10-19
+
+FR-051–FR-054: snapshot inclui perfil/definições/descritores de faces e recursos usados, imutáveis e resolvidos por hash; exportador não consulta acervo original, widgets ou biblioteca mutável. Validar capacidades por família/skin/estado antes de staging/publicação. Diagnóstico identifica também skin/estado/fonte/recurso na localização tipada quando pertinente. Ausência obrigatória impede pacote parcial; fallback exploratório não conclui fidelidade.
+
+**Continuação implementada:** `Document.Copy` inclui `AppearanceProfile *skin.Profile`
+e arquivos; desktop/PPT resolvem biblioteca imutável por documento, revisão exata e
+bytes por hash/tamanho/MIME, com cache SHA/face exata. Captura conserva todos os
+metadados da biblioteca original em cópias privadas: definições/fontes/aliases/recursos
+e todas as revisões arquivadas, inclusive não usadas e todos os estados. Não enriquece
+perfis privados com builtin nem faz upgrade; uso só limita diagnósticos e acréscimo
+de entrada missing. Desvio arquitetural justificado pelo bug crítico save/reopen →
+AddComponent `defaultconfirm`, preserva inserção de famílias/troca de variantes futura.
+Não é incorporação binária integral: alvo SUBSET de bytes usados e permitidos permanece;
+payload selado mais amplo altera o hash. Sem copiar novos binários sem autorização, nem com JSON
+`allowed`. Isso não conclui a fronteira ExportProject/Result/Artifact ainda pendente,
+normalização dos descritores ou portabilidade integral. PPT mantém
+`FontEmbedding=false`/`CompleteFidelity=false` e erro
+`PPT_FONT_EMBEDDING_UNSUPPORTED` para EmbedFonts/StrictFidelity; Java continua desabilitado.
+
+PPT observa o [contrato de fontes/editabilidade](pptx-export.md#paridade-de-todo-o-acervo--expansão-2026-10-19): se não for possível incorporar fonte, informar explicitamente dependência de instalação no ambiente de homologação e impedir anunciar portabilidade fiel. Não inventar verificação de fonte instalada na máquina de destino. Java mantém ação pausada e JAVA_PROFILE_UNVERIFIED; novas capacidades Go não o habilitam. Responsáveis 001/T116/T118/T123; esta extensão não conclui a API estruturada pendente descrita acima.

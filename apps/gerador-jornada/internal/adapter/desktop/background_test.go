@@ -5,8 +5,10 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/test"
+	"fyne.io/fyne/v2/widget"
 	"gerador-jornada.local/editor/internal/adapter/builtinassets"
 	"gerador-jornada.local/editor/internal/application"
 )
@@ -41,7 +43,7 @@ func TestDragOverBackground(t *testing.T) {
 		t.Fatal(err)
 	}
 	// preview mantém a imagem antes dos controles interativos na pilha visual.
-	preview := previewPage(state, func() {}).(*fyne.Container)
+	preview := previewPage(state, editor.Window, func() {}, widget.NewLabel(""), container.NewHBox()).(*fyne.Container)
 	if len(preview.Objects) < 3 {
 		t.Fatal("prévia incompleta")
 	}

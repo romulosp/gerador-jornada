@@ -41,5 +41,50 @@ func (p Properties) Copy() Properties {
 		v.Rows = append([]Option{}, p.Report.Rows...)
 		result.Report = &v
 	}
+	if p.BarcodeInput != nil {
+		// v copia o rótulo imutável da entrada.
+		v := *p.BarcodeInput
+		result.BarcodeInput = &v
+	}
+	if p.BarcodeProcessed != nil {
+		// v separa cada bloco e suas linhas da configuração original.
+		v := *p.BarcodeProcessed
+		v.Blocks = []BarcodeBlock{}
+		// block representa um bloco copiado com linhas independentes.
+		for _, block := range p.BarcodeProcessed.Blocks {
+			blockCopy := block
+			blockCopy.Rows = append([]BarcodeRow{}, block.Rows...)
+			v.Blocks = append(v.Blocks, blockCopy)
+		}
+		result.BarcodeProcessed = &v
+	}
+	if p.Menu != nil {
+		result.Menu = copyApplicationMenu(p.Menu)
+	}
 	return result
+}
+
+// copyApplicationMenu copia a árvore preservando identidades, ordem e textos.
+func copyApplicationMenu(source *ApplicationMenuProperties) *ApplicationMenuProperties {
+	// clone separa ponteiros e slices sem trocar UUIDs.
+	var clone func(node *SubmenuProperties) *SubmenuProperties
+	clone = func(node *SubmenuProperties) *SubmenuProperties {
+		if node == nil {
+			return nil
+		}
+		// copy preserva o nó e suas propriedades imutáveis.
+		copy := *node
+		copy.Items = []MenuItem{}
+		// item percorre a ordem original para separar os ramos.
+		for _, item := range node.Items {
+			itemCopy := item
+			itemCopy.Submenu = clone(item.Submenu)
+			copy.Items = append(copy.Items, itemCopy)
+		}
+		return &copy
+	}
+	// result mantém a escolha inicial e a raiz copiada.
+	result := *source
+	result.Root = *clone(&source.Root)
+	return &result
 }

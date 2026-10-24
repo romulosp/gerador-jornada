@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<project name="sispl-efl-imagens-federal" default="build">
+
+	<description>Script para Geracao do jar do projeto sispl-efl-federal </description>
+
+	<import file="..\sispl\build-basic.xml"/>
+
+	<!-- Propriedade propria do ClearCase para mecanismo de auditoria de Build -->
+	<property name="CCAudits.auditable_task_list" value="javac:jar:javah:copy:gerarZIPHash" />
+	
+ 	<property name="usecase.basedir" value="br/gov/caixa/sispl"/>
+	<property name="app.dir" value="${basedir}/../sispl/apps/sispl-efl"/>
+	<property name="dir.efl.zip" value="${basedir}/../sispl/apps/sispl-efl-zip-hash"/>
+
+	<target name="clean"
+			description="Sobrescreve clean limpando o jar de de imagens correspondente a este componente">
+        <delete>
+            <fileset dir="${components.dir}" includes="img-federal.jar" /> 
+        </delete>
+	</target>
+	
+	<target name="build">
+		<jar jarfile="${components.dir}/img-federal.jar" basedir="${src.dir}/images" includes="**/*.*"/>
+	</target>
+
+</project>

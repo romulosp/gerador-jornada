@@ -122,6 +122,7 @@ func InsertPreset(document *Document, pageID, presetID string, x, y int) ([]stri
 		component.Bounds = line.Bounds
 		component.Bounds.X += origin.X
 		component.Bounds.Y += origin.Y
+		component.Style.FontFamily = "Arial"
 		component.Style.FontSize = 11
 		component.Style.TextColor = "#424344"
 		if component.Properties.Label != nil {

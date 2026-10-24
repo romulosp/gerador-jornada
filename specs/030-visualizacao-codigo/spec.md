@@ -2,10 +2,19 @@
 
 **Feature Branch**: `030-visualizacao-codigo` (identificador documental; nenhuma branch criada)
 **Created**: 2026-10-18
-**Status**: Draft — especificação individual; aceite funcional e visual pendente
+**Status**: Interface de código planejada; Java/EFL suspenso; homologação pendente
 **Input**: Pedido do usuário: especificar cada componente do legado e permitir personalização em DESIGN.md.
 **Domínio responsável**: [001-gerador-jornada](../001-gerador-jornada/spec.md); integração em [001-gerador-jornada](../001-gerador-jornada/spec.md).
 **Referência observada**: [legado](../../material-legado/src/components/Code/index.js). Contrato visual específico em [DESIGN.md](DESIGN.md).
+
+<a id="estado-verificado-1-0-0-1"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.1
+
+**Implementação existente:** A ação Java/EFL está visível e desabilitada; o gerador interno e os testes estruturais de fontes Java foram preservados. A revisão visual não habilita exportação nem executa Java.
+
+**Pendências e limites:** A interface completa de arquivos/código e diagnóstico com perfil EFL homologado continua planejada. Sem biblioteca real não há comprovação de integração Java/EFL.
+
+**Fontes verificadas:** [editor.go](../../apps/gerador-jornada/internal/adapter/desktop/editor.go), [sources.go](../../apps/gerador-jornada/internal/adapter/javaefl/sources.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -97,3 +106,7 @@ Como autor, quero trocar de seleção ou modo e voltar ao painel sem perda ou al
 ### Aceitação da atualização
 
 1. **Given** uma fixture de referência e o estado inicial registrado, **When** o autor executa a operação descrita em FR-008, **Then** o resultado atende integralmente ao requisito e o estado anterior pode ser recuperado quando houver edição confirmada.
+
+### Escopo vigente — integração indisponível retirada
+
+A decisão posterior [001/FR-059](../001-gerador-jornada/spec.md#dependencias-ausentes-fr-059) retira Java/EFL do produto vigente: sem ação, callback, adaptador gerador ou ferramentas Java 6. A visualização Java descrita anteriormente não é funcionalidade entregue nem ação apenas suspensa. Eventual reintrodução/visualização exige change com a biblioteca real, implementação e validação próprias. Os documentos e IDs antigos continuam legíveis, sem integração executável. A atualização é de escopo, não declaração de implementação ou aprovação desta tela; acompanhar [001/T133](../001-gerador-jornada/tasks.md#t133-dependencias-ausentes).

@@ -10,6 +10,8 @@ try {
     $goFiles = Get-ChildItem internal,cmd -Recurse -Filter '*.go' -File | Select-Object -ExpandProperty FullName
     $unformatted = & (Join-Path $goBin 'gofmt.exe') -l $goFiles
     if ($unformatted) { throw ('Arquivos sem gofmt: ' + ($unformatted -join ', ')) }
+    python -X utf8 scripts/import_legacy_skin.py --check
+    if ($LASTEXITCODE -ne 0) { throw 'Biblioteca visual desatualizada.' }
     go vet ./...
     if ($LASTEXITCODE -ne 0) { throw 'go vet reprovado.' }
     python -X utf8 -m unittest discover -s scripts -p test_build.py -v

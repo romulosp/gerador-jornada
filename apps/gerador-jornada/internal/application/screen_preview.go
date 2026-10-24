@@ -15,10 +15,22 @@ func NewScreenPreview(document Document, screenID string) (*Preview, error) {
 	if page == nil {
 		return nil, fmt.Errorf("selecione uma tela existente para visualizar")
 	}
-	// isolated limita o escopo antes da validação e da cópia profunda feita por NewPreview.
-	isolated := document
-	isolated.Screens = []screen.Screen{*page}
+	// A Prévia Tela Atual valida apenas a tela isolada: destinos externos de menu
+	// continuam autorados e não podem impedir a exploração local.
+	if err := page.Validate(); err != nil {
+		return nil, err
+	}
+	// isolated limita o escopo e conserva os componentes e recursos da tela.
+	isolated := document.Copy()
+	// copiedPage pertence à cópia profunda, impedindo que a prévia altere o documento original.
+	copiedPage := isolated.Screen(screenID)
+	isolated.Screens = []screen.Screen{*copiedPage}
 	isolated.Journey = journey.Journey{StartScreenID: screenID}
 	isolated.Scenarios = nil
-	return NewPreview(isolated)
+	// preview conserva o snapshot reduzido sem autorizar navegação entre telas.
+	preview := &Preview{Document: isolated, AllowScreenNavigation: false}
+	if err := preview.Enter(screenID); err != nil {
+		return nil, err
+	}
+	return preview, nil
 }

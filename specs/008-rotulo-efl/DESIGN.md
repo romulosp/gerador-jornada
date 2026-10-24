@@ -1,9 +1,16 @@
 # DESIGN — Rótulo — EFLLabel
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Rótulo 150 × 20; default label_texto_azul, Futura Medium física, tamanho 12 e #5064AA. Fonte/cor/alinhamento explícitos prevalecem; fundo do rótulo padrão é transparente.
+
+**Revisão ainda necessária:** Variantes compostas e cobertura integral dos rótulos do acervo não são homologadas por esta implementação. Longas palavras, recorte e DPI ainda exigem revisão visual. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [003-catalogo](../003-catalogo/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
-**Fonte visual/funcional**: [legado](../../material-legado/src/components/ListComponents/EFLLabel/index.js). Revisar o comportamento, não apenas a existência da pasta.
+**Fonte visual/funcional**: primária [EFLLabel.java](../../material-legado/elemetos_componente/component/EFLLabel.java)/[skin.xml](../../material-legado/elemetos_componente/xml/skin.xml); [React](../../material-legado/src/components/ListComponents/EFLLabel/index.js) é referência secundária histórica.
 
 ## Responsabilidade visual
 
@@ -21,7 +28,7 @@ Valores abaixo são a referência desta feature; diferenças do código atual de
 
 | Token / parte | Valor de referência | Onde personalizar / responsabilidade |
 | --- | --- | --- |
-| texto | #4864A0 | Style.TextColor |
+| texto | #5064AA (label_texto_azul) | Style.TextColor |
 | fonte | 12 | Style.FontSize |
 | fundo | transparente | ausência de preenchimento |
 | realce de edição | #2563EB | tema do editor; não exportar |
@@ -52,7 +59,7 @@ Normal; vazio; selecionado para edição; texto maior que a caixa.
 
 - Acentos, aspas, emoji, quebras, caixa pequena e texto vazio.
 - Manter fonte legível, foco visível e mensagens que não dependam exclusivamente de cor.
-- Fonte ausente usa fallback documentado; o conteúdo e a geometria não podem mudar silenciosamente. Verificar acentos, emoji e texto longo.
+- Fonte/asset/delegate ausente bloqueia fidelidade; fallback explícito de rascunho não homologa. Conferir glifos, métricas, baseline e texto longo com face real.
 - Imagens são apenas decoração; nunca substituir todos os textos e controles por uma captura de tela.
 
 ## Referências de implementação
@@ -73,3 +80,7 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 ## ID de arquivo compartilhado
 
 Aplicar o [design do campo ID](../028-propriedades/DESIGN.md#id-do-arquivo) na instância. O atributo não é texto desenhado no componente e não altera sua tipografia ou geometria. Todas as cores, textos e legendas continuam independentes do nome-base ASCII.
+
+## Paridade pós-v1 — 2026-10-19
+
+Tokens/150 × 12 acima são referência React histórica, não default universal Java (catálogo inicial label 150 × 20). Cada skin label tem face/tamanho/RGBA/métricas/alinhamento próprios a inventariar, sem resize de instâncias existentes. ValorSurpresaSuperSete é composição label alinhado à direita + toggle opcional comprovada por construtor, sem resultado de negócio automático. SkinUtil.TEXTBOX_BORDER=10 não prova padding simétrico. Negrito/itálico XML são declarados, não comprovados pelo builder; aplicar D-11 da [matriz C03–C04](../001-gerador-jornada/research.md#matriz-de-cobertura-javaefl--expansão-2026-10-19). Todas skins e partes textuais devem ser verificadas em canvas/prévia/PPT; 003/T011, 004/T011 e 001/T111–T122 mantêm tarefas abertas.

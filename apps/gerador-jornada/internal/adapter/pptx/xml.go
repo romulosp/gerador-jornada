@@ -41,7 +41,10 @@ func transform(bounds screen.Bounds) string {
 // shape mantém cada controle ou texto como uma forma editável.
 func shape(id int, name string, primitive presentation.Primitive, link, geometry string) string {
 	if geometry == "" {
-		geometry = "rect"
+		geometry = primitive.Geometry
+		if geometry == "" {
+			geometry = "rect"
+		}
 	}
 	// hyperlink cria navegação interna sem relação externa.
 	hyperlink := ""
@@ -60,6 +63,9 @@ func shape(id int, name string, primitive presentation.Primitive, link, geometry
 	if primitive.Bold {
 		weight = ` b="1"`
 	}
+	if primitive.Italic {
+		weight += ` i="1"`
+	}
 	// foreground resolve o padrão legível de texto.
 	foreground := primitive.Color
 	if foreground == "" {
@@ -72,7 +78,32 @@ func shape(id int, name string, primitive presentation.Primitive, link, geometry
 	} else if primitive.TextAlign == "right" {
 		alignment = "r"
 	}
-	return fmt.Sprintf(`<p:sp><p:nvSpPr><p:cNvPr id="%d" name="%s">%s</p:cNvPr><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr>%s<a:prstGeom prst="%s"><a:avLst/></a:prstGeom>%s%s</p:spPr><p:txBody><a:bodyPr wrap="none" lIns="0" tIns="0" rIns="0" bIns="0" anchor="t"/><a:lstStyle/><a:p><a:pPr algn="%s"/><a:r><a:rPr lang="pt-BR" sz="%d"%s>%s<a:latin typeface="Arial"/></a:rPr><a:t xml:space="preserve">%s</a:t></a:r><a:endParaRPr lang="pt-BR"/></a:p></p:txBody></p:sp>`, id, escape(name), hyperlink, transform(primitive.Bounds), geometry, solid(primitive.Fill), border, alignment, size, weight, solid(foreground), escape(primitive.Text))
+	// spacing traduz o mesmo fator entre linhas para o parágrafo DrawingML.
+	spacing := ""
+	if primitive.LineSpacing > 0 && primitive.LineSpacing != 1 {
+		spacing = fmt.Sprintf(`<a:lnSpc><a:spcPct val="%d"/></a:lnSpc>`, int(primitive.LineSpacing*100000))
+	}
+	// wrap preserva a quebra de linha apenas quando a cena declara essa necessidade.
+	wrap := "none"
+	if primitive.Wrap {
+		wrap = "square"
+	}
+	// anchor conserva a centralização vertical explícita de botões e entradas.
+	anchor := "t"
+	if primitive.VerticalAlign == "center" {
+		anchor = "ctr"
+	}
+	// fill conserva alfa parcial dos fundos originais sem rasterizar as formas.
+	fill := solid(primitive.Fill)
+	if primitive.Fill != "" && primitive.FillAlpha > 0 && primitive.FillAlpha < 255 {
+		fill = strings.Replace(fill, "/>", fmt.Sprintf("><a:alpha val=\"%d\"/></a:srgbClr>", primitive.FillAlpha*100000/255), 1)
+	}
+	// family usa o nome real da face declarada pela cena.
+	family := primitive.FontFamily
+	if family == "" {
+		family = "Arial"
+	}
+	return fmt.Sprintf(`<p:sp><p:nvSpPr><p:cNvPr id="%d" name="%s">%s</p:cNvPr><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr><p:spPr>%s<a:prstGeom prst="%s"><a:avLst/></a:prstGeom>%s%s</p:spPr><p:txBody><a:bodyPr wrap="%s" lIns="0" tIns="0" rIns="0" bIns="0" anchor="%s"/><a:lstStyle/><a:p><a:pPr algn="%s">%s</a:pPr><a:r><a:rPr lang="pt-BR" sz="%d"%s>%s<a:latin typeface="%s"/></a:rPr><a:t xml:space="preserve">%s</a:t></a:r><a:endParaRPr lang="pt-BR"/></a:p></p:txBody></p:sp>`, id, escape(name), hyperlink, transform(primitive.Bounds), geometry, fill, border, wrap, anchor, alignment, spacing, size, weight, solid(foreground), escape(family), escape(primitive.Text))
 }
 
 // groupStart mantém a geometria das primitivas no mesmo sistema lógico.

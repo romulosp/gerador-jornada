@@ -1,7 +1,14 @@
 # Data Model: Gerador de Jornada
 
+## Situação corrente — revisão 1.0.0.1
+
+Composição em application.Document; sete famílias base e três compostos; Style/Enabled/ParentID na instância. JSON schemaVersion=3/catalogVersion=3. Não existe Document.AppearanceProfile, appearance tipada, skin.Profile ou adaptador visualprofile no código atual.
+
+Este quadro e a [spec](spec.md#estado-verificado-1-0-0-1) descrevem a implementação atual. As seções datadas de expansão conservam decisões/requisitos e registros históricos: tipos, arquivos, testes e perfis ali citados só são evidência atual quando existem na árvore e estão cobertos pela seção 22 do [quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Não atribuir ao build atual resultados de uma revisão antiga.
+
+
 **Date**: 2026-10-17 | **Spec**: [spec.md](spec.md)
-**Status**: modelo com identidade de arquivo; persistência atual schemaVersion 2, com leitura/migração de versão 1.
+**Status**: implementação parcial reconciliada com 1.0.0.1; expansão e homologação pendentes.
 
 ## Convenções
 
@@ -9,7 +16,7 @@
 - Unidades de geometria são inteiros lógicos equivalentes a pixels a 96 DPI. Tempo é inteiro em milissegundos; cores são `#RRGGBB`.
 - Strings são Unicode. Nomes visíveis não são nomes de pacote/classe automaticamente.
 - Campos persistidos e nomes JSON estão em inglês; textos da interface estão em português.
-- Tipos de negócio não carregam tags JSON nem objetos Fyne. DTOs de arquivo fazem a tradução.
+- Tipos dos cinco domínios não carregam objetos Fyne; DTOs de arquivo fazem a tradução JSON. O perfil puro compartilhado `skin.Profile` já define suas próprias tags JSON e hash determinístico, sem bytes ou I/O; não confundir isso com tags adicionadas às entidades de negócio.
 - Projeto conceitual é o documento completo. No código, `project.Project` guarda metadados/recursos e `application.Document` compõe telas, jornada, roteiros e opções de saída, evitando dependências cíclicas e um serviço gigante.
 - Detalhes de wire format e limites de leitura estão em [project-format.md](contracts/project-format.md).
 
@@ -18,11 +25,11 @@
 | Tipo | Campos principais | Regras / responsabilidade |
 | --- | --- | --- |
 | Project | id, name, revision, catalogVersion, assets | Nome não vazio; revisão monotônica na sessão; metadados e recursos do documento, sem métodos de UI/exportação. |
-| Document (aplicação) | project, screens, journey, scenarios, javaOptions | Composição para sessão/snapshot; sem regras de domínio duplicadas e sem métodos centrais de edição. |
+| Document (aplicação) | project, screens, journey, scenarios, javaOptions, resources | Composição para sessão/snapshot; recursos copiados profundamente; sem perfil visual privado no modelo atual e sem regras de domínio duplicadas. |
 | Screen | id, fileId, name, size, background, components | Nome não vazio; largura/altura positivas; ordem no array determina ordem na lista e na exploração PPT. |
-| Component | id, fileId, name, kind, bounds, style, properties | Nome não vazio e único na tela; kind pertence ao catálogo; propriedades têm exatamente o tipo correspondente à família. |
+| Component | id, fileId, name, kind, bounds, style, enabled, parentId, properties | Nome não vazio e único na tela; kind pertence ao catálogo; propriedades têm exatamente o tipo correspondente à família. |
 | Bounds | x, y, width, height | Inteiros; x/y não negativos, largura/altura positivas e limites dentro da tela para prévia/exportação. |
-| Style | fontFamily, fontSize, textColor, fillColor, borderColor, backgroundAssetId, textAlign | Tamanho de fonte zero mantém padrão; personalizado deve ser positivo; cores válidas; estilos opcionais resolvidos pelo catálogo. Capacidade Java depende de perfil. |
+| Style | fontFamily, fontSize, textColor, fillColor, borderColor, backgroundAssetId, textAlign, skin | Tamanho de fonte zero mantém padrão; personalizado deve ser positivo; cores válidas; estilos opcionais resolvidos pelo catálogo. Capacidade Java depende de perfil. |
 | Definition (implementado) | kind, name, width, height | Catálogo embutido; metadados declarativos completos de propriedades/capacidades permanecem em 003-catalogo/T004 e T006. |
 | Journey | startScreenId, actions | Uma inicial existente para executar; um binding no máximo por botão e evento click. |
 | ButtonAction | sourceScreenId, sourceComponentId, kind, targetScreenId | kind `none` ou `navigate`; destino obrigatório apenas em navigate. Fonte deve ser botão da tela indicada. |
@@ -115,3 +122,44 @@ Screen.FileID/Component.FileID são nomes-base editáveis sem extensão, de 1 a 
 ## Preferências de apresentação (fora do domínio)
 
 A chave local editor.theme aceita Claro, Escuro e Azul, com Claro como fallback. É preferência de usuário gerenciada pelo adaptador Fyne, não propriedade do Projeto nem campo do manifesto. Tela cheia, visibilidade de Sair e diálogo de encerramento são estado transitório da janela. Nenhuma migração de dados ou revisão do projeto é necessária.
+
+## Evolução pós-v1 — perfil visual e catálogo 2
+
+O perfil por documento descrito nos registros de 2026-10-19 é histórico/plano de expansão; não existe na revisão 1.0.0.1. A implementação atual usa Style e biblioteca incorporada global, sem captura/selamento de revisões privadas. O histórico de build e validação continua no quickstart; não o repetir como evidência vigente deste modelo.
+
+Perfil futuro deve manter ID/versão/hash, definições/estados/fontes/aliases/recursos, até 16 revisões diretas, integridade e origem/licença. A incorporação fica restrita aos bytes usados e permitidos, sem caminhos absolutos ou substituições silenciosas. Aparência normalizada com presença/RGBA e descritores de fonte/recurso continua pendente.
+
+As tabelas anteriores registram a base v1/v2. A expansão autorizada acrescenta:
+
+| Valor planejado | Responsabilidade / invariantes |
+| --- | --- |
+| SkinLibrary / SkinDefinition / SkinState | Biblioteca estática gerada de dados puros, versionada; chave composta por família, nome original e estado; proveniência e status de resolução. Sem bytes de UI ou código executável. |
+| FontFace / ResourceRef | Hash, ID, nome interno, métricas, direitos de uso/embedding e origem; bytes ficam no adaptador/snapshot. Declaração bold/italic e efeito Java são evidências distintas. |
+| Inventário de desenvolvimento / escolha de recurso | `resource_roots` identifica raízes comprovadas; `sources` conserva todas as origens equivalentes; `conflicts` conserva candidatos por hash e `selections` registra a origem/hash/justificativa escolhidos explicitamente. Configuração versionada fora do domínio; nova colisão ou pin alterado bloqueia o caminho. Escolha técnica não concede licença nem homologação. |
+| AppearanceProfile | ID, versão, hash e snapshot de definições, descritores fontFaces e recursos usados; inclui faces referidas só por override. Descriptor unresolved preserva requestedFamily legado sem face/asset fictícios; bloqueia fidelidade dependente, não o round-trip do rascunho. Sem paths absolutos. |
+| Component.appearance / overrides | Referência de skin/version e overrides tipados com presença explícita, incluindo RGBA, face/estilo/tamanho, alinhamento/espaçamento. Ausente não equivale a zero/falso. Style legado é traduzido sem perda. |
+| Component.parentId | Opcional; pai contêiner da mesma tela, sem ciclos; lista e bounds absolutos mantidos. Ordem do array continua z-order entre irmãos; subárvore compõe grupo contíguo na pintura. Não reordenar implicitamente ao abrir. |
+| Properties catálogo 2 | Preserva sete kinds e acrescenta toggleButton, textArea, passwordField, comboBox, table, alphaKeyboard, progressBar, panel e dialog. Duas legendas e subclasses Report são variantes; UF e Frame são presets. |
+| RuntimeState | Foco, cursor, pressed, seleção corrente, scroll e modal derivados para prévia/roteiro; nunca persistidos. Somente valores e estados **iniciais** tipados pertencem ao componente. |
+
+Limites, DTOs e migração são normativos em [project-format.md](contracts/project-format.md#expansão-pós-v1--schema-3-e-catálogo-2-2026-10-19); sem JSON livre no núcleo. O leitor aceita versões antigas explicitamente e escreve v3 após migração; leitores antigos recusam v3. Cópia profunda inclui novas propriedades/recursos. Snapshot captura revisão/perfil/hashes usados, não consulta biblioteca mutável durante exportação.
+
+Projetos antigos recebem nova aparência em campos sem override; conteúdo, IDs/FileIDs, bounds, ordem e referências permanecem. Migração fixa left quando o alinhamento antigo era vazio; não transforma ausência histórica em center da nova skin. ParentID ausente continua raiz. Redimensionar pai não escala filhos implicitamente; mover pai move descendentes em transação, sem deslocar duas vezes um filho também selecionado. Report/teclados têm partes internas derivadas, não centenas de Component persistidos.
+
+<a id="modelo-codigos-barras-2026-10-23"></a>
+## Integração planejada — códigos de barras (2026-10-23)
+
+FR-060 não cria agregado financeiro em Document. Fonte canônica das propriedades em [003/data-model](../003-catalogo/data-model.md#modelo-codigos-barras-2026-10-23); instâncias/IDs em 004; DTO/versionamento em 002; Journey/Scenario conservam seus modelos em 005/006. Não repetir esses dados em um objeto central.
+
+Estado runtime planejado por `(screenID, componentID)` contém oito strings, índice ativo, erro local, captura em andamento e resultado aceito de entrada. Modal/foco e temporários de captura são da sessão; apenas resultado validado permite consultar derivados. Alterar/cancelar/reiniciar invalida o que for aplicável segundo 031; a revisita/fechamento descarta tudo. Captura inválida limpa essa instância, não o documento ou outras entradas. Snapshot exportado não lê widgets nem herda a prévia livre.
+
+032 não requer estado bancário de execução: sua configuração processada é leitura do snapshot. Linha/bloco selecionado e popup do inspector pertencem ao rascunho de UI, não ao documento. Nenhum vínculo implícito transfere documento/nome entre entrada e ficha processada. Tipos, versões e valores novos continuam planejados, sem alteração do EXE nesta entrega.
+
+<a id="modelo-menu-aplicacao-2026-10-23"></a>
+## Integração planejada — sessão de menu
+
+FR-061 não cria agregado Menu em Document nem copia árvore em Journey/Scenario. [003/modelo](../003-catalogo/data-model.md#modelo-menu-aplicacao-2026-10-23) é canônico; instância é 004, wire 002 e referências de destino 005.
+
+Sessão por `(screenID, componentID, visita)` contém caminho de IDs de submenus, vista raiz/submenu selecionado, seleção simulada e estado transitório de foco/pressionado. Derivar caminho inicial de Root até InitialMenuID, contando raiz; Voltar remove último nível e não sai da raiz, Cancelar restaura só raiz. Reabrir/revisitar/restart recria inicial configurado, não o último caminho. Sair encerra sessão de prévia e descarta runtime; não publica edição, logoff ou pedido de encerramento do aplicativo.
+
+Hit region leva componentID/itemID e comando explícito; não identificar controles por Label/MovementName/Shortcut. Ativação verifica enabled da instância e do caminho, abre submenu local ou pede a Jornada destino autorado; folha sem destino apenas informa seleção simulada. Prévia Tela Atual não segue TargetScreenID nem exige outras telas para explorar submenus locais. Canvas/quadros/PPT usam inicial do snapshot, nunca essa sessão. Rascunho do inspector e expansão de nós não são configuração; só árvore/InitialMenuID confirmados persistem em Properties.Menu.

@@ -2,7 +2,7 @@
 
 <img src="internal/adapter/builtinassets/assets/app-icon.png" alt="Ícone do Jornada Studio" width="112">
 
-**Software 1.0.0.0 · Go 1.27.2 · Fyne 2.8.2 · Desktop · Português**
+**Software 1.0.0.1 · Go 1.27.2 · Fyne 2.8.2 · Desktop · Português**
 
 O Jornada Studio permite desenhar telas, conectar etapas de atendimento e apresentar uma jornada antes de integrar o sistema definitivo. O autor posiciona componentes, configura suas propriedades, testa a navegação e gera uma apresentação PowerPoint com telas editáveis e demonstração guiada.
 
@@ -23,6 +23,17 @@ O projeto `.jornada` guarda a composição editável. O PPT é uma saída de apr
 5. Configure destinos na aba **Navegação** e etapas na aba **Demonstração**.
 6. Use **Prévia Tela Atual** para revisar somente a tela selecionada ou **Prévia** para percorrer o projeto.
 7. Salve o `.jornada` e exporte o **PowerPoint**.
+
+### Projeto de teste dos compostos 031–033
+
+O executável aceita dois utilitários locais que não abrem a janela:
+
+```powershell
+JornadaStudio.exe -save-compounds .\dist\teste-compostos.jornada
+JornadaStudio.exe -export-compounds .\dist\teste-compostos.pptx
+```
+
+O primeiro salva uma revisão com uma instância de código de barras, uma ficha processada e o menu da aplicação em duas telas; o segundo exporta a apresentação correspondente. Os valores digitáveis começam vazios, o menu inicia na raiz e nenhum roteiro é criado. Use uma **cópia** do arquivo para a sessão manual e registre a revisão/hash do EXE, o ambiente, o DPI e as capturas exigidas pelo [roteiro de teste humano](../../specs/001-gerador-jornada/quickstart.md#21-teste-humano-consolidado--features-001033-2026-10-24).
 
 ### Requisitos para executar
 
@@ -45,18 +56,15 @@ Os comandos de build gravam somente dentro de `apps/gerador-jornada/dist`:
 
 ```text
 dist/
-├── JornadaStudio.exe                         # atalho de compatibilidade do build Windows
+├── JornadaStudio.exe                         # cópia de compatibilidade Windows
 ├── windows-amd64/JornadaStudio.exe
-├── linux-amd64/JornadaStudio
-├── darwin-amd64/JornadaStudio.app/
-├── darwin-arm64/JornadaStudio.app/
-├── JornadaStudio-1.0.0.0-windows-amd64.zip
-├── JornadaStudio-1.0.0.0-linux-amd64.tar.gz
-├── JornadaStudio-1.0.0.0-darwin-amd64.zip
-└── JornadaStudio-1.0.0.0-darwin-arm64.zip
+├── JornadaStudio-1.0.0.1-windows-amd64.zip
+├── JornadaStudio-1.0.0.1-windows-amd64.zip.sha256
+├── estilos-legado.jornada
+└── compostos-legado.jornada
 ```
 
-Essa árvore mostra os **destinos previstos**, não afirma que todos os pacotes já existem. Consulte os disponíveis com `python scripts/build.py --list`. Cada pacote gerado contém `build-info.json` e `SHA256SUMS.txt`; o arquivo compactado tem um `.sha256` ao lado. O inventário registra versão, sistema, arquitetura, Go e compilador C, mantendo aprovação manual como pendente. Linux também inclui `runtime-libraries.txt`; macOS registra o SDK Apple quando compilado.
+Essa árvore mostra a entrega Windows atual. Destinos Linux/macOS são configurações futuras e não foram compilados nesta revisão. Consulte os disponíveis com `python scripts/build.py --list`. Cada pacote gerado contém `build-info.json` e `SHA256SUMS.txt`; o arquivo compactado tem um `.sha256` ao lado. O inventário registra versão, sistema, arquitetura, Go e compilador C, mantendo aprovação manual como pendente. Linux também inclui `runtime-libraries.txt`; macOS registra o SDK Apple quando compilado.
 
 No Windows, extraia o ZIP e abra `windows-amd64/JornadaStudio.exe`. No Linux, extraia o TAR.GZ, entre em `linux-amd64` e execute `./JornadaStudio`; se o meio de cópia removeu a permissão, aplique `chmod +x JornadaStudio`. No macOS, extraia o ZIP no Mac e abra `JornadaStudio.app` da arquitetura correta.
 
@@ -72,16 +80,26 @@ As sete famílias têm propriedades tipadas. Os tamanhos abaixo são os defaults
 | **Campo de texto** | Simular entrada de dados na prévia | Valor inicial e formato `text/number/cellular/cep/cpf/date/ddd/nis` | 150 × 25 |
 | **Seleção** | Apresentar opções de escolha única | Uma opção por linha e orientação vertical/horizontal | 180 × 60 |
 | **Relatório/lista** | Representar resultados e informações de consulta | Cabeçalho e linhas de texto ordenadas | 300 × 345 |
-| **Teclado numérico** | Alimentar um campo da mesma tela | Campo de destino; 0–9, Limpar e apagar último caractere | 200 × 280 |
+| **Teclado numérico** | Alimentar um campo da mesma tela | Campo de destino; 0–9, setas, TAB e LIMPAR (Backspace) | 200 × 350 |
 
-**Comportamentos e limites importantes:**
+**Compostos do legado (031–033):**
 
-- Botões disparam a navegação configurada na prévia completa. No modo Tela Atual, a navegação entre telas é desativada. Variantes e skins ainda não têm equivalência visual integral em todos os renderizadores.
-- Rótulo e título são textos editáveis, inclusive no PPT; não são capturas de tela.
-- O campo numérico restringe a entrada a dígitos na prévia. As demais opções de formato representam intenção de apresentação; não garantem máscara completa, consulta externa ou validação fiscal de CPF/NIS.
-- A seleção mantém escolhas temporárias na prévia. As opções têm identidade interna e preservam sua ordem; vírgulas podem fazer parte do texto.
-- O relatório contém dados ilustrativos locais; não consulta banco, API ou sistema de negócio.
-- O teclado implementado tem **12 teclas**. A especificação de evolução contempla diferenças do legado ainda não entregues. Sem vínculo, o teclado pode ser desenhado, mas não altera um campo.
+| Componente | Propósito | Propriedades específicas | Tamanho inicial |
+| --- | --- | --- | --- |
+| **Código de barras** | Simular a linha digitável de um boleto | Rótulo; oito campos derivados e validação local por DV | 610 × 60 |
+| **Código de barras processado** | Exibir uma ficha ilustrativa de leitura | Blocos com título e linhas CPF/CNPJ/Nome/Nome fantasia/Razão social | 530 × 120 |
+| **Menu da aplicação** | Editar e explorar a árvore de serviços e jogos | Submenu, item, legenda, categoria, variante, habilitação, destino e menu inicial | 800 × 600 |
+
+Os três aparecem em **ELEMENTOS DO LEGADO**, não entre as sete famílias primitivas. A árvore inicial do menu e os dados derivados do boleto são ilustrativos: não executam movimento bancário, consulta, autenticação, QR ou rede. O PPT preserva textos e formas editáveis, mas não calcula DV, não abre modal e não opera a árvore. Imagens de referência e as classes reais de módulo SISPL/SIGCB não estão no workspace; fidelidade visual e equivalência bancária continuam pendentes de evidência.
+
+### Skins do acervo legado
+
+O inspector oferece **Padrão do legado** ou uma definição compatível com a família. Sem skin explícita, o resolvedor aplica os defaults do acervo; não restaura a aparência genérica anterior. Família incorporada, tamanho/cor do texto, fundo, borda e alinhamento são personalizações confirmadas pelo formulário.
+
+A biblioteca corrente tem **205 chaves tipo/nome, 224 recursos referenciados e seis fontes físicas**. Oito definições com imagens ausentes ficam fora da oferta. Esses números não são quantidade de tipos inseríveis: o catálogo atual tem sete famílias e três compostos. Imagens e fontes acompanham o EXE; runtime lê JSON estático e recursos incorporados, sem interpretar XML Java.
+
+[O que foi necessário para aplicar o estilo](../../README.md#o-que-foi-necessário-para-recuperar-o-estilo-do-legado) explica a importação, correção de alpha, famílias SFNT, defaults, cena compartilhada, captura de texto transparente e exportação. [A seção 22 do quickstart](../../specs/001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24) registra os checks/capturas e o roteiro manual da revisão 1.0.0.1.
+
 
 ### Conjuntos prontos do legado
 
@@ -95,6 +113,8 @@ As sete famílias têm propriedades tipadas. Os tamanhos abaixo são os defaults
 
 Esses conjuntos geram controles comuns editáveis, incluídos como uma ação de histórico. Data/hora e indicadores são exemplos fixos; não há relógio vivo, autenticação ou monitoramento de rede. A faixa permite alinhar **o texto** à esquerda, ao centro ou à direita, sem mover o elemento. Conjuntos não constituem um novo agrupamento persistido.
 
+A contagem de RELATÓRIOS (27 títulos/148 folhas) é estrutural: o seed atual usa títulos e tokens sintéticos, pois o XML integral não está no workspace. Ainda faltam integridade global completa de destinos de menu e homologação da referência. A ficha processada também não possui imagem independente recebida. Veja o [estado da spec 033](../../specs/033-menu-aplicacao-efl/spec.md#estado-verificado-1-0-0-1).
+
 ### Propriedades comuns e identificação
 
 Cada instância possui nome amigável, **ID de arquivo**, posição X/Y, largura/altura, cor do texto, tamanho lógico da fonte e alinhamento textual. A imagem decorativa é configurada pela ação específica. Alguns estilos previstos no modelo ainda não têm edição completa ou equivalência em todos os alvos.
@@ -105,6 +125,17 @@ Cada instância possui nome amigável, **ID de arquivo**, posição X/Y, largura
 - IDs de tela são únicos no projeto; IDs de componente, na tela, sem distinguir caixa. Renomear a legenda não renomeia um ID confirmado.
 - O ID de arquivo é independente do **UUID interno**, usado em navegação e vínculos. A interface remove acentos/símbolos durante a edição; excesso de tamanho e colisões impedem salvar.
 - O gerador de fontes utiliza o nome-base confirmado, como `PnlIdentificacao.java` e `BtnContinuar.java`. A ação pública Java/EFL permanece desabilitada.
+
+### Hierarquia, habilitação e camadas
+
+- **Pai:** o campo **Pai** do inspector associa o componente a um contêiner da mesma tela. Pai ausente, autorreferência e ciclo são recusados; mover o pai desloca os descendentes uma vez, sem duplicar o deslocamento quando o filho também está selecionado.
+- **Habilitado:** o campo **Habilitado** controla a interação. Componente desabilitado continua visível em contraste reduzido, mas não recebe clique, foco, digitação ou navegação na prévia; a instância e o documento não são apagados.
+- **Sobreposição:** o inspector oferece **Manter posição atual**, **À frente do objeto**, **Atrás do objeto**, **Trazer para a frente** e **Enviar para o fundo**, com **Objeto de referência** opcional. A posição é persistida apenas como a ordem canônica da tela, sem campo extra; **Frente ↑ / Fundo ↓** continuam movendo um passo.
+- Remover um pai mantém os filhos na tela como raízes, sem referência inválida. Duplicar tela remapeia pai, filhos, teclado e destinos internos de menu.
+
+### Log de aplicação
+
+O cabeçalho oferece **Log de aplicação**. O popup mostra o caminho efetivo e permite **Registrar diagnóstico agora**, **Copiar caminho** e **Abrir pasta**. O arquivo JSONL registra startup, erros de interface e contagens técnicas (telas, componentes, famílias e habilitados); **não** grava textos digitados, nomes de projeto/componente, caminhos de arquivo ou conteúdo de recursos. No Windows, a pasta fica em `%LOCALAPPDATA%\GeradorJornada\logs`; há rotação de 2 MiB por segmento e retenção de 20 arquivos.
 
 ## Áreas da aplicação e edição
 
@@ -156,7 +187,7 @@ Atalhos de desenho respeitam o foco dos campos: Delete e setas continuam editand
 
 ### Projeto `.jornada`
 
-É um ZIP portátil contendo manifesto JSON e recursos locais PNG/JPEG. O formato atual tem **schemaVersion 2**, com `fileId` separado do UUID. O leitor migra a versão 1 por sugestões determinísticas; o próximo salvamento grava a versão 2. Não regrava o original durante a leitura. Versões desconhecidas, estruturas inválidas e recursos inconsistentes são recusados.
+É um ZIP portátil contendo manifesto JSON e recursos locais PNG/JPEG. O formato atual grava **schemaVersion 3/catalogVersion 3**, com `fileId` separado do UUID. O reader reconhece os pares 1/1, 2/1, 3/2 e 3/3, dentro dos campos suportados. Na versão 1, IDs de arquivo são sugeridos deterministicamente; o próximo salvamento grava 3/3. Não regrava o original durante a leitura. Versões desconhecidas, campos desconhecidos, estruturas inválidas e recursos inconsistentes são recusados. Reconhecer o par 3/2 não significa aceitar appearanceProfile de implementações anteriores: esse campo não existe na árvore atual. A sessão original não deve ser substituída por uma leitura recusada.
 
 A gravação usa arquivo temporário e publicação atômica. Após alterações, existe recuperação automática com debounce de 2 segundos. Ela não substitui Salvar nem grava seleção, zoom, foco, undo/redo ou valores temporários da prévia.
 
@@ -186,8 +217,8 @@ O alvo permanece Java SE 6, mesmo com JDK 17 no desenvolvimento. Testes estrutur
 | Interface | Fyne **2.8.2**, janela desktop com renderer próprio de composição |
 | Compilação gráfica | CGO + compilador C nativo; MinGW **16.2.0** na preparação Windows fixada |
 | Unicode | `golang.org/x/text` **0.22.0** |
-| Formato de projeto | ZIP + JSON, schemaVersion **2**, leitor compatível com migração v1 |
-| Catálogo | catalogVersion **1**, sete famílias tipadas |
+| Formato de projeto | ZIP + JSON, writer **3/3**; reader reconhece **1/1, 2/1, 3/2 e 3/3** nos campos suportados |
+| Catálogo | catalogVersion **3**, sete famílias base e três compostos tipados |
 | PPT | `archive/zip` e XML Go; PresentationML/Open XML |
 | Integração legada | Fontes Java 1.6/Swing/EFL, ação temporariamente suspensa |
 | Build/distribuição | PowerShell no Windows; Python 3.10+; Docker opcional para Linux; runners nativos no GitHub Actions |
@@ -258,7 +289,7 @@ python3 scripts/build.py --target darwin --arch amd64 --check
 python3 scripts/build.py --target darwin --arch arm64 --check
 ```
 
-O build cria `.app` com ícone `.icns`, Info.plist e assinatura ad-hoc local. A versão completa do produto continua 1.0.0.0; os campos convencionais do bundle usam três partes. Não gera notarização ou assinatura de distribuição Apple.
+O build cria `.app` com ícone `.icns`, Info.plist e assinatura ad-hoc local. A versão completa do produto é 1.0.0.1; os campos convencionais do bundle usam três partes. Não gera notarização ou assinatura de distribuição Apple.
 
 O script recusa simplesmente trocar GOOS/GOARCH sem toolchain nativo. Fyne utiliza CGO e exige compilador/bibliotecas do alvo; consulte a [compilação entre plataformas](https://docs.fyne.io/started/cross-compiling/). Docker deste projeto atende Linux; o macOS utiliza Mac ou runner próprio.
 
@@ -306,3 +337,11 @@ Permanecem separados: homologação do PowerPoint, EFL real, DPI/driver gráfico
 ## Responsáveis e licença
 
 O repositório concentra o conhecimento do projeto e as decisões discutidas com seus mantenedores. A aplicação ainda não possui um arquivo LICENSE próprio definido neste repositório. Recursos visuais do legado, marcas e dependências mantêm suas condições de origem; este README não define uma licença para eles.
+
+## Revisão visual 1.0.0.1 — 2026-10-24
+
+As sete famílias atuais e os compostos de código de barras/menu usam as decorações e fontes disponíveis do legado. Defaults são aplicados mesmo sem escolher skin; cores/fonte/alinhamento podem ser personalizados no inspector. A prévia mantém essa cena durante a interação, com captura de texto transparente, cursor e valores locais. Teclado novo usa 14 teclas em 200 × 350; instâncias antigas conservam seus bounds. LIMPAR emite Backspace e TAB percorre os campos habilitados.
+
+A biblioteca é gerada em desenvolvimento por `python -X utf8 scripts/import_legacy_skin.py`; `--check` confere o resultado sem escrever. Runtime carrega somente os dados JSON e recursos incorporados. Oito definições com imagens ausentes não são oferecidas; escolhas antigas indisponíveis exibem diagnóstico e impedem exportação sem apagar o projeto.
+
+O PPT conserva decorações originais e texto/formas editáveis, com famílias SFNT reais. As fontes não são incorporadas ao PPT: validar sua disponibilidade e licença no computador do Office. A revisão não conclui a expansão integral dos tipos descritos nas specs. Build, capturas, resultados e roteiro manual estão na [seção 22 do quickstart](../../specs/001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24).

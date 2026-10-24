@@ -4,6 +4,8 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"sort"
 	"strings"
@@ -13,6 +15,7 @@ import (
 	"gerador-jornada.local/editor/internal/presentation"
 	"gerador-jornada.local/editor/internal/scenario"
 	"gerador-jornada.local/editor/internal/screen"
+	"gerador-jornada.local/editor/internal/skin"
 )
 
 // Options seleciona percursos sem omitir roteiros inválidos silenciosamente.
@@ -61,6 +64,8 @@ type deck struct {
 	Slides []slidePlan
 	// Exploration associa IDs de tela aos seus slides manuais.
 	Exploration map[string]int
+	// Media associa nomes de recursos de skin aos bytes incorporados.
+	Media map[string][]byte
 }
 
 // Export valida e publica o arquivo completo; cancelamento preserva o destino anterior.
@@ -79,6 +84,14 @@ func Build(ctx context.Context, document application.Document, options Options, 
 	// problems reúne os diagnósticos que impedem execução ou exportação.
 	if problems := document.Validate(); len(problems) > 0 {
 		return nil, fmt.Errorf("%s", application.ProblemsText(problems))
+	}
+	// page e component validam a aparência antes de produzir qualquer parte do pacote.
+	for _, page := range document.Screens {
+		for _, component := range page.Components {
+			if err := presentation.ValidateStyle(component); err != nil {
+				return nil, fmt.Errorf("%s / %s: %w", page.Name, component.Name, err)
+			}
+		}
 	}
 	// plan resolve todos os índices antes de escrever relacionamentos.
 	// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
@@ -108,6 +121,10 @@ func Build(ctx context.Context, document application.Document, options Options, 
 	// asset é um recurso decorativo já validado pela persistência.
 	for _, asset := range document.Project.Assets {
 		parts["ppt/media/"+asset.ID+extension(asset.Path)] = string(document.Resources[asset.Path])
+	}
+	// skinMedia contém as imagens do acervo de skins usadas nos slides.
+	for name, data := range plan.Media {
+		parts["ppt/media/"+name] = string(data)
 	}
 	// names define a ordem estável das entradas ZIP.
 	names := []string{}
@@ -150,7 +167,7 @@ func planDeck(document application.Document, options Options) (*deck, error) {
 	if options.Transition != "" && options.Transition != "fade" && options.Transition != "push" && options.Transition != "wipe" && options.Transition != "none" {
 		return nil, fmt.Errorf("PPT_ANIMATION_UNSUPPORTED: transição desconhecida")
 	}
-	plan := &deck{Document: document, Transition: options.Transition, Slides: []slidePlan{{Caption: document.Project.Name}}, Exploration: map[string]int{}}
+	plan := &deck{Document: document, Transition: options.Transition, Slides: []slidePlan{{Caption: document.Project.Name}}, Exploration: map[string]int{}, Media: map[string][]byte{}}
 	// page determina o tamanho único do arquivo.
 	for _, page := range document.Screens {
 		plan.Width = max(plan.Width, page.Size.Width)
@@ -324,13 +341,24 @@ func (r *slideRenderer) page() {
 		for _, primitive := range group.Shapes {
 			primitive.Bounds.X += r.offsetX
 			primitive.Bounds.Y += r.offsetY
+			if primitive.SkinAsset != "" {
+				r.skinImage(primitive)
+				if primitive.Text == "" && primitive.Fill == "" && primitive.Stroke == "" {
+					continue
+				}
+			}
 			if primitive.AssetID != "" {
 				r.image(primitive)
 				continue
 			}
 			// id identifica inclusive a caixa vazia de valor do campo.
 			id := r.id()
-			r.content.WriteString(shape(id, group.ComponentID, primitive, "", ""))
+			// name identifica a forma interna do composto no PowerPoint.
+			name := group.ComponentID
+			if primitive.Name != "" {
+				name = group.ComponentID + "/" + primitive.Name
+			}
+			r.content.WriteString(shape(id, name, primitive, "", ""))
 			if primitive.Role == "value" {
 				r.values[group.ComponentID] = id
 				r.valueShapes[group.ComponentID] = primitive
@@ -359,4 +387,34 @@ func (r *slideRenderer) image(primitive presentation.Primitive) {
 		r.links.WriteString(relation(rid, "image", "../media/"+asset.ID+extension(asset.Path)))
 		r.content.WriteString(fmt.Sprintf(`<p:pic><p:nvPicPr><p:cNvPr id="%d" name="%s"/><p:cNvPicPr/><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="%s"/><a:stretch><a:fillRect/></a:stretch></p:blipFill><p:spPr>%s<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>`, id, escape(asset.ID), rid, transform(primitive.Bounds)))
 	}
+}
+
+// skinImage incorpora uma imagem decorativa do acervo de skins no pacote PPTX.
+// O nome do recurso é derivado do hash para deduplicar o mesmo arquivo entre slides.
+func (r *slideRenderer) skinImage(primitive presentation.Primitive) {
+	// data contém os bytes embutidos do recurso lógico.
+	data, err := skin.MustBuiltin().Asset(primitive.SkinAsset)
+	if err != nil || len(data) == 0 {
+		return
+	}
+	// digest deduplica o recurso por conteúdo.
+	digest := sha256.Sum256(data)
+	// ext preserva o formato reconhecido pelo Office.
+	ext := ".png"
+	// lower contém o caminho em minúsculas para reconhecer a extensão.
+	lower := strings.ToLower(primitive.SkinAsset)
+	if strings.HasSuffix(lower, ".jpg") || strings.HasSuffix(lower, ".jpeg") {
+		ext = ".jpg"
+	} else if strings.HasSuffix(lower, ".gif") {
+		ext = ".gif"
+	}
+	// name identifica o recurso no pacote de forma estável.
+	name := "skin-" + hex.EncodeToString(digest[:8]) + ext
+	r.deck.Media[name] = data
+	// id mantém forma e relacionamento únicos no slide.
+	id := r.id()
+	// rid identifica a relação entre a forma e o recurso de imagem.
+	rid := fmt.Sprintf("rIdSkin%d", id)
+	r.links.WriteString(relation(rid, "image", "../media/"+name))
+	r.content.WriteString(fmt.Sprintf(`<p:pic><p:nvPicPr><p:cNvPr id="%d" name="%s"/><p:cNvPicPr/><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="%s"/><a:stretch><a:fillRect/></a:stretch></p:blipFill><p:spPr>%s<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>`, id, escape(primitive.SkinAsset), rid, transform(primitive.Bounds)))
 }

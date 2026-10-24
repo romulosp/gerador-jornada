@@ -34,20 +34,32 @@ func ConstrainTranslation(bounds Bounds, size Size, dx, dy int) (int, int) {
 }
 
 // MoveSelection traduz alvos válidos com um único deslocamento comum, sem alterar outros controles.
+// Selecionar um pai desloca sua subárvore uma única vez, mesmo que um filho também esteja selecionado.
 func MoveSelection(page *Screen, ids []string, dx, dy int) error {
+	// expanded reúne os alvos e seus descendentes sem repetição.
+	expanded := []string{}
+	// seen evita mover um alvo duas vezes quando o consumidor repetir sua identidade.
+	seen := map[string]bool{}
+	for _, id := range ids {
+		if page.ComponentByID(id) == nil {
+			return fmt.Errorf("componente selecionado inexistente: %s", id)
+		}
+		// index percorre o alvo e a subárvore.
+		for _, moveID := range append([]string{id}, page.Descendants(id)...) {
+			if seen[moveID] {
+				continue
+			}
+			seen[moveID] = true
+			expanded = append(expanded, moveID)
+		}
+	}
 	// bounds valida todas as referências antes de publicar qualquer geometria.
-	bounds, err := SelectionBounds(*page, ids)
+	bounds, err := SelectionBounds(*page, expanded)
 	if err != nil {
 		return err
 	}
 	dx, dy = ConstrainTranslation(bounds, page.Size, dx, dy)
-	// seen evita mover um alvo duas vezes quando o consumidor repetir sua identidade.
-	seen := map[string]bool{}
-	for _, id := range ids {
-		if seen[id] {
-			continue
-		}
-		seen[id] = true
+	for _, id := range expanded {
 		// component já foi validado pela caixa conjunta.
 		component := page.ComponentByID(id)
 		component.Bounds.X += dx

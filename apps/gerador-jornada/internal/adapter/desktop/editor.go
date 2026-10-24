@@ -92,7 +92,11 @@ func New(app fyne.App, document application.Document) *Editor {
 	editor.Mode = newWindowMode(editor.Window)
 	editor.Mode.exitButton.OnTapped = editor.requestClose
 	if len(document.Screens) > 0 {
-		editor.PageID = document.Screens[0].ID
+		// A tela inicial da jornada abre primeiro; projetos antigos sem referência válida usam a primeira tela.
+		editor.PageID = document.Journey.StartScreenID
+		if editor.PageID == "" || document.Screen(editor.PageID) == nil {
+			editor.PageID = document.Screens[0].ID
+		}
 	}
 	editor.Status = widget.NewLabel("Pronto · funcionamento offline")
 	editor.Title = canvas.NewText(document.Project.Name, rgb("#0F172A"))
@@ -147,7 +151,7 @@ func (e *Editor) header() fyne.CanvasObject {
 	// identity mantém hierarquia tipográfica clara.
 	identity := container.NewVBox(e.Title, subtitle)
 	// windowControls mantém aparência e encerramento acessíveis sem decoração nativa.
-	windowControls := container.NewHBox(brand, layout.NewSpacer(), widget.NewLabel("Tema"), e.ThemeSelect, e.Mode.button, e.Mode.exitButton)
+	windowControls := container.NewHBox(brand, layout.NewSpacer(), widget.NewButtonWithIcon("Log de aplicação", theme.InfoIcon(), e.showApplicationLog), widget.NewLabel("Tema"), e.ThemeSelect, e.Mode.button, e.Mode.exitButton)
 	// actions disponibiliza fluxos completos de arquivo e exportação.
 	// java mantém a capacidade identificável enquanto seu acesso está suspenso pelo usuário.
 	java := widget.NewButtonWithIcon("Java / EFL", theme.ComputerIcon(), e.exportJava)
@@ -170,7 +174,7 @@ func (e *Editor) design() fyne.CanvasObject {
 	// drawing preserva a área de desenho em uma superfície rolável.
 	drawing := container.NewBorder(container.NewPadded(controls), nil, nil, nil, e.Drawing)
 	// right contém o inspector com largura mínima agradável.
-	right := container.NewBorder(section("PROPRIEDADES"), e.InspectorActions, nil, nil, container.NewVScroll(e.Inspector))
+	right := container.NewBorder(section("PROPRIEDADES"), e.InspectorActions, nil, nil, container.NewScroll(e.Inspector))
 	// main separa canvas e propriedades.
 	main := container.NewHSplit(drawing, right)
 	main.Offset = .72
@@ -215,6 +219,8 @@ func (e *Editor) FitToWindow() { e.fitZoom() }
 // check apresenta uma falha real sem suprimir seu contexto.
 func (e *Editor) check(err error) bool {
 	if err != nil {
+		// O log registra somente a classe do erro; a mensagem exibida ao usuário não é transcrita.
+		LogApplication("ui_error", map[string]any{"code": "UI_ERROR"})
 		dialog.ShowError(err, e.Window)
 		return false
 	}

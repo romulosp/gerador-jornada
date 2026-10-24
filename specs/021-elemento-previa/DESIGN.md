@@ -1,6 +1,13 @@
 # DESIGN — Elemento em execução — PageElementPreview
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Elementos de prévia usam scene_render/drawGroup; botões/opções/teclas mantêm a decoração compartilhada e campos usam captura transparente. Foco/valores/caminho do menu são locais à visita.
+
+**Revisão ainda necessária:** A família completa de componentes/contêineres da expansão permanece parcial. Controles internos de menu e código de barras não têm toda a matriz de foco/teclado homologada. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [001-gerador-jornada](../001-gerador-jornada/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
 **Fonte visual/funcional**: [legado](../../material-legado/src/components/PageElementPreview/index.js). Revisar o comportamento, não apenas a existência da pasta.

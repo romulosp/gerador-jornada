@@ -25,12 +25,47 @@ func main() {
 	examplePPT := flag.String("export-example", "", "Gera um PPTX de exemplo no caminho indicado.")
 	// exampleProject permite abrir o conjunto de referência no editor.
 	exampleProject := flag.String("save-example", "", "Salva um projeto .jornada de exemplo.")
+	// compoundsProject gera a revisão de teste dos compostos 031, 032 e 033.
+	compoundsProject := flag.String("save-compounds", "", "Salva um projeto .jornada com os compostos de teste.")
+	// compoundsPPT gera a apresentação correspondente aos compostos de teste.
+	compoundsPPT := flag.String("export-compounds", "", "Gera um PPTX de exemplo com os compostos.")
+	// openProject carrega um projeto .jornada existente para a revisão manual.
+	openProject := flag.String("open", "", "Abre um projeto .jornada ao iniciar.")
+	// openScreen escolhe a tela inicial da revisão; -1 preserva a tela do projeto.
+	openScreen := flag.Int("screen", -1, "Índice da tela inicial ao abrir um projeto.")
 	// smokeScreenshot captura uma janela real e encerra a prova de inicialização.
 	smokeScreenshot := flag.String("smoke-screenshot", "", "Captura a janela inicial em PNG e encerra.")
 	flag.Parse()
+	// O log de aplicação nasce antes do Fyne para registrar o startup real do processo.
+	desktop.InitApplicationLog()
+	defer desktop.CloseApplicationLog()
 	// document contém um exemplo totalmente editável e sem dependências externas.
 	document := application.Example()
 	builtinassets.DefaultBackgrounds(&document)
+	if *openProject != "" {
+		// loaded valida e restaura o projeto antes de abrir a janela.
+		loaded, err := projectzip.Load(*openProject)
+		fail(err)
+		document = loaded
+		if *openScreen >= 0 && *openScreen < len(document.Screens) {
+			// A tela escolhida serve somente à revisão; o documento carregado não é regravado.
+			document.Journey.StartScreenID = document.Screens[*openScreen].ID
+		}
+	}
+	if *compoundsProject != "" {
+		// compounds preserva os defaults e a árvore inicial sem valores de runtime.
+		compounds := application.CompoundsExample()
+		builtinassets.DefaultBackgrounds(&compounds)
+		fail(projectzip.Save(context.Background(), *compoundsProject, compounds))
+		return
+	}
+	if *compoundsPPT != "" {
+		// compounds contém as duas telas de teste e nenhum roteiro obrigatório.
+		compounds := application.CompoundsExample()
+		builtinassets.DefaultBackgrounds(&compounds)
+		fail(pptx.Export(context.Background(), *compoundsPPT, compounds, pptx.Options{Exploration: true}, nil))
+		return
+	}
 	if *exampleProject != "" {
 		fail(projectzip.Save(context.Background(), *exampleProject, document))
 		return

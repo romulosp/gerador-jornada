@@ -1,6 +1,13 @@
 # DESIGN — Prévia interativa — Preview
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Prévia completa parte da inicial e permite rotas; Prévia Tela Atual isola uma tela. Cena, decorações/fontes e regiões de teclado são compartilhadas; campos/opções/menu/código de barras mantêm runtime separado.
+
+**Revisão ainda necessária:** Máscaras incrementais, todas as novas famílias, scroll/modal de todos os tipos e bloqueios integrais de perfis ainda não foram entregues. Os testes executados não homologam os critérios geométricos/visuais no Office ou em todos os DPIs. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [001-gerador-jornada](../001-gerador-jornada/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
 **Fonte visual/funcional**: [legado](../../material-legado/src/components/Preview/index.js). Revisar o comportamento, não apenas a existência da pasta.
@@ -51,7 +58,7 @@ Aberta; navegando; entrada alterada; tela revisitada; erro de referência; fecha
 
 - Ciclo de navegação, fechar durante callback, projeto inválido e ausência de imagem local. Prévia não executa Java nem regras do sistema real.
 - Manter fonte legível, foco visível e mensagens que não dependam exclusivamente de cor.
-- Fonte ausente usa fallback documentado; o conteúdo e a geometria não podem mudar silenciosamente. Verificar acentos, emoji e texto longo.
+- Fonte/asset/delegate/referência ausente bloqueia fidelidade; fallback exploratório explícito não homologa. Conferir face real/glifos/métricas e texto longo.
 - Imagens são apenas decoração; nunca substituir todos os textos e controles por uma captura de tela.
 
 ## Referências de implementação
@@ -78,4 +85,20 @@ A janela usa snapshot do conteúdo confirmado, independente de futuras edições
 
 ## Tema da superfície de execução
 
-A superfície com os controles da jornada usa escopo de tema claro fixo, preservando a aparência anterior dos widgets interativos. Imagens e primitivas continuam usando os estilos do modelo. O cabeçalho explicativo da janela acompanha o tema do editor. Conferir a prévia aberta ao alternar os três temas, incluindo botões, campo, seleção e teclado numérico.
+A base inicial usa escopo de tema claro fixo para isolar widgets interativos. No alvo pós-v1 de 2026-10-19, a superfície pinta controles pela mesma cena/skin/fontes do canvas/PPT; tema claro isolado não substitui fidelidade. O cabeçalho explicativo acompanha o tema do editor. Conferir a prévia aberta ao alternar temas, sem modificar o perfil visual dos componentes.
+
+## Cena e interação comuns — expansão 2026-10-19
+
+FR-012–FR-014: compartilhar fonte/face/RGBA/imagem/hash/baseline/spacement/alinhamento/fit/clip/estados por componente. Hit regions recebem clique/foco/tecla sem reinstalar pintura opaca nativa Fyne. Selected, pressed, focused e disabled são distintos conforme referência; XML bold/italic não prova estilo efetivo do Font criado pelo builder.
+
+Estado local cobre entrada/máscaras/cursor/TAB/modificadores, grupos/seleções, tabelas/Reports, scroll e modal onde contratados; restaura iniciais por visita, sem gravar uso/alterar bounds. Rascunho não confirmado do inspector não entra na prévia. Recurso/delegate/capacidade faltante gera bloqueio por entrada, não visual aproximado chamado fiel. [Matriz](../001-gerador-jornada/research.md#matriz-de-cobertura-javaefl--expansão-2026-10-19), 001/T111–T116 e T120–T122; Java continua pausado.
+
+## Entrada e ficha processada — planejamento 2026-10-23
+
+FR-015 usa [031/DESIGN](../031-codigo-barras-efl/DESIGN.md) para campos/estados/modal e [032/DESIGN](../032-codigo-barras-processado-efl/DESIGN.md) para a ficha de leitura. Modo de leitura deve ser perceptível; Enter submete uma captura, sem dividir a entrada antes de validá-la. Modal recebe foco, bloqueia entrada subjacente e tem a única ação “OK, entendi”; ao fechar retorna ao campo 1 vazio. Erro manual por bloco é local e identifica o par, sem limpar outros blocos válidos. Cor não substitui mensagem.
+
+Concluir/ler/reiniciar são comandos locais da interação, não botões de Jornada gerados automaticamente. O inspector não é exportado nem reproduzido como combo dentro da ficha. Comparar foco/TAB/teclado numérico, captura parcial/cancelada e duas instâncias; estado não muda documento ou ficha parametrizada. Cena/áreas de interação compartilham transformação, sem widget opaco cobrindo a skin. Trabalho em 001/T135/T137; anexos, implementação e revisão visual continuam pendentes.
+
+## Vista local de Menu aplicação — 2026-10-23
+
+FR-016 consome [033/DESIGN](../033-menu-aplicacao-efl/DESIGN.md): raiz ou um submenu visível por instância, título/itens/hit regions da mesma cena. Aninhamento mantém caminho, não janelas/painéis sobrepostos; enabled efetivo bloqueia interação. Voltar pop, Cancelar raiz, Sair somente prévia; comandos identificados semanticamente, nunca inferidos de legenda/Movement*. Inicial vem do snapshot; revisita o restaura sem herdar caminho. Tela Atual permite árvore local mas não segue destinos de tela. Folha sem destino mostra seleção simulada, sem operação de negócio. Layout root/standard/financial140x80/bolaoDigital três botões+legendas deriva da fonte Java/XML; anexos vazios não validam visual. Sessão001/T140 e cena001/T142 são os donos; comparação DPI/PPT e aceite em001/T144 continuam pendentes.

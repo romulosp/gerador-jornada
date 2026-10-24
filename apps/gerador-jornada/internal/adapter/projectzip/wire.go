@@ -67,9 +67,18 @@ func EncodeManifest(document application.Document) ([]byte, error) {
 	if err := document.ValidateFileIDs(); err != nil {
 		return nil, fmt.Errorf("PROJECT_SCHEMA_INVALID: %w", err)
 	}
+	// page e component validam a estrutura antes da reflexão, impedindo ciclos e tipos inválidos.
+	for _, page := range document.Screens {
+		for _, component := range page.Components {
+			if err := component.Properties.Validate(component.Kind); err != nil {
+				return nil, fmt.Errorf("PROJECT_SCHEMA_INVALID: %s: %w", component.Name, err)
+			}
+		}
+	}
 	// root reúne os metadados e coleções independentes somente na fronteira JSON.
 	root := wire(reflect.ValueOf(document.Project)).(map[string]any)
-	root["schemaVersion"] = 2
+	root["schemaVersion"] = 3
+	root["catalogVersion"] = 3
 	root["screens"] = wire(reflect.ValueOf(document.Screens))
 	root["journey"] = wire(reflect.ValueOf(document.Journey))
 	root["scenarios"] = wire(reflect.ValueOf(document.Scenarios))
@@ -85,7 +94,13 @@ func DecodeManifest(data []byte) (application.Document, error) {
 	if err := json.Unmarshal(data, &root); err != nil {
 		return application.Document{}, fmt.Errorf("PROJECT_CORRUPT: %w", err)
 	}
-	if (string(root["schemaVersion"]) != "1" && string(root["schemaVersion"]) != "2") || string(root["catalogVersion"]) != "1" {
+	// schema e catalog identificam o par de compatibilidade do manifesto.
+	schema, catalog := 0, 0
+	_ = json.Unmarshal(root["schemaVersion"], &schema)
+	_ = json.Unmarshal(root["catalogVersion"], &catalog)
+	// supported reconhece somente os pares históricos preservados e o alvo 3/3.
+	supported := (schema == 1 && catalog == 1) || (schema == 2 && catalog == 1) || (schema == 3 && (catalog == 2 || catalog == 3))
+	if !supported {
 		return application.Document{}, fmt.Errorf("PROJECT_VERSION_UNSUPPORTED")
 	}
 	// metadata contém os campos pertencentes ao domínio Projeto.
@@ -151,6 +166,12 @@ func DecodeManifest(data []byte) (application.Document, error) {
 	if err = document.ValidateFileIDs(); err != nil {
 		return document, fmt.Errorf("PROJECT_SCHEMA_INVALID: %w", err)
 	}
+	// page valida a estrutura, as propriedades e os IDs internos antes de publicar a sessão.
+	for _, page := range document.Screens {
+		if err = page.Validate(); err != nil {
+			return document, fmt.Errorf("PROJECT_SCHEMA_INVALID: %w", err)
+		}
+	}
 	return document, nil
 }
 
@@ -175,6 +196,13 @@ func normalizeScreens(data []byte) ([]byte, error) {
 		}
 		// component contém o controle tipado em processamento, validado nas coordenadas e referências da própria tela.
 		for _, component := range components {
+			// enabled e parentId ausentes em projetos anteriores recebem os defaults de compatibilidade.
+			if _, ok := component["enabled"]; !ok {
+				component["enabled"] = json.RawMessage("true")
+			}
+			if _, ok := component["parentId"]; !ok {
+				component["parentId"] = json.RawMessage(`""`)
+			}
 			// kind identifica a estrutura concreta das propriedades.
 			kind := ""
 			// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
@@ -182,9 +210,13 @@ func normalizeScreens(data []byte) ([]byte, error) {
 				return nil, err
 			}
 			// variant mapeia a representação de transferência internamente sem aceitar reflexão escolhida pelo usuário.
-			variant := map[string]string{"button": "Button", "label": "Label", "title": "Title", "textField": "Field", "radio": "Radio", "report": "Report", "numericKeyboard": "Keyboard"}[kind]
+			variant := map[string]string{"button": "Button", "label": "Label", "title": "Title", "textField": "Field", "radio": "Radio", "report": "Report", "numericKeyboard": "Keyboard", "barcodeInput": "BarcodeInput", "barcodeProcessed": "BarcodeProcessed", "applicationMenu": "Menu"}[kind]
 			if variant == "" || component["properties"] == nil || string(component["properties"]) == "null" {
 				return nil, fmt.Errorf("PROJECT_SCHEMA_INVALID: família/propriedades inválidas")
+			}
+			// presence recusa campos obrigatórios ausentes que o decoder tipado confundiria com zero.
+			if err := validateCompoundPresence(kind, component["properties"]); err != nil {
+				return nil, err
 			}
 			// wrapped restaura a união esperada pelo decodificador tipado.
 			// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.

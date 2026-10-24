@@ -2,10 +2,19 @@
 
 **Feature Branch**: `023-paleta-componentes` (identificador documental; nenhuma branch criada)
 **Created**: 2026-10-18
-**Status**: Draft — especificação individual; aceite funcional e visual pendente
+**Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Pedido do usuário: especificar cada componente do legado e permitir personalização em DESIGN.md.
 **Domínio responsável**: [003-catalogo](../003-catalogo/spec.md); integração em [001-gerador-jornada](../001-gerador-jornada/spec.md).
 **Referência observada**: [legado](../../material-legado/src/components/ComponentTab/index.js). Contrato visual específico em [DESIGN.md](DESIGN.md).
+
+<a id="estado-verificado-1-0-0-1"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.1
+
+**Implementação existente:** Paleta oferece sete famílias base, cinco presets e três compostos em ELEMENTOS DO LEGADO. Clique/drop usam as definições tipadas; imagens de skin são aplicadas na cena, não como novos itens inseríveis.
+
+**Pendências e limites:** Galeria de todas as skins/16 famílias e metadados de disponibilidade completos continuam planejados. Panel/Label/ScrollBar declarados no acervo não se tornam automaticamente novos Kinds de paleta.
+
+**Fontes verificadas:** [palette.go](../../apps/gerador-jornada/internal/adapter/desktop/palette.go), [tools.go](../../apps/gerador-jornada/internal/adapter/desktop/tools.go), [model.go](../../apps/gerador-jornada/internal/catalog/model.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -89,3 +98,15 @@ Como autor, quero trocar de seleção ou modo e voltar ao painel sem perda ou al
 - O DESIGN.md é um contrato de personalização e revisão, não um arquivo de configuração lido automaticamente pelo executável.
 - A entrega desta especificação não significa implementação integral ou homologação. Lacunas devem ser tratadas no planejamento da feature coordenadora.
 - A saída Java continua condicionada ao perfil EFL real e ao ambiente Java 6; documentos e dublês não substituem a homologação. A interface do editor não é exportada como parte da tela da jornada.
+
+## Oferta planejada — códigos de barras (2026-10-23)
+
+- **FR-008**: Expor “Código de barras” e “Código de barras processado” como dois compostos do Catálogo, não como oito campos soltos ou um Report renomeado. Consumir [003/FR-013](../003-catalogo/spec.md#codigos-barras-2026-10-23) e inserir pelos comandos de Tela, sem oferecer tipo apenas por existir enum; a cadeia de codec/cena/prévia/PPT precisa estar pronta. Inserção usa os defaults identificados em 031/032, sem números ou dados pessoais preenchidos.
+
+**Aceitação**: cada opção cria uma instância com ID próprio e configuração independente; processado oferece edição por bloco no inspector. Oferta ainda não implementada. Integração única em [001/T136](../001-gerador-jornada/tasks.md#tarefas-codigos-barras-2026-10-23); modelos/defaults pertencem a 003 e criação a 004.
+
+## Itens legados — lote autorizado 031/032/033 (2026-10-23)
+
+- **FR-009**: Agrupar **Código de barras**, **Código de barras processado** e **Menu aplicação** em **Itens legados**, sem misturar os compostos com partes internas ou gerar uma tela por submenu. Cada inserção aplica defaults do Catálogo e cria uma instância independente pelos comandos de Tela; label amigável não é Kind novo nem implica execução EFL.
+
+**Aceitação**: as três opções ficam no mesmo grupo quando suas cadeias técnicas estiverem prontas; menu nasce com árvore de serviços/jogos do usuário, habilitação e inicial próprios. Preparação de formulário/oferta em [001/T136](../001-gerador-jornada/tasks.md#tarefas-codigos-barras-2026-10-23) e [001/T141](../001-gerador-jornada/tasks.md#tarefas-menu-aplicacao-2026-10-23); liberação técnica barcode em T138 e agrupamento conjunto em T143, sem ciclo ou liberação só por enum. Usuário autorizou implementar, não homologou oferta/visual por esta revisão. Nenhum backlog duplicado nesta feature.

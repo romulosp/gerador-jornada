@@ -2,10 +2,19 @@
 
 **Feature Branch**: `029-previa-interativa` (identificador documental; nenhuma branch criada)
 **Created**: 2026-10-18
-**Status**: Draft — especificação individual; aceite funcional e visual pendente
+**Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Pedido do usuário: especificar cada componente do legado e permitir personalização em DESIGN.md.
 **Domínio responsável**: [001-gerador-jornada](../001-gerador-jornada/spec.md); integração em [001-gerador-jornada](../001-gerador-jornada/spec.md).
 **Referência observada**: [legado](../../material-legado/src/components/Preview/index.js). Contrato visual específico em [DESIGN.md](DESIGN.md).
+
+<a id="estado-verificado-1-0-0-1"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.1
+
+**Implementação existente:** Prévia completa parte da inicial e permite rotas; Prévia Tela Atual isola uma tela. Cena, decorações/fontes e regiões de teclado são compartilhadas; campos/opções/menu/código de barras mantêm runtime separado.
+
+**Pendências e limites:** Máscaras incrementais, todas as novas famílias, scroll/modal de todos os tipos e bloqueios integrais de perfis ainda não foram entregues. Os testes executados não homologam os critérios geométricos/visuais no Office ou em todos os DPIs.
+
+**Fontes verificadas:** [preview.go](../../apps/gerador-jornada/internal/adapter/desktop/preview.go), [screen_preview.go](../../apps/gerador-jornada/internal/application/screen_preview.go), [legacy_preview_test.go](../../apps/gerador-jornada/internal/adapter/desktop/legacy_preview_test.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -106,4 +115,24 @@ Como autor, quero trocar de seleção ou modo e voltar ao painel sem perda ou al
 
 ## Isolamento do tema do editor
 
-- **FR-011**: A paleta escolhida no editor não deve recolorir o conteúdo da prévia da jornada. Manter as primitivas com cores do modelo e isolar widgets runtime no tema claro já utilizado pela prévia. A decoração descritiva da janela pode acompanhar o tema do editor. Alternar Claro/Escuro/Azul com a prévia aberta não altera seus controles nem o snapshot. Responsabilidade do adaptador desktop, integrada a 025-barra-ferramentas/FR-018.
+- **FR-011**: A paleta escolhida no editor não deve recolorir o conteúdo da prévia da jornada. Manter primitivas com cores do modelo; a base inicial isola widgets runtime no tema claro. Na expansão de 2026-10-19, pintar controles pela cena/skin comum, sem widget Fyne opaco substituindo aparência. A decoração descritiva pode acompanhar o editor. Alternar Claro/Escuro/Azul com a prévia aberta não altera controles/snapshot. Responsabilidade desktop, integrada a 025-barra-ferramentas/FR-018.
+
+## Paridade interativa pós-v1 — 2026-10-19
+
+- **FR-012**: Consumir a mesma cena/resolução de skins/fontes/estados do canvas e PPT, com pintura compartilhada e hit regions/eventos explícitos; widgets custom quando necessários. Não encobrir controle fiel com Button/Entry/choices nativos opacos. Biblioteca é dado estático gerado/recursos do adaptador; runtime não lê XML legado nem executa Java.
+- **FR-013**: Operar entrada/máscaras, toggles/grupos, Combo/UF/Table/Report, teclados numérico/alfanumérico/calculadora, scroll/contêiner/dialog e demais estados locais suportados por família, sem negócio/periféricos/serviços. Foco/cursor/modificadores/seleção corrente/scroll/modal são isolados e reiniciam por visita; enabled/valores iniciais vêm do snapshot. Preservar escopo sem navegação da Prévia Tela Atual.
+- **FR-014**: Localizar fonte/recurso/delegate/estado/capacidade ausente e manter fidelidade bloqueada; prévia exploratória parcial não homologa entrada ou acervo. Preservar bounds/IDs/overrides antigos e tema/chrome, compartilhando face real sem fallback silencioso.
+
+**Aceitação**: fixture de cada classe/skin/estado compara pintura com canvas/PPT/referência independente e eventos com contrato; fechar/revisitar não muda documento/histórico. 001/T114 é sessão, T115 desktop, T111 cena e T120–T122 manuais/aceite. Automatizados/autorização do plano não são homologação; Java permanece pausado.
+
+## Interação de código de barras — planejamento 2026-10-23
+
+- **FR-015**: Operar [031](../031-codigo-barras-efl/spec.md) com subcampo ativo, validação sequencial por par/DV geral, captura integral atômica e diálogo “Código de barras inválido” / “OK, entendi”; respeitar teclado numérico/habilitação e reset por visita. [032](../032-codigo-barras-processado-efl/spec.md) apresenta somente dados confirmados de seus blocos; combos são autoria. Usar regras puras de Catálogo e estado de sessão isolado, sem gerar processamento financeiro, navegação ou transferência automática entre os dois compostos.
+
+**Aceitação**: erro local bloqueia avanço da entrada, captura inválida limpa só a instância destinatária e confirmação do modal devolve foco ao primeiro campo; outro componente/documento permanece intacto. Revisita começa vazia, ficha preserva configuração. Contrato visual em 031/032; integração em [001/T135/T137](../001-gerador-jornada/tasks.md#tarefas-codigos-barras-2026-10-23), ainda planejada. Periférico real, câmera e fluxo condicional estão fora do escopo; colagem permite verificar sem hardware.
+
+## Navegação local do Menu aplicação — 2026-10-23
+
+- **FR-016**: Operar [033](../033-menu-aplicacao-efl/spec.md) como uma interface com vista raiz/submenu selecionado e caminho local, inicialmente no menu autorado. Abrir submenus habilitados, Voltar um nível e Cancelar para raiz; Sair fecha somente prévia, não editor ou autenticação. Estado isolado por instância/visita, sem gravar no projeto. Folha sem destino informa seleção simulada; somente destino de tela explicitamente autorado e validado por Jornada permite transição na prévia completa. Não inferir rota ou dispatch de texto/categoria/atalho/Movement*.
+
+**Aceitação**: raiz→submenu→aninhado→Voltar conserva contexto; Cancelar retorna raiz mesmo com inicial diferente; fechar/reabrir/revisitar restaura inicial. Enabled efetivo bloqueia ativação. Prévia Tela Atual explora menus mas não segue rotas nem exige destinos externos no snapshot individual. Canvas/PPT usam estado inicial confirmado, não percurso da prévia. Layout financeiro140x80 e Bolão três botões+legendas seguem [033/DESIGN](../033-menu-aplicacao-efl/DESIGN.md), sem fidelidade visual alegada de anexos vazios. Sessão/cena em [001/T140/T142](../001-gerador-jornada/tasks.md#tarefas-menu-aplicacao-2026-10-23); nenhuma operação bancária, timer, conta, periférico, rede, QR ou Java/EFL. Implementação autorizada não encerra aceite manual pendente.

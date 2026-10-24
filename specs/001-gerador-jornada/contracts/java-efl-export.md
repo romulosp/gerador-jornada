@@ -1,5 +1,12 @@
 # Contract: geração Java 1.6/Swing com EFL
 
+## Implementação conferida — 1.0.0.1
+
+A ação pública Java/EFL permanece visível e desabilitada. Código de geração e testes estruturais existem; isso não representa integração com EFL real nem disponibilidade de um perfil visual homologado. A reimplementação visual 1.0.0.1 aplica-se ao editor/prévias/PPT; não libera Java e não transfere recursos da skin automaticamente para uma integração externa homologada.
+
+Código atual: [wire do projeto](../../../apps/gerador-jornada/internal/adapter/projectzip/wire.go), [cena](../../../apps/gerador-jornada/internal/presentation/scene.go) e [exportador PPT](../../../apps/gerador-jornada/internal/adapter/pptx/export.go). Evidência executada na [seção 22 do quickstart](../quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). O restante do contrato conserva regras normativas e evolução planejada; divergências apontadas aqui não foram apagadas dos requisitos.
+
+
 **Version**: 1 | **Requirements**: FR-022 a FR-025, NFR-003, NFR-008; US5.
 **Scope**: fontes e recursos para integração no sistema EFL; sem JAR, EXE Java ou compilador no editor.
 
@@ -9,7 +16,7 @@ Receber projeto validado, packageName e profileId. packageName deve conter segme
 
 O perfil não é template arbitrário de projeto. Ele pertence à versão do editor e documenta bibliotecas, assinaturas, constantes de skin, construção, contexto UI, listeners e ciclo de vida do hospedeiro.
 
-**Estado atual**: não existe perfil homologado porque não foram fornecidos JARs/fontes da EFL. A implementação pode desenvolver testes e templates, mas a saída Java publicável deve retornar `JAVA_PROFILE_UNVERIFIED` enquanto esse gate não for cumprido. Não gerar silenciosamente Swing puro nem apresentar uma saída parcial como projeto compilável.
+**Estado histórico inicial**: JARs/fontes EFL suficientes à homologação não haviam sido fornecidos. **Atualização 2026-10-19**: o acervo parcial Java/XML e fontes tipográficas agora é referência de paridade visual, mas faltam delegates/recursos, dependências e execução no hospedeiro real; não existe perfil homologado. A ação Java continua visível e pausada. A saída publicável deve retornar `JAVA_PROFILE_UNVERIFIED` enquanto esse gate não for cumprido; não gerar Swing puro nem apresentar saída parcial como compilável. Novos Kinds/skins do catálogo 2 não ampliam automaticamente o perfil Java nem reativam seu desenvolvimento.
 
 ## Saída prevista
 
@@ -45,7 +52,7 @@ A saída integra o contexto do sistema EFL: não inventar `UIControle`, `uiManag
 | numericKeyboard | EFLVirtualKeyboardNumeric | Construção e vínculo efetivo com campo da mesma tela |
 | screen | EFLPanel e PanelSkin | Layout absoluto, contexto, ciclo de vida e inclusão no hospedeiro |
 
-Esses nomes não garantem assinaturas. A equipe mantenedora fornece JARs, versões, dependências transitivas e um exemplo funcional antes da conclusão de T005/T006 e da homologação de US5.
+Essa é a matriz histórica das famílias iniciais, não a matriz integral da expansão Go. Nomes não garantem assinaturas. A equipe mantenedora fornece JARs, versões, dependências transitivas e exemplo funcional antes de concluir tarefas Java correspondentes e homologar US5. A [matriz visual Java/EFL](../research.md#matriz-de-cobertura-javaefl--expansão-2026-10-19) não homologa este perfil; 001/T123 apenas verifica que o gate permanece fechado.
 
 ## Identificadores e texto
 

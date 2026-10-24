@@ -45,6 +45,8 @@ type Style struct {
 	BackgroundAssetID string
 	// TextAlign alinha o texto dentro da caixa; vazio preserva o padrão à esquerda de arquivos anteriores.
 	TextAlign string
+	// Skin seleciona uma definição visual do acervo legado; vazio mantém o padrão do editor.
+	Skin string
 }
 
 // Background define a decoração da tela sem sintetizar controles.
@@ -69,6 +71,10 @@ type Component struct {
 	Bounds Bounds
 	// Style define substituições opcionais da aparência padrão do catálogo.
 	Style Style
+	// Enabled controla a interação e o estado visual; novos componentes nascem habilitados.
+	Enabled bool
+	// ParentID identifica o contêiner opcional na mesma tela; vazio representa componente raiz.
+	ParentID string
 	// Properties contém uma união discriminada com exatamente uma variante tipada.
 	Properties catalog.Properties
 }
@@ -103,7 +109,7 @@ func NewComponent(kind catalog.Kind, name string, x, y int) (Component, error) {
 		return Component{}, fmt.Errorf("tipo de componente desconhecido")
 	}
 	// component contém o controle tipado em processamento, validado nas coordenadas e referências da própria tela.
-	component := Component{ID: project.NewID(), Name: name, FileID: SuggestFileID(name, false), Kind: kind, Bounds: Bounds{x, y, definition.Width, definition.Height}}
+	component := Component{ID: project.NewID(), Name: name, FileID: SuggestFileID(name, false), Kind: kind, Bounds: Bounds{x, y, definition.Width, definition.Height}, Enabled: true}
 	switch kind {
 	case catalog.Button:
 		component.Properties.Button = &catalog.ButtonProperties{Text: "Continuar", Variant: "confirm"}
@@ -119,6 +125,12 @@ func NewComponent(kind catalog.Kind, name string, x, y int) (Component, error) {
 		component.Properties.Report = &catalog.ReportProperties{Title: "Relatório", Rows: []catalog.Option{}}
 	case catalog.NumericKeyboard:
 		component.Properties.Keyboard = &catalog.KeyboardProperties{}
+	case catalog.BarcodeInput:
+		component.Properties.BarcodeInput = catalog.NewBarcodeInputProperties()
+	case catalog.BarcodeProcessed:
+		component.Properties.BarcodeProcessed = catalog.NewBarcodeProcessedProperties(project.NewID)
+	case catalog.ApplicationMenu:
+		component.Properties.Menu = catalog.NewApplicationMenuProperties(project.NewID)
 	}
 	return component, nil
 }
@@ -193,5 +205,5 @@ func (s Screen) Validate() error {
 			}
 		}
 	}
-	return nil
+	return s.ValidateHierarchy()
 }

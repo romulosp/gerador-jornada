@@ -11,6 +11,7 @@ import (
 	"gerador-jornada.local/editor/internal/application"
 	"gerador-jornada.local/editor/internal/catalog"
 	"gerador-jornada.local/editor/internal/screen"
+	"gerador-jornada.local/editor/internal/skin"
 )
 
 // entry cria um campo sem disparar comandos durante a montagem do inspector.
@@ -122,17 +123,85 @@ func (e *Editor) componentInspector(component screen.Component) {
 	font := entry(strconv.Itoa(component.Style.FontSize))
 	// form mantém os campos comuns.
 	form := widget.NewForm(widget.NewFormItem("Nome", name), widget.NewFormItem("ID", fileID), widget.NewFormItem("X", x), widget.NewFormItem("Y", y), widget.NewFormItem("Largura", width), widget.NewFormItem("Altura", height), widget.NewFormItem("Cor do texto", color), widget.NewFormItem("Fonte (0 = padrão)", font))
+	// fill e border são overrides opcionais; vazio preserva a decoração original.
+	fill, border := entry(component.Style.FillColor), entry(component.Style.BorderColor)
+	form.Append("Cor de fundo (opcional)", fill)
+	form.Append("Cor da borda (opcional)", border)
+	// face oferece nomes reais dos recursos incorporados e conserva valores de arquivos anteriores.
+	faceOptions := []string{"Padrão da skin", "Arial", "Futura Medium", "Futura Hv BT", "Futura Md BT", "Futura BdCn BT", "Bitstream Vera Sans Mono"}
+	if component.Style.FontFamily != "" {
+		// found identifica uma face preservada que não pertence à biblioteca atual.
+		found := false
+		// option compara o nome real sem modificar a preferência persistida.
+		for _, option := range faceOptions {
+			found = found || option == component.Style.FontFamily
+		}
+		if !found {
+			faceOptions = append(faceOptions, component.Style.FontFamily)
+		}
+	}
+	// face mantém o rascunho da família até Salvar alterações.
+	face := widget.NewSelect(faceOptions, nil)
+	face.SetSelected("Padrão da skin")
+	if component.Style.FontFamily != "" {
+		face.SetSelected(component.Style.FontFamily)
+	}
+	form.Append("Família da fonte", face)
 	// applyProperties altera apenas a variante de catálogo selecionada.
 	applyProperties := e.propertyFields(form, component)
 	// alignment edita o parágrafo dentro dos bounds, sem mover o componente.
-	alignment := newSelect([]string{"Esquerda", "Centro", "Direita"}, nil)
-	alignment.SetSelected("Esquerda")
-	if component.Style.TextAlign == "center" {
+	alignment := newSelect([]string{"Padrão da skin", "Esquerda", "Centro", "Direita"}, nil)
+	alignment.SetSelected("Padrão da skin")
+	if component.Style.TextAlign == "left" {
+		alignment.SetSelected("Esquerda")
+	} else if component.Style.TextAlign == "center" {
 		alignment.SetSelected("Centro")
 	} else if component.Style.TextAlign == "right" {
 		alignment.SetSelected("Direita")
 	}
 	form.Append("Alinhamento do texto", alignment)
+	// skins oferece as definições do acervo legado compatíveis com a família.
+	skinOptions := append([]string{"Padrão do legado"}, skin.MustBuiltin().Names(component.Kind)...)
+	skinSelect := widget.NewSelect(skinOptions, nil)
+	skinSelect.SetSelected("Padrão do legado")
+	if component.Style.Skin != "" {
+		skinSelect.SetSelected(component.Style.Skin)
+	}
+	form.Append("Skin", skinSelect)
+	// enabled controla a interação e o estado visual do componente.
+	enabled := widget.NewCheck("Habilitado", nil)
+	enabled.SetChecked(component.Enabled)
+	form.Append("Habilitado", enabled)
+	// parentChoices e parentIDs excluem o próprio nó e seus descendentes.
+	parentChoices, parentIDs := parentOptions(*e.page(), component)
+	parent := widget.NewSelect(parentChoices, nil)
+	parent.SetSelected("Nenhum")
+	// label e id percorrem as opções para refletir o pai confirmado.
+	for label, id := range parentIDs {
+		if id == component.ParentID {
+			parent.SetSelected(label)
+		}
+	}
+	form.Append("Pai", parent)
+	// layer e total apresentam a posição canônica fundo→frente.
+	layer, total := currentLayer(*e.page(), component.ID)
+	form.Append("Camada", widget.NewLabel(fmt.Sprintf("%d de %d (1 = fundo)", layer, total)))
+	// mode oferece os cinco modos contratados; referência só vale para os relativos.
+	mode := widget.NewSelect([]string{"Manter posição atual", "À frente do objeto", "Atrás do objeto", "Trazer para a frente", "Enviar para o fundo"}, nil)
+	mode.SetSelected("Manter posição atual")
+	referenceChoices, referenceIDs := layerOptions(*e.page(), component)
+	reference := widget.NewSelect(referenceChoices, nil)
+	reference.SetSelected("Selecione um objeto")
+	reference.Disable()
+	mode.OnChanged = func(value string) {
+		if value == "À frente do objeto" || value == "Atrás do objeto" {
+			reference.Enable()
+			return
+		}
+		reference.Disable()
+	}
+	form.Append("Sobreposição", mode)
+	form.Append("Objeto de referência", reference)
 	form.SubmitText = "Aplicar alterações"
 	form.CancelText = ""
 	form.OnSubmit = func() {
@@ -148,7 +217,7 @@ func (e *Editor) componentInspector(component screen.Component) {
 			}
 			numbers = append(numbers, number)
 		}
-		if color.Text != "" && !catalog.ValidColor(color.Text) {
+		if (color.Text != "" && !catalog.ValidColor(color.Text)) || (fill.Text != "" && !catalog.ValidColor(fill.Text)) || (border.Text != "" && !catalog.ValidColor(border.Text)) {
 			e.check(fmt.Errorf("use cor no formato #RRGGBB"))
 			return
 		}
@@ -165,10 +234,40 @@ func (e *Editor) componentInspector(component screen.Component) {
 			target.Bounds = screen.Bounds{X: numbers[0], Y: numbers[1], Width: numbers[2], Height: numbers[3]}
 			target.Style.TextColor = color.Text
 			target.Style.FontSize = numbers[4]
-			target.Style.TextAlign = map[string]string{"Esquerda": "left", "Centro": "center", "Direita": "right"}[alignment.Selected]
+			target.Style.FillColor, target.Style.BorderColor = fill.Text, border.Text
+			target.Style.FontFamily = ""
+			if face.Selected != "Padrão da skin" {
+				target.Style.FontFamily = face.Selected
+			}
+			target.Style.TextAlign = map[string]string{"Padrão da skin": "", "Esquerda": "left", "Centro": "center", "Direita": "right"}[alignment.Selected]
+			target.Style.Skin = ""
+			if skinSelect.Selected != "Padrão do legado" {
+				target.Style.Skin = skinSelect.Selected
+			}
+			target.Enabled = enabled.Checked
+			target.ParentID = parentIDs[parent.Selected]
 			// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
 			if err := applyProperties(target); err != nil {
 				return err
+			}
+			switch mode.Selected {
+			case "À frente do objeto", "Atrás do objeto":
+				// referência relativa precisa existir na mesma tela.
+				referenceID := referenceIDs[reference.Selected]
+				if referenceID == "" {
+					return fmt.Errorf("selecione um objeto de referência")
+				}
+				if err := screen.PlaceComponent(page, target.ID, referenceID, mode.Selected == "À frente do objeto"); err != nil {
+					return err
+				}
+			case "Trazer para a frente":
+				if err := screen.PlaceComponent(page, target.ID, "", true); err != nil {
+					return err
+				}
+			case "Enviar para o fundo":
+				if err := screen.PlaceComponent(page, target.ID, "", false); err != nil {
+					return err
+				}
 			}
 			return page.Validate()
 		})) {

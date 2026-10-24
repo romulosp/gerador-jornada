@@ -1,6 +1,13 @@
 # DESIGN — Barra de ferramentas — Header
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Barra oferece arquivos, prévias, PPT, histórico, zoom, ajuste, exclusão, fundo, tema e janela/tela cheia. Java/EFL permanece visível e desabilitado; tema é preferência local e não recolore a jornada.
+
+**Revisão ainda necessária:** Equivalências nativas de atalhos e toda a matriz de foco/DPI/encerramento ainda exigem teste humano. Não há liberação Java por esta revisão. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [001-gerador-jornada](../001-gerador-jornada/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
 **Fonte visual/funcional**: [legado](../../material-legado/src/components/Header/index.js). Revisar o comportamento, não apenas a existência da pasta.

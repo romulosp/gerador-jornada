@@ -1,6 +1,13 @@
 # DESIGN — Elemento editável — PageElement
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Elemento em edição usa a mesma cena de apresentação da jornada, com imagens/textos em sua ordem e contornos/alças acima da composição. Seleção múltipla, movimento e comandos contextuais integram o histórico existente.
+
+**Revisão ainda necessária:** Cobertura de 16 famílias e todos os estados/recortes ainda é alvo de expansão. Fonte visual aplicada não comprova todas as condições de texto longo, zoom ou DPI. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [004-tela](../004-tela/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
 **Fonte visual/funcional**: [legado](../../material-legado/src/components/PageElement/index.js). Revisar o comportamento, não apenas a existência da pasta.

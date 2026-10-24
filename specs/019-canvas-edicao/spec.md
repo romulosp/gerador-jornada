@@ -2,10 +2,19 @@
 
 **Feature Branch**: `019-canvas-edicao` (identificador documental; nenhuma branch criada)
 **Created**: 2026-10-18
-**Status**: Draft — especificação individual; aceite funcional e visual pendente
+**Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Pedido do usuário: especificar cada componente do legado e permitir personalização em DESIGN.md.
 **Domínio responsável**: [004-tela](../004-tela/spec.md); integração em [001-gerador-jornada](../001-gerador-jornada/spec.md).
 **Referência observada**: [legado](../../material-legado/src/components/Design/index.js). Contrato visual específico em [DESIGN.md](DESIGN.md).
+
+<a id="estado-verificado-1-0-0-1"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.1
+
+**Implementação existente:** Canvas Fyne usa composição absoluta, fundo/recursos incorporados e cache por sessão/tela/revisão/zoom. Move/resize/seleção e alças são transitórios; scene_render aplica a fonte física e a escala de visualização.
+
+**Pendências e limites:** Desempenho nominal, clipping de todos os novos contêineres e matriz Windows/DPI/zoom ainda não têm homologação completa. Bounds e revisão não devem ser inferidos de uma captura.
+
+**Fontes verificadas:** [board.go](../../apps/gerador-jornada/internal/adapter/desktop/board.go), [board_renderer.go](../../apps/gerador-jornada/internal/adapter/desktop/board_renderer.go), [selection_test.go](../../apps/gerador-jornada/internal/adapter/desktop/selection_test.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
 
 ## User Scenarios & Testing *(mandatory)*
 

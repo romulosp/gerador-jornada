@@ -2,10 +2,19 @@
 
 **Feature Branch**: `017-cabecalho-tela` (identificador documental; nenhuma branch criada)
 **Created**: 2026-10-18
-**Status**: Draft — especificação individual; aceite funcional e visual pendente
+**Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Pedido do usuário: especificar cada componente do legado e permitir personalização em DESIGN.md.
 **Domínio responsável**: [004-tela](../004-tela/spec.md); integração em [001-gerador-jornada](../001-gerador-jornada/spec.md).
 **Referência observada**: [legado](../../material-legado/src/components/Design/index.js). Contrato visual específico em [DESIGN.md](DESIGN.md).
+
+<a id="estado-verificado-1-0-0-1"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.1
+
+**Implementação existente:** Cabeçalho completo é preset 426 × 40 que compõe os grupos informativos por rótulos comuns. O fundo da tela e a marca são imagens decorativas independentes; não há novo Kind de cabeçalho.
+
+**Pendências e limites:** Valores permanecem ilustrativos; referências dinâmicas e fidelidade de todas as combinações/DPI não estão homologadas. Cada rótulo continua editável e selecionável independentemente.
+
+**Fontes verificadas:** [presets.go](../../apps/gerador-jornada/internal/application/presets.go), [background.go](../../apps/gerador-jornada/internal/adapter/builtinassets/background.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -93,3 +102,9 @@ Como autor, quero salvar, reabrir e exportar a composição sem perda ou altera�
 ## ID das instâncias
 
 Toda instância visual desta responsabilidade possui ID de arquivo conforme [Tela](../004-tela/spec.md#identidade-de-arquivo--2026-10-18) e [Catálogo](../003-catalogo/spec.md#atributo-compartilhado-das-instâncias). Campo comum no [painel de propriedades](../028-propriedades/spec.md#campo-id-comum), sem prefixo Pnl obrigatório para componentes e sem substituir UUIDs ou conteúdo visual. Em conjuntos prontos, a regra vale para cada controle efetivamente criado.
+
+## Aparência pós-v1 — 2026-10-19
+
+- **FR-008**: Compor 014–016 com fontes/skins/métricas comprovadas e recursos comuns, preservando oito textos/IDs/bounds/ordem/overrides, inclusão/Undo transacional e valores estáticos. Não transformar cabeçalho em imagem única nem criar serviços/autenticação/relógio ou cabeçalho obrigatório oculto.
+
+**Aceitação**: inclusão/Undo e round-trip v3 preservam controles e editabilidade; perfil novo atualiza só campos não sobrescritos de antigos, sem resize/reorganização. Dono [004/T011](../004-tela/tasks.md), matriz C23, consumidores 001/T111–T116 e manuais/aceite T120–T122; referência ausente permanece bloqueada, não homologada por documentação.

@@ -1,6 +1,13 @@
 # DESIGN — Painel direito — ToolsRight
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Painel direito usa formulário em área com rolagem nos dois eixos e rodapé fixo Salvar alterações/Descartar. O divisor faz parte do layout Fyne; conteúdo longo não é um novo dado do projeto.
+
+**Revisão ainda necessária:** A suíte histórica inspector_split_test.go não está na árvore atual. Há implementação do layout, mas falta repetir sua matriz específica de largura/rolagem/foco em janela nativa/DPI. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [001-gerador-jornada](../001-gerador-jornada/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
 **Fonte visual/funcional**: [legado](../../material-legado/src/components/ToolsRight/index.js). Revisar o comportamento, não apenas a existência da pasta.
@@ -12,6 +19,14 @@ O componente deve permitir apresentar somente as propriedades pertinentes à sel
 ## Geometria e composição
 
 Largura ajustável; rótulos e campos legíveis sem cobrir o canvas; altura controlada por rolagem.
+
+### Clarificação do divisor e da rolagem — 2026-10-21
+
+O divisor deve mudar a largura **efetiva** do painel, não apenas seu `Offset`. O `Split` do Fyne limita o arraste pelo `MinSize` dos filhos: o antigo `container.NewVScroll(e.Inspector)` propagava a largura mínima do formulário, ampliada por seletores, caminhos de fontes e versões de perfil longos. Em [Editor.design](../../apps/gerador-jornada/internal/adapter/desktop/editor.go), o corpo passa a `container.NewScroll(e.Inspector)`, com ambos os eixos roláveis, desacoplando as duas dimensões mínimas do conteúdo. Valores e acesso horizontal permanecem íntegros.
+
+A composição `right` com `container.NewBorder` permanece: cabeçalho no topo, `InspectorActions` na base e somente o corpo no centro rolável. Salvar alterações/Descartar não foram removidos nem incorporados à rolagem. O mínimo natural ainda é definido pelos controles fixos de cabeçalho/rodapé; não adotar largura fixa, reduzir botões ou exigir colapso ilimitado. Layout não publica nem apaga rascunho, documento ou histórico; Save/Discard permanecem iguais.
+
+Revisão pendente: janela 1280 × 720 com tela, 16 famílias e seleção múltipla; observar deslocamento e largura reais ao mover o divisor, testar valores longos e alcançar os campos nos dois eixos. Cabeçalho/rodapé devem permanecer fixos e os botões renderizados devem receber os cliques. Quatro regressões em inspector_split_test.go (referência histórica/proposta sem arquivo nesta árvore: `../../apps/gerador-jornada/internal/adapter/desktop/inspector_split_test.go`), não executadas por política Windows, sem contorno. **Evidência final do executor principal (2026-10-21):** gofmt em dois arquivos PASS; `go vet ./...` PASS; `go test -c -o ./build/compile-tests/ ./...` concluiu a compilação de 15 suítes, **sem executá-las**; quatro testes Python de empacotamento PASS; build Windows pela tarefa process do VS Code na raiz e empacotamento Python PASS. Integridade PASS: CRC, todos os SHA256SUMS, sidecar SHA-256, PE amd64, ambas as cópias do EXE idênticas, README definitivo, manifesto com aprovações pendentes e ausência de backups terminados em `~`. Identidades finais e evidências no [quickstart, seção 11](../001-gerador-jornada/quickstart.md#11-redimensionamento-do-painel-de-propriedades--2026-10-21). [T129](../001-gerador-jornada/tasks.md#phase-23-redimensionamento-do-painel-de-propriedades--2026-10-21) permanece aberta como verificação mista: sem execução dos testes Go, validação de UI/arraste nativos, DPI, revisão manual ou aceite; `manualApproval` e `redistributionApproval` continuam `pending`.
 
 A superfície pertence ao editor ou à prévia. Não deve ser rasterizada nem incluída nos slides como decoração da jornada. Estados de interação não alteram as coordenadas persistidas.
 

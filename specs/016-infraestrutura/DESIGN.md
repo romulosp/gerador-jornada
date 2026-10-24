@@ -1,6 +1,13 @@
 # DESIGN — Indicadores — InfraInfo
 
-**Status**: contrato visual de referência; personalizações e homologação pendentes.
+## Aplicação na revisão 1.0.0.1
+
+Infraestrutura é preset 78 × 36 de rótulos GATEWAY/DNS/HTTP, estáticos e editáveis, Arial 11/#424344. Não são indicadores de rede ativos.
+
+**Revisão ainda necessária:** Não há monitoramento, consulta, mudança automática de cor ou integração externa. Homologação de contraste e DPI permanece pendente. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+
+
+**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
 **Spec**: [spec.md](spec.md) | **Domínio**: [004-tela](../004-tela/spec.md)
 **Base comum**: [DESIGN do editor](../001-gerador-jornada/DESIGN.md).
 **Fonte visual/funcional**: [legado](../../material-legado/src/components/InfraInfo/index.js). Revisar o comportamento, não apenas a existência da pasta.
@@ -52,7 +59,7 @@ Ilustrativo; personalizado; selecionado; removido.
 
 - Sem rede, indicador removido e texto extenso. Não representar conectividade como verificada nem inserir integrações externas.
 - Manter fonte legível, foco visível e mensagens que não dependam exclusivamente de cor.
-- Fonte ausente usa fallback documentado; o conteúdo e a geometria não podem mudar silenciosamente. Verificar acentos, emoji e texto longo.
+- Fonte/asset/referência ausente bloqueia fidelidade; fallback explícito de rascunho não homologa. Conferir face real/glifos/métricas e texto longo.
 - Imagens são apenas decoração; nunca substituir todos os textos e controles por uma captura de tela.
 
 ## Referências de implementação
@@ -73,3 +80,7 @@ Os caminhos abaixo identificam o trabalho existente; não comprovam cobertura in
 ## ID de arquivo compartilhado
 
 Aplicar o [design do campo ID](../028-propriedades/DESIGN.md#id-do-arquivo) na instância. O atributo não é texto desenhado no componente e não altera sua tipografia ou geometria. Todas as cores, textos e legendas continuam independentes do nome-base ASCII.
+
+## Aparência pós-v1 — 2026-10-19
+
+Tokens/geometria React são referência da composição, não prova de monitoramento Java real. Reusar fontes/skins/RGBA/baseline/espaçamento comprovados sem assumir bold/italic XML aplicados pelo builder. GATEWAY/DNS/HTTP continuam conteúdo editável ilustrativo, nunca teste de rede. Perfil novo não altera bounds/IDs/overrides antigos. 004/T011 e 001/T111–T116; [matriz C23/D-11](../001-gerador-jornada/research.md#matriz-de-cobertura-javaefl--expansão-2026-10-19); sem homologação atribuída aqui.

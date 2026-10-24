@@ -2,10 +2,19 @@
 
 **Feature Branch**: `009-titulo-efl` (identificador documental; nenhuma branch criada)
 **Created**: 2026-10-18
-**Status**: Draft — especificação individual; aceite funcional e visual pendente
+**Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Pedido do usuário: especificar cada componente do legado e permitir personalização em DESIGN.md.
 **Domínio responsável**: [003-catalogo](../003-catalogo/spec.md); integração em [001-gerador-jornada](../001-gerador-jornada/spec.md).
 **Referência observada**: [legado](../../material-legado/src/components/ListComponents/EFLLabelTitulo1/index.js). Contrato visual específico em [DESIGN.md](DESIGN.md).
+
+<a id="estado-verificado-1-0-0-1"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.1
+
+**Implementação existente:** Título 300 × 28; default label_titulo_1, família física Futura Medium, tamanho 14 e #3E578D. O destaque genérico de tamanho 22 foi substituído pela skin; bounds antigos continuam explícitos.
+
+**Pendências e limites:** Referência Java/Office e todos os estados/variantes continuam sem homologação visual. A faixa de página é um preset separado desta família de título simples.
+
+**Fontes verificadas:** [scene.go](../../apps/gerador-jornada/internal/presentation/scene.go), [legacy_style_test.go](../../apps/gerador-jornada/internal/presentation/legacy_style_test.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -93,3 +102,9 @@ Como autor, quero salvar, reabrir e exportar a composição sem perda ou altera�
 ## ID das instâncias
 
 Toda instância visual desta responsabilidade possui ID de arquivo conforme [Tela](../004-tela/spec.md#identidade-de-arquivo--2026-10-18) e [Catálogo](../003-catalogo/spec.md#atributo-compartilhado-das-instâncias). Campo comum no [painel de propriedades](../028-propriedades/spec.md#campo-id-comum), sem prefixo Pnl obrigatório para componentes e sem substituir UUIDs ou conteúdo visual. Em conjuntos prontos, a regra vale para cada controle efetivamente criado.
+
+## Expansão Java/EFL autorizada — 2026-10-19
+
+- **FR-008**: Representar todas skins de título de EFLLabel como variantes tipadas de title, com fonte/face/métricas e cores comprovadas, não negrito sintetizado pelo nome. Preservar conteúdo, bounds e overrides nos projetos antigos; parâmetros React são histórico, não prevalecem sobre evidência Java. Referência/delegate faltante impede homologação.
+
+**Aceitação**: uma fixture por skin/estado e personalização preserva texto editável e geometria ao salvar/reabrir, editor/prévia/PPT. Dono [003/T011](../003-catalogo/tasks.md); matriz C03/D-11, 001/T111–T116 (consumidores) e T120–T122 (manual/aceite). Java permanece pausado; nenhuma nova evidência executada nesta documentação.
