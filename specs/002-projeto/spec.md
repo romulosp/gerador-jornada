@@ -5,6 +5,12 @@
 **Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Decomposição por domínio da [feature coordenadora](../001-gerador-jornada/spec.md).
 
+## Incremento implementado — 2026-10-24 / 1.0.0.4
+
+O writer agora grava **schemaVersion 3/catalogVersion 4** e lê 1/1, 2/1, 3/2, 3/3 e 3/4. `TargetJourney` é preservado no MenuItem; migração antiga acrescenta apenas string vazia. Primeiro save incompatível avisa e conserva backup integral antes de substituir o original. Workspace é a pasta do documento; recentes são preferência local fora do ZIP. Testes de migração/backup e importação sem alterar origem passaram.
+
+Backlog e evidência específicos em [034/tasks](../034-launcher-estrutura-projeto/tasks.md) e [034/quickstart](../034-launcher-estrutura-projeto/quickstart.md), sem duplicar tarefas deste domínio. Homologação humana continua pendente. O estado 1.0.0.1 abaixo é histórico.
+
 <a id="estado-verificado-1-0-0-1"></a>
 ## Estado verificado — 2026-10-24 / 1.0.0.1
 
@@ -133,3 +139,7 @@ Não é aceite nem conclusão integral de T009–T012.
 - **FR-012**: Preservar árvore completa, UUIDs/ordem, categorias/variantes/enabled por item, metadados inertes, destinos explicitamente autorados e escolha inicial de [033](../033-menu-aplicacao-efl/spec.md), incluindo menus vazios. Não gravar caminho percorrido, foco, seleção simulada, saída da prévia ou expansão do inspector. Estender o mesmo alvo schema3/catalog3 de FR-011 para os três novos tipos; leitores históricos 1/1, 2/1 e 3/2 continuam, com novo 3/3 e backup antes de save incompatível.
 
 **Aceitação**: round-trip de raiz e submenus aninhados/financeiro/Bolão conserva todos os dados confirmados, inclusive false explícito e strings vazias/Unicode, sem enriquecer perfis ou criar entradas ZIP. Falha de versão/estrutura/backup não substitui sessão/original. [T015](tasks.md#tarefas-menu-aplicacao-2026-10-23) estende codec existente de T013–T014; não repete implementação do backup/versionamento. Catálogo 3 planejado não é alegação sobre o writer validado atual 3/2.
+
+## Integração com Inicialização 035 e Splash 036 — 1.0.0.9
+
+A abertura por -open passa pela preparação assíncrona e só entrega o documento ao editor depois do vídeo e dos recursos. Falha de leitura preserva o original e impede avanço com diagnóstico. Não existe novo campo persistido; reader/writer continuam 3/4. Modelo do ciclo em 035 e adaptação em 036, com backlog próprio.

@@ -2,7 +2,7 @@
 
 ## Situação corrente — revisão 1.0.0.1
 
-catalog.Definition contém Kind/Name/Width/Height. Properties é uma união tipada de dez Kinds; catalogVersion=3 não significa implementação das 16 famílias planejadas. As skins estáticas vêm de internal/skin e não são entidades persistidas de Catálogo.
+catalog.Definition contém Kind/Name/Width/Height. Properties é uma união tipada de dez Kinds; catalogVersion=4 não significa implementação das 16 famílias planejadas. As skins estáticas vêm de internal/skin e não são entidades persistidas de Catálogo.
 
 Este quadro e a [spec](spec.md#estado-verificado-1-0-0-1) descrevem a implementação atual. As seções datadas de expansão conservam decisões/requisitos e registros históricos: tipos, arquivos, testes e perfis ali citados só são evidência atual quando existem na árvore e estão cobertos pela seção 22 do [quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Não atribuir ao build atual resultados de uma revisão antiga.
 
@@ -128,3 +128,15 @@ FR-013–FR-015 são incremento novo; [031](../031-codigo-barras-efl/spec.md) e 
 FR-016/T021 estende a fundação 003/T018, sem reabrir/duplicar T019/T020. Arquivos próprios planejados `internal/catalog/application_menu.go` e `internal/catalog/submenu.go` separam menu, submenu e regras; registro de Kind/Properties/cópia fica nos arquivos centrais existentes. API acordada no [modelo](data-model.md#modelo-menu-aplicacao-2026-10-23). Factory pura recebe callback de UUIDs e cria seed com enabled=true; nenhuma geração de identidade via UI, importação Java/XML em runtime ou pacote financeiro.
 
 Validação/cópia percorrem árvore com limites e detecção de ciclo antes de recursão ilimitada, preservam strings literais, IDs e ordem; verificam inicial existente, layouts fechados e exclusão submenu/destino. Unicidade global no documento é aplicação, existência de tela é Jornada. Mudanças centrais serializadas com T018; depois arquivos próprios podem avançar sem concorrer com barcode.go/barcode_processed.go. Catálogo 3 cobre os três compostos. Defaults geométricos do menu devem vir do Java fornecido; valores não disponíveis não viram medidas inventadas. Constituição I/II/VI/VII atendida no desenho; implementação e evidência ainda pendentes.
+
+## Fonte integral recuperada — 1.0.0.2
+
+O gerador `scripts/import_legacy_menu.py` converte `material-legado/menu/menu.xml` em `internal/catalog/menu_legacy_generated.go`; `menu_defaults.go` cria propriedades e UUIDs. O Catálogo continua sem dependência de filesystem, Fyne ou XML em runtime. `menu_reports.go` sintético foi removido. `menu_xml_test.go` lê a referência independente somente em teste. Skins são resolvidas pela apresentação, conforme 033/FR-012.
+
+## Defaults conferidos com o Java — 1.0.0.3
+
+A fábrica pura preserva Title ausente e referencia skins financeiras/digitais e marcas reutilizadas no Bolão. PnlMenu.java/UIMenuControle.java ficam preservados em material-legado/menu como referências de desenvolvimento. Catálogo não carrega XML ou Java em runtime. Dados de movimento continuam referências inertes; conferir cadastro externo depende da fonte real ainda indisponível.
+
+## Carregamento antecipado — integração 035/036
+
+A inicialização enumera os recursos operacionais por skin.Library.ResourcePaths, confere integridade e aquece caches de imagens/fontes consumidos por canvas/prévia. Os defaults dos dez Kinds são validados sem publicar um documento fictício. Nenhum atributo de domínio/catálogo ou número de versão muda por esse cache; núcleo do ciclo fica em internal/startup, adaptador de carga em desktop/startup_resources.go e tarefas em 036.

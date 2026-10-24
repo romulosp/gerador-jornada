@@ -2,7 +2,7 @@
 
 ## Implementação conferida — 1.0.0.1
 
-Writer vigente: **schemaVersion 3/catalogVersion 3**. Pares reconhecidos: **1/1, 2/1, 3/2 e 3/3**, com rejeição de campos desconhecidos. `wire.go` não aceita `appearanceProfile` nem `appearance`; esse perfil, seu selamento, arquivos de fontes e revisões arquivadas descritos na expansão abaixo são alvo/histórico e não capacidade atual. Projetos antigos com campos não suportados podem ser recusados, mesmo com par de versões reconhecido; não substituir o original nesses casos.
+Writer vigente: **schemaVersion 3/catalogVersion 4**. Pares reconhecidos: **1/1, 2/1, 3/2, 3/3 e 3/4**, com rejeição de campos desconhecidos. `wire.go` não aceita `appearanceProfile` nem `appearance`; esse perfil, seu selamento, arquivos de fontes e revisões arquivadas descritos na expansão abaixo são alvo/histórico e não capacidade atual. Projetos antigos com campos não suportados podem ser recusados, mesmo com par de versões reconhecido; não substituir o original nesses casos.
 
 Raiz efetivamente escrita: `id`, `name`, `revision`, `catalogVersion`, `assets`, `schemaVersion`, `screens`, `journey`, `scenarios`, `javaOptions`. Instâncias gravam `id`, `name`, `fileId`, `kind`, `bounds`, `style`, `enabled`, `parentId`, `properties`. Style contém somente `fontFamily`, `fontSize`, `textColor`, `fillColor`, `borderColor`, `backgroundAssetId`, `textAlign` e `skin`; valores zero são omitidos. Não há override de alpha em Style. Biblioteca/fontes de skin acompanham o executável, não são bytes privados incorporados no documento.
 
@@ -105,9 +105,10 @@ Salvar/fechar com sucesso pode remover a recuperação apenas quando ela não co
 
 | Par de entrada schema/catalog | Leitor planejado | Próxima escrita planejada |
 | --- | --- | --- |
-| 1/1, 2/1 | Migrações históricas preservadas | 3/3, com aviso/cópia íntegra antes de sobrescrever |
-| 3/2 | Preservar conteúdo, geometria e perfis exatos | 3/3, com aviso/cópia por incompatibilidade de catálogo |
-| 3/3 | Validação estrita dos tipos/enum/IDs | 3/3 |
+| 1/1, 2/1 | Migrações históricas preservadas | 3/4, com aviso/cópia íntegra antes de sobrescrever |
+| 3/2 | Preservar conteúdo, geometria e campos suportados | 3/4, com aviso/cópia por incompatibilidade de catálogo |
+| 3/3 | Completar somente targetJourney vazio; preservar árvore e metadados | 3/4, com aviso e backup integral |
+| 3/4 | Validação estrita dos tipos/enum/IDs e targetJourney obrigatório | 3/4 |
 | Outros | Recusar versão/catálogo incompatível sem alterar sessão/original | Nenhuma |
 
 `barcodeInput.properties` contém apenas o rótulo configurado. Seus campos capturados, foco, leitura parcial, DV, estado concluído, erros, caches e derivados não são serializados. `barcodeProcessed.properties.blocks` é lista ordenada de blocos `id/title/rows`; linhas contêm `id/labelKind/value`. Strings vazias de título/valor são válidas; arrays mínimos, UUIDs e enums seguem Catálogo; não inferir valores fiscais ou IDs pelo conteúdo. Campos de instância/estilo não mudam de dono nem são duplicados dentro de Properties.
@@ -119,7 +120,7 @@ Testes locais em [002/T013–T014](../../002-projeto/tasks.md#tarefas-codigos-ba
 <a id="formato-menu-aplicacao-2026-10-23"></a>
 ### Extensão conjunta planejada 031/032/033 — árvore de menu
 
-Aplicar a matriz de leitura **1/1, 2/1, 3/2 e 3/3** e escrita alvo **schemaVersion=3/catalogVersion=3** da seção anterior aos três novos tipos. Não mudar schema para4 nem catalogVersion para4; base anterior validada3/2 permanece identificada como histórica até validação principal. Primeiro save incompatível conserva original íntegro antes da publicação; falha de cópia impede sobrescrita, abrir nunca regrava. Mesmo envelope/allowlist/limites ZIP/perfis, sem nova entrada ou recurso executável.
+Os compostos introduziram a base histórica 3/3. A feature [034](../../034-launcher-estrutura-projeto/spec.md) estende o formato com `targetJourney`: matriz de leitura **1/1, 2/1, 3/2, 3/3 e 3/4**, escrita **schemaVersion=3/catalogVersion=4**. Schema permanece 3; catálogo muda explicitamente pela nova referência entre arquivos. Primeiro save incompatível conserva original íntegro antes da publicação; falha de cópia impede sobrescrita, abrir nunca regrava. Mesmo envelope/allowlist/limites ZIP/perfis, sem nova entrada ou recurso executável.
 
 Para `kind: applicationMenu`, o corpo `properties` corresponde a `Properties.Menu` do Go (não um segundo invólucro `properties.menu`):
 
@@ -127,9 +128,9 @@ Para `kind: applicationMenu`, o corpo `properties` corresponde a `Properties.Men
 | --- | --- | --- |
 | properties | `root`, `initialMenuId` | root objeto obrigatório; inicial string UUID existente obrigatório. |
 | submenu | `id`, `name`, `title`, `layout`, `items` | Strings obrigatórias; items array obrigatório, inclusive []; root usa root, descendentes standard/financial/bolao. |
-| item | `id`, `label`, `legend`, `category`, `variant`, `enabled`, `submenu`, `targetScreenId`, `movementCode`, `movementOption`, `movementName`, `shortcut` | Todos os campos textuais e enabled obrigatórios; submenu opcional ausente/null ou objeto válido. legend é conteúdo ilustrativo literal, inclusive Unicode/vazio, independente de movementName e sem fallback para metadados. |
+| item | `id`, `label`, `legend`, `category`, `variant`, `enabled`, `submenu`, `targetScreenId`, `targetJourney`, `movementCode`, `movementOption`, `movementName`, `shortcut` | Todos os campos textuais e enabled obrigatórios; submenu opcional ausente/null ou objeto válido. legend é conteúdo ilustrativo literal, inclusive Unicode/vazio, independente de movementName e sem fallback para metadados. |
 
-Writer emite strings vazias quando valor vazio é permitido e booleano enabled sempre, inclusive false; não usa omitempty para perder configuração. TargetScreenId vazio é folha sem destino; com submenu não pode ser não vazio. Reader não inventa habilitação/defaults a partir de ausência nem infere inicial por título. Items=null não equivale ao array vazio autorado. Strings name/title/label/category/metadados admitem Unicode/vazio; IDs/layouts seguem invariantes. Variant desconhecida é preservada como string e diagnosticada pela capacidade visual, não aproximada ou executada.
+Writer emite strings vazias quando valor vazio é permitido e booleano enabled sempre, inclusive false; não usa omitempty para perder configuração. Submenu, targetScreenId não vazio e targetJourney não vazio são mutuamente exclusivos. Folha sem ambos os destinos permanece sem rota. targetJourney é nome de arquivo `.jornada` da raiz do workspace; recusar caminho absoluto, subpasta, traversal e nome reservado Windows. Reader não inventa habilitação/defaults a partir de ausência nem infere inicial por título. Items=null não equivale ao array vazio autorado. Strings name/title/label/category/metadados admitem Unicode/vazio; IDs/layouts seguem invariantes. Variant desconhecida é preservada como string e diagnosticada pela capacidade visual, não aproximada ou executada.
 
 Validar campos estritos, UUIDs globais, inicial resolvido, profundidade<=16/itens<=1000 por árvore e exclusão submenu+destino antes de publicação/tradução recursiva sem limite. Integridade de TargetScreenId é Jornada; conteúdo estruturalmente legível pode seguir política geral de rascunho, mas não ser exportado como válido. Não adicionar Action duplicada por item; referência persistida única fica na árvore. Caminho atual, modo da vista, foco/pressionado, seleção simulada, exit flag e expansão do inspector são proibidos no manifesto.
 
@@ -233,7 +234,7 @@ não se altera o alvo para ocultá-las.
 
 ### Campos e recursos novos (contrato alvo ainda não integralmente implementado)
 
-O desenho histórico propunha `schemaVersion=3`, `catalogVersion=2` com `appearanceProfile` obrigatório; essa proposta não foi entregue nesta árvore. O formato atual 3/3 já grava somente os campos conhecidos. Introduzir o perfil no futuro exige rever o contrato de versão e compatibilidade, sem atribuí-lo aos pares atuais por documentação. O perfil planejado contém com `id`, `version`, `sha256`, `definitions`, `fontFaces` e `resourceIds`. Essa obrigatoriedade e esses descritores não descrevem o reader transitório atual acima; qualquer mudança futura do wire exige compatibilidade explicitada. definitions contém snapshot tipado das variantes usadas com todos os seus estados/dependências, não XML/código. fontFaces contém descritores tipados das fontes usadas pela skin e por overrides, inclusive sem associação a uma skin. sha256 cobre a representação canônica determinística do perfil, excluindo somente o hash próprio, incluindo revisões arquivadas. resourceIds referencia assets realmente incluídos. Metadados de proveniência/licença acompanham definições/recursos, sem caminhos absolutos.
+O desenho histórico propunha `schemaVersion=3`, `catalogVersion=2` com `appearanceProfile` obrigatório; essa proposta não foi entregue nesta árvore. O formato atual 3/4 grava somente os campos conhecidos. Introduzir o perfil no futuro exige rever o contrato de versão e compatibilidade, sem atribuí-lo aos pares atuais por documentação. O perfil planejado contém com `id`, `version`, `sha256`, `definitions`, `fontFaces` e `resourceIds`. Essa obrigatoriedade e esses descritores não descrevem o reader transitório atual acima; qualquer mudança futura do wire exige compatibilidade explicitada. definitions contém snapshot tipado das variantes usadas com todos os seus estados/dependências, não XML/código. fontFaces contém descritores tipados das fontes usadas pela skin e por overrides, inclusive sem associação a uma skin. sha256 cobre a representação canônica determinística do perfil, excluindo somente o hash próprio, incluindo revisões arquivadas. resourceIds referencia assets realmente incluídos. Metadados de proveniência/licença acompanham definições/recursos, sem caminhos absolutos.
 
 A restrição de metadados às variantes usadas no desenho original acima **não
 descreve Capture corrente**: o desvio arquitetural documentado mantém todos os
@@ -270,3 +271,9 @@ hash/tamanho e manual pendente no [quickstart](../quickstart.md#novo-exe-pós-ca
 A matriz de fixtures e o aceite continuam pendentes.
 
 Fixtures v1/v2→v3 e round-trip de cada família/variante com recursos; backup/aviso/falha de publicação; igualdade de IDs/bounds/overrides/ordem/referências antes e depois; left histórico; campos zero/falso versus ausentes; catálogo/Kind/estado/campo desconhecido; perfil/hash/fontes corrompidos ou ausentes; licença; limites ZIP inclusive TTF; ParentID/ciclos/mesma tela; snapshot/reabertura estável sem o acervo original. Responsável: [002-projeto/tasks.md](../../002-projeto/tasks.md), T009–T012; integrações sem duplicar persistência em 001/T118.
+
+## Destino entre jornadas — extensão 034 / 1.0.0.4
+
+`targetJourney` é string obrigatória nos itens de catálogo 4, inclusive vazia. Nos catálogos históricos a migração explícita acrescenta somente `""`; presença do campo novo em versão antiga é incompatibilidade, não extensão silenciosa. ID, ordem, Unicode, metadados, variantes e bounds não mudam. O primeiro save antigo avisa na UI e conserva cópia integral antes de escrever 3/4; falha de backup impede publicação. Backups existentes diferentes são preservados usando `.catalog-<versão>.bak` como alternativa, com recusa se essa alternativa também diferir.
+
+Workspace, caminho absoluto, recentes e pilha de navegação ficam fora do manifesto. A prévia resolve apenas arquivos regulares da mesma pasta, carrega/valida antes de substituir e usa a tela inicial explícita do destino. Árvore, criação/importação e aceite técnico em [034/quickstart](../../034-launcher-estrutura-projeto/quickstart.md). Nenhuma rota é inferida por nome, atalho ou código de movimento. Exportação de fluxo entre arquivos não integra esta feature.

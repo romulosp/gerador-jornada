@@ -1,14 +1,12 @@
 # DESIGN: Menu aplicação
 
-## Aplicação na revisão 1.0.0.1
+## Aplicação na revisão 1.0.0.2
 
-Menu 800 × 600 implementa árvore/inicial, raiz 12 serviços + 10 jogos, vistas de submenu, estilos de botão/faixa, comandos locais e destinos autorados. Contagem de RELATÓRIOS é 27 títulos/148 folhas na fixture atual.
+Fonte canônica: [menu.xml preservado](../../material-legado/menu/menu.xml) para conteúdo e [skin.xml](../../material-legado/elemetos_componente/xml/skin.xml) para apresentação. A lista completa de skins não é a lista do menu. Estado vigente na [spec](spec.md#estado-verificado-1-0-0-2); os registros de 2026-10-23 abaixo são históricos quando divergem da fonte recuperada.
 
-**Revisão ainda necessária:** O XML integral de menus não está no workspace. menu_reports.go completa a contagem com títulos e tokens sintéticos: isso não cumpre a fidelidade literal exigida pela referência. Integridade global dos destinos, foco/recorte completo e homologação visual permanecem pendentes. Estado funcional e evidências na [spec](spec.md#estado-verificado-1-0-0-1). Tokens e matrizes de expansão abaixo continuam normativos; não implicam aprovação visual.
+Jogos usam seus PNGs originais, com ícone e wordmark. O renderer não sobrepõe a marca novamente. Uma legenda autorada diferente recebe caixa própria dentro da área clicável, reduzindo apenas a área da imagem derivada. Bounds, IDs e árvore persistidos continuam iguais. Normal/pressionado/desabilitado são selecionados pela definição XML, sem concatenar caminhos; a prévia usa controles transparentes por item com o mesmo resolvedor da cena estática. Milionária usa `botao_milionaria`; Dupla-Sena usa a chave `botao_duplasena` e arquivos `botao_dupla_sena*.png`.
 
-
-**Status**: referência visual e implementação parcial reconciliadas para 1.0.0.1; homologação pendente.
-**Spec**: [spec.md](spec.md). **Fonte**: Java/XML fornecidos pelo usuário na conversa; imagens anexadas realmente vazias. Não há screenshot a reconstruir por suposição.
+Nova raiz: dez jogos ativos, com Milionária, sem LotoGol. Rótulos dos serviços e submenus são os literais da fonte, com quebra pela fonte física. A ordem XML é preservada no modelo; o layout separa as categorias nas duas metades. Pressão e foco não entram no documento. Capturas de canvas/prévia e pacote PPT são evidências técnicas; Office/DPI/aceite humano permanecem pendentes.
 
 ## Identidade e composição
 
@@ -73,3 +71,11 @@ PPT conserva textos/formas editáveis; não se promete interação da árvore, C
 ## Revisão pendente
 
 Revisar os quatro layouts, menus vazios/aninhados, rótulos longos/Unicode, múltiplas instâncias, recorte, hit-test e DPI 100/150/200%; comparar canvas/prévia/PPT com fonte Java/XML e, quando recebida, imagem real. Nenhum desses resultados foi observado nesta entrega documental. Roteiro/evidências ficam no [quickstart coordenador](../001-gerador-jornada/quickstart.md#18-menu-aplicacao-2026-10-23).
+
+## Correção adicional da apresentação — 1.0.0.3
+
+Esta seção substitui as medidas genéricas anteriores onde divergirem do Java preservado. Botões de jogo são 164×52; raiz usa x420/600, y150+77×linha. Submenu de duas opções usa x220/400, y310; faixa específica ocupa (0,150,800,27). Faixa principal só com Title não vazio: fundo (0,100,800,28) e texto editável alinhado à direita em (0,100,750,28). Não preencher Title pelo Name na fábrica.
+
+Grade standard: colunas=max(2,ceil(n/4)), linhas=ceil(n/colunas), x=(800−180×colunas)/2+180×coluna, y=(700−80×linhas)/2+80×linha. Exceções Java de apresentação: BENEFÍCIOS SOCIAIS 3×3, APOIO 4×3, CAIXA TEM 2×1, PRODUTOS NEGOCIAIS 4×1. Financial: 140×80, x35+150×floor(i/4), y160+90×(i%4), skins menu2/menu2_seta. Digital: x50/300/550, y300,190×70; legendas em y370,200×65, label_texto_azul; entrada BOLÕES DIGITAIS em (500,528,180,50).
+
+Rodapé: Cancelar (20,530,80,46) e Voltar (700,530,80,46); financial omite Cancelar conforme Java. Raiz usa Sair (675,533,80,46). Controles são derivados e não acrescentam itens persistidos. Canvas/PPT têm representação estática; prévia executa somente navegação local. Captura da janela reconstruída na seção 25 do quickstart. Cadastro de movimentos continua sem fonte recuperada.

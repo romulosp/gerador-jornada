@@ -36,13 +36,18 @@ func main() {
 	// smokeScreenshot captura uma janela real e encerra a prova de inicialização.
 	smokeScreenshot := flag.String("smoke-screenshot", "", "Captura a janela inicial em PNG e encerra.")
 	flag.Parse()
+	// utility executa somente operações explicitamente solicitadas sem janela nem reprodução.
+	utility := *exampleProject != "" || *examplePPT != "" || *compoundsProject != "" || *compoundsPPT != ""
 	// O log de aplicação nasce antes do Fyne para registrar o startup real do processo.
 	desktop.InitApplicationLog()
 	defer desktop.CloseApplicationLog()
-	// document contém um exemplo totalmente editável e sem dependências externas.
-	document := application.Example()
-	builtinassets.DefaultBackgrounds(&document)
-	if *openProject != "" {
+	// document permanece vazio no launcher; o exemplo só nasce por solicitação explícita.
+	var document application.Document
+	if *exampleProject != "" || *examplePPT != "" {
+		document = application.Example()
+		builtinassets.DefaultBackgrounds(&document)
+	}
+	if *openProject != "" && utility {
 		// loaded valida e restaura o projeto antes de abrir a janela.
 		loaded, err := projectzip.Load(*openProject)
 		fail(err)
@@ -77,12 +82,69 @@ func main() {
 	// desktopApp usa recursos de tema embutidos pelo Fyne.
 	desktopApp := app.NewWithID("br.local.geradorjornada")
 	desktopApp.SetIcon(fyne.NewStaticResource("jornada-studio.png", builtinassets.IconPNG()))
-	// editor recebe as dependências concretas sem um contêiner de DI.
-	editor := desktop.New(desktopApp, document)
+	// editor só nasce depois de abrir ou criar um documento confirmado pelo autor.
+	var editor *desktop.Editor
+	var window fyne.Window
+	// prepare ajusta a janela após o primeiro layout, sem criar exemplo no launcher.
+	prepare := func(current *desktop.Editor) {
+		go func() {
+			time.Sleep(400 * time.Millisecond)
+			fyne.Do(func() { current.EnableWindowMode(); current.FitToWindow(); current.OfferRecovery() })
+		}()
+	}
+	// ready é fechado após recursos prontos e, quando exibida, apresentação completa.
+	ready := make(chan struct{})
+	window = desktop.StartDesktop(desktopApp, func(current fyne.Window) fyne.Window {
+		if *openProject != "" {
+			editor = desktop.New(desktopApp, document)
+			editor.SetProjectPath(*openProject)
+			editor.ShowWindow()
+			window = editor.Window
+			current.Close()
+			prepare(editor)
+			return window
+		}
+		// launcher reutiliza a janela da splash e mantém a transição até revelar a seleção de projetos.
+		var launcher *desktop.Launcher
+		launcher = desktop.NewLauncherInWindow(desktopApp, current, func(opened application.Document, path string) {
+			desktop.LogApplication("editor_open_start", map[string]any{"source": "launcher"})
+			editor = desktop.New(desktopApp, opened)
+			editor.SetProjectPath(path)
+			editor.ShowWindow()
+			launcher.Window.Close()
+			desktop.LogApplication("editor_open_ready", map[string]any{"source": "launcher"})
+			prepare(editor)
+		})
+		window = launcher.Window
+		return window
+	}, func(ctx context.Context, report func(float64, string)) error {
+		if err := desktop.LoadStartupResources(ctx, report); err != nil {
+			return err
+		}
+		if *openProject != "" {
+			report(.98, "Abrindo o projeto solicitado…")
+			loaded, err := projectzip.Load(*openProject)
+			if err != nil {
+				return err
+			}
+			document = loaded
+			if *openScreen >= 0 && *openScreen < len(document.Screens) {
+				document.Journey.StartScreenID = document.Screens[*openScreen].ID
+			}
+		}
+		report(1, "Carregamento concluído.")
+		return nil
+	}, func() { close(ready) })
 	if *smokeScreenshot != "" {
 		go func() {
-			time.Sleep(2 * time.Second)
-			fyne.DoAndWait(func() { editor.EnableWindowMode(); editor.FitToWindow() })
+			<-ready
+			time.Sleep(400 * time.Millisecond)
+			fyne.DoAndWait(func() {
+				if editor != nil {
+					editor.EnableWindowMode()
+					editor.FitToWindow()
+				}
+			})
 			// O intervalo permite pintar o quadro ajustado antes da captura do framebuffer.
 			time.Sleep(200 * time.Millisecond)
 			fyne.Do(func() {
@@ -102,21 +164,14 @@ func main() {
 					desktopApp.Quit()
 					return
 				}
-				if err = png.Encode(file, editor.Window.Canvas().Capture()); err != nil {
+				if err = png.Encode(file, window.Canvas().Capture()); err != nil {
 					fmt.Fprintln(os.Stderr, err)
 				}
 				file.Close()
 				desktopApp.Quit()
 			})
 		}()
-	} else {
-		go func() {
-			time.Sleep(400 * time.Millisecond)
-			fyne.Do(func() { editor.EnableWindowMode(); editor.FitToWindow(); editor.OfferRecovery() })
-		}()
 	}
-	// A abertura aplica tela cheia somente depois de criar e exibir a janela nativa.
-	editor.ShowWindow()
 	desktopApp.Run()
 }
 

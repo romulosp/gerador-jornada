@@ -2,7 +2,7 @@
 
 ## Situação corrente — revisão 1.0.0.1
 
-Composição em application.Document; sete famílias base e três compostos; Style/Enabled/ParentID na instância. JSON schemaVersion=3/catalogVersion=3. Não existe Document.AppearanceProfile, appearance tipada, skin.Profile ou adaptador visualprofile no código atual.
+Composição em application.Document; sete famílias base e três compostos; Style/Enabled/ParentID na instância. JSON schemaVersion=3/catalogVersion=4. Não existe Document.AppearanceProfile, appearance tipada, skin.Profile ou adaptador visualprofile no código atual.
 
 Este quadro e a [spec](spec.md#estado-verificado-1-0-0-1) descrevem a implementação atual. As seções datadas de expansão conservam decisões/requisitos e registros históricos: tipos, arquivos, testes e perfis ali citados só são evidência atual quando existem na árvore e estão cobertos pela seção 22 do [quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Não atribuir ao build atual resultados de uma revisão antiga.
 
@@ -163,3 +163,15 @@ FR-061 não cria agregado Menu em Document nem copia árvore em Journey/Scenario
 Sessão por `(screenID, componentID, visita)` contém caminho de IDs de submenus, vista raiz/submenu selecionado, seleção simulada e estado transitório de foco/pressionado. Derivar caminho inicial de Root até InitialMenuID, contando raiz; Voltar remove último nível e não sai da raiz, Cancelar restaura só raiz. Reabrir/revisitar/restart recria inicial configurado, não o último caminho. Sair encerra sessão de prévia e descarta runtime; não publica edição, logoff ou pedido de encerramento do aplicativo.
 
 Hit region leva componentID/itemID e comando explícito; não identificar controles por Label/MovementName/Shortcut. Ativação verifica enabled da instância e do caminho, abre submenu local ou pede a Jornada destino autorado; folha sem destino apenas informa seleção simulada. Prévia Tela Atual não segue TargetScreenID nem exige outras telas para explorar submenus locais. Canvas/quadros/PPT usam inicial do snapshot, nunca essa sessão. Rascunho do inspector e expansão de nós não são configuração; só árvore/InitialMenuID confirmados persistem em Properties.Menu.
+
+## Correção de menu — 1.0.0.2
+
+`MenuItem.Variant` existente vincula a chave XML e preserva identidade visual após editar Label. Habilitação efetiva combina item e composto; touched/foco são transitórios. A árvore de novos menus vem do XML preservado, sem reaplicar defaults a documentos salvos. Estrutura de projeto passa a 3/4 pela feature 034; detalhes no modelo do Catálogo e spec 033.
+
+## Estado de seleção e comandos — 1.0.0.3
+
+MenuRuntime mantém seleção somente por UUID da folha; MenuSelectedItem devolve seus metadados literais do nó atual. Voltar/Cancelar limpam SimulatedItemID; componente desabilitado ou sessão encerrada bloqueiam ativação. MenuCommand é derivado pela apresentação e não entra no documento. Nenhum campo persistido, enum de layout ou versão foi acrescentado.
+
+## Estado transitório de inicialização — 035/036
+
+startup.Session é modelo independente e não compõe Document. Loaded/Playing/VideoEnded/Err/Closed/Transitioning e seus eventos estão descritos em 035/data-model. Janela, recursos, player e contexto pertencem a 036/data-model nos adaptadores. Nenhum estado da apresentação é serializado em .jornada, recentes ou histórico.

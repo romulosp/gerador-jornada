@@ -147,7 +147,7 @@ func assertMenuEqual(t *testing.T, want, got *catalog.SubmenuProperties) {
 		wantItem, gotItem := want.Items[index], got.Items[index]
 		if wantItem.ID != gotItem.ID || wantItem.Label != gotItem.Label || wantItem.Legend != gotItem.Legend ||
 			wantItem.Category != gotItem.Category || wantItem.Variant != gotItem.Variant ||
-			wantItem.Enabled != gotItem.Enabled || wantItem.TargetScreenID != gotItem.TargetScreenID ||
+			wantItem.Enabled != gotItem.Enabled || wantItem.TargetScreenID != gotItem.TargetScreenID || wantItem.TargetJourney != gotItem.TargetJourney ||
 			wantItem.MovementCode != gotItem.MovementCode || wantItem.MovementOption != gotItem.MovementOption ||
 			wantItem.MovementName != gotItem.MovementName || wantItem.Shortcut != gotItem.Shortcut {
 			t.Fatalf("item %d do nó %q divergente: %+v != %+v", index+1, want.Name, gotItem, wantItem)
@@ -230,7 +230,7 @@ func zipEntry(t *testing.T, data []byte, name string) []byte {
 	return content
 }
 
-// TestCompoundManifestShape confere versões 3/3 e o corpo exato de cada composto.
+// TestCompoundManifestShape confere versões 3/4 e o corpo exato de cada composto.
 func TestCompoundManifestShape(t *testing.T) {
 	document := compoundDocument(t)
 	data, err := Encode(document)
@@ -240,8 +240,8 @@ func TestCompoundManifestShape(t *testing.T) {
 	// manifest contém a revisão e as propriedades planas dos compostos.
 	manifest := zipEntry(t, data, "manifest.json")
 	root := manifestObject(t, manifest)
-	if root["schemaVersion"] != float64(3) || root["catalogVersion"] != float64(3) {
-		t.Fatalf("writer deve publicar 3/3: %v/%v", root["schemaVersion"], root["catalogVersion"])
+	if root["schemaVersion"] != float64(3) || root["catalogVersion"] != float64(4) {
+		t.Fatalf("writer deve publicar 3/4: %v/%v", root["schemaVersion"], root["catalogVersion"])
 	}
 	// inputSerialized preserva somente o rótulo, sem invólucro adicional.
 	inputSerialized := propertiesByKind(t, root, "barcodeInput")
@@ -290,7 +290,7 @@ func TestCompoundManifestShape(t *testing.T) {
 		t.Fatalf("primeiro item inválido: %v", items[0])
 	}
 	// todos os campos obrigatórios aparecem, inclusive enabled falso e strings vazias.
-	for _, field := range []string{"id", "label", "legend", "category", "variant", "enabled", "submenu", "targetScreenId", "movementCode", "movementOption", "movementName", "shortcut"} {
+	for _, field := range []string{"id", "label", "legend", "category", "variant", "enabled", "submenu", "targetScreenId", "targetJourney", "movementCode", "movementOption", "movementName", "shortcut"} {
 		if _, ok := firstItem[field]; !ok {
 			t.Fatalf("campo %s ausente no item serializado", field)
 		}
@@ -438,8 +438,8 @@ func TestCompoundDecodeRejections(t *testing.T) {
 		{"schema 4 com catálogo 3", "PROJECT_VERSION_UNSUPPORTED", func(t *testing.T, root map[string]any) {
 			root["schemaVersion"] = 4
 		}},
-		{"schema 3 com catálogo 4", "PROJECT_VERSION_UNSUPPORTED", func(t *testing.T, root map[string]any) {
-			root["catalogVersion"] = 4
+		{"schema 3 com catálogo 5", "PROJECT_VERSION_UNSUPPORTED", func(t *testing.T, root map[string]any) {
+			root["catalogVersion"] = 5
 		}},
 		{"campo desconhecido na raiz", "PROJECT_SCHEMA_INVALID", func(t *testing.T, root map[string]any) {
 			root["surpresa"] = true

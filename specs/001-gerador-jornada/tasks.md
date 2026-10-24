@@ -541,8 +541,39 @@ Escopo solicitado: aplicar o estilo real aos componentes existentes do app Go. N
 - [X] T148 [US1] Gerar biblioteca visual estática reproduzível e integrar skins/defaults, fontes SFNT reais, transparência, variantes, partes de relatório e teclado de 14 teclas à cena compartilhada. Código: `scripts/import_legacy_skin.py`, `internal/skin`, `internal/presentation/{scene,legacy_parts,style_validation,menus,barcodes}.go`, default de catálogo e fontes dos presets. FR-050/FR-052, 007–018 e 031–033 no recorte existente. Evidência: regressões antes/depois e validação Go/importador na seção 22 do quickstart.
 - [X] T149 [US1] Aplicar a mesma cena aos controles interativos da prévia e ao inspector: `desktop/{scene_render,legacy_control,legacy_entry,preview,board_renderer,inspector}.go`. Preservar cursor/clipboard, TAB, Backspace, estados e isolamento; aplicar personalizações de fonte/cor/skin sem widget opaco cobrindo a cena. FR-052, 013/FR-008–FR-009, 028/029. Evidência: `legacy_preview_test.go` e captura da composição realmente renderizada em memória.
 - [X] T150 [US3] Concluir checks, build Windows x64, pacote, hashes, exportações e roteiro desta revisão. Texto/formas editáveis, bytes decorativos originais e erros sem publicação parcial em `pptx/{xml,export,skins_test,composites_test}.go`. Evidência final na seção 22 do quickstart; estado atualizado somente após executar os comandos.
-- [ ] T147 Homologar a revisão identificada na seção 22 em Windows/DPI 100/150/200% e PowerPoint, testar skins/variantes, foco/entrada, salvar/reabrir, fonte no computador de destino e aprovar explicitamente o recorte visual. Não conclui T120–T122 nem os tipos adicionais ainda ausentes do código atual.
+- [ ] T147 Homologar a revisão vigente identificada na seção 25 em Windows/DPI 100/150/200% e PowerPoint, testar skins/variantes, foco/entrada, salvar/reabrir, fonte no computador de destino e aprovar explicitamente o recorte visual. Não conclui T120–T122 nem os tipos adicionais ainda ausentes do código atual.
 
 ## Reconciliação das specs e READMEs — 2026-10-24
 
 - [X] T151 Revisar as 33 specs e os DESIGNs existentes, reconciliar planos/modelos/contratos afetados com a árvore 1.0.0.1, corrigir tokens/defaults/versões e distinguir implementação parcial de requisitos futuros. Corrigir os novos IDs duplicados: os trabalhos visuais passam a T148/T149/T150; T144/T145/T146 antigos são preservados. Reabrir somente escopos com lacuna concreta documentada; preservar critérios de aceitação e checklists. Reescrever README da raiz com as causas e etapas para obter o estilo e sincronizar o guia da aplicação. Evidência documental e validação de referências na seção 23 do quickstart; nenhum novo teste funcional/build/aceite é atribuído a esta revisão.
+
+## Menu XML e skins exclusivas — 1.0.0.2
+
+- [X] T152 Aplicar resolução visual por item com variantes e estados originais, impedir wordmark duplicado, preservar legenda autorada e overrides, integrar canvas/prévia/PPT e testar bytes incorporados, pressão/liberação/bloqueio e compatibilidade de variante vazia. Consumir fábrica XML de 003/T022; não gerar itens a partir de assets. Checks/build/evidências na seção 24 do quickstart. Homologação manual e aceite continuam em T147; o incremento não aprova DPI/Office nem outros gates abertos.
+
+## Submenus Java e referências de movimentos — 1.0.0.3
+
+- [X] T153 Preservar PnlMenu/UIMenuControle e corrigir títulos ausentes, faixas, grades, dimensões dos jogos e rodapé compartilhado. Testar abertura na janela reconstruída, quatro duplas normal/especial, Voltar/Cancelar/Sair, seleção por UUID com metadados distintos e autoria dos campos Movement*/Shortcut. Validar cena e PPT temporário; executar checks e gerar somente JornadaStudio.exe. Evidência na seção 25 do quickstart; manual/aceite continuam abertos.
+- [ ] T154 Recuperar movimento.xml/movimentos.xml e as definições relacionadas realmente fornecidas pelo usuário; conferir lookup por nome e código/opção, inventário e referências sem fabricar classes/telas ou executar operações externas. Fonte não recuperada nos materiais/registros acessíveis nesta sessão; este requisito não é concluído pela preservação dos códigos em menu.xml.
+
+## Launcher e estrutura de projeto — 1.0.0.4
+
+- [X] T155 Integrar o incremento [034/tasks](../034-launcher-estrutura-projeto/tasks.md): launcher, recentes, árvore real da pasta, criar/importar e TargetJourney com prévia/retorno. Validar formato 3/4 e migração com backup, cancelamento/rollback/histórico, executar C1/C2/C3 técnicos, checks e build somente EXE. Registrar revisão, capturas, logs e README na seção 26 do quickstart.
+- [ ] T156 Homologar manualmente o launcher/árvore/criação/importação/navegação da 034 com um autor: SC-001 até três interações, pastas reais, DPI 100/150/200%, foco/teclado, usabilidade e aceite. Evidências automáticas e startup nativo não concluem este aceite nem os gates anteriores.
+
+## Correção de abertura relatada pelo usuário — 1.0.0.5
+
+- [X] T157 Reproduzir o crash nativo de criação/reabertura da 034, corrigir inicialização de tema antes do registro da janela e valor inicial do seletor sem callback. Testar ordem e troca manual de tema, oito fluxos no driver gráfico e reabertura final; atualizar README, quickstart, log de fases e somente JornadaStudio.exe. Evidências na seção 27; não encerra T154/T156.
+
+## Inicialização e splash — 035/036 / 1.0.0.9
+
+- [X] T158 Integrar os modelos separados de Inicialização (035) e apresentação/adaptadores (036), com vídeo v2/áudio, espera obrigatória de vídeo+carga, transição e autoria somente no launcher. Validar recursos, enquadramento, correção da ausência intermitente de imagem, quatro inicializações reais, criar/reabrir/carga lenta/cancelar/falhar e -open; registrar revisão/checks/EXE no quickstart. Não duplicar backlogs 035/036.
+- [ ] T159 Homologar apresentação final 1.0.0.11 em janela normal com o usuário: preferência de primeira execução/repetição, áudio percebido, vídeo inteiro ajustado à janela sem corte, ausência de tela preta em repetições, autoria no launcher, transição, DPI e aceite. Referência 036/T009; não substituir os gates anteriores.
+
+## Primeira apresentação e fullscreen — 1.0.0.10
+
+- [X] T160 Integrar 035/T005, 036/T011–T013 e 034/T024: preferência por usuário e vídeo fullscreen, checks, processos reais e entrega somente EXE. Evidência em 036/quickstart; manter homologação em T159 e 034/T025.
+
+## Vídeo em janela normal — 1.0.0.11
+
+- [X] T161 Integrar 036/T014–T015: remover fullscreen da splash por solicitação do usuário, validar imagem/cliente/moldura em janela normal, manter política e áudio, entregar somente EXE com README/evidências. Não encerrar T159/036-T009 por testes locais.

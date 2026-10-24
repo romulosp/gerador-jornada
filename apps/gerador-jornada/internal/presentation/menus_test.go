@@ -76,18 +76,18 @@ func TestApplicationMenuRootPaint(t *testing.T) {
 	if len(services) != 12 || len(games) != 10 {
 		t.Fatalf("raiz deve ter 12 serviços e 10 jogos: %d/%d", len(services), len(games))
 	}
-	// 12 botões de serviço e 10 de jogo preenchem a raiz sem outras formas.
-	if len(group.Shapes) != 22 {
+	// 12 serviços, 10 jogos e Sair compõem a raiz; comandos não entram na árvore.
+	if len(group.Shapes) != 23 {
 		t.Fatalf("quantidade de botões da raiz divergente: %d", len(group.Shapes))
 	}
 	// expected preserva a ordem de pintura: serviços e depois jogos.
 	expected := append(append([]catalog.MenuItem{}, services...), games...)
 	for index, item := range expected {
 		shape := group.Shapes[index]
-		if shape.Name != item.ID || shape.Text != item.Label {
+		if shape.Name != item.ID || (item.Category != "JOGOS" && shape.Text != item.Label) || (item.Category == "JOGOS" && shape.Text != "") {
 			t.Fatalf("botão %d divergente: %+v", index+1, shape)
 		}
-		if shape.SkinAsset == "" || shape.FontAsset != "/fonts/futurbci.ttf" || shape.FontFamily != "Futura BdCn BT" {
+		if shape.SkinAsset == "" || (item.Category != "JOGOS" && (shape.FontAsset != "/fonts/futurbci.ttf" || shape.FontFamily != "Futura BdCn BT")) {
 			t.Fatalf("estilo do botão %d divergente: %+v", index+1, shape)
 		}
 	}
@@ -100,7 +100,7 @@ func TestApplicationMenuRootPaint(t *testing.T) {
 		t.Fatalf("segundo botão fora da geometria contratada: %+v", group.Shapes[1].Bounds)
 	}
 	// o wrapper estático usa a escolha inicial, que por padrão é a raiz.
-	if wrapper := ApplicationMenu(component); len(wrapper.Shapes) != 22 {
+	if wrapper := ApplicationMenu(component); len(wrapper.Shapes) != 23 {
 		t.Fatalf("menu estático deve usar a raiz inicial: %d", len(wrapper.Shapes))
 	}
 }
@@ -110,7 +110,7 @@ func TestMenuHitAreasRoot(t *testing.T) {
 	component, menu := newMenuComponent(t)
 	group := ApplicationMenuState(component, &menu.Root)
 	areas := MenuHitAreas(component, &menu.Root)
-	if len(areas) != len(group.Shapes) {
+	if len(areas)+1 != len(group.Shapes) {
 		t.Fatalf("áreas e botões divergem: %d != %d", len(areas), len(group.Shapes))
 	}
 	for index, area := range areas {
@@ -127,8 +127,8 @@ func TestMenuHitAreasRoot(t *testing.T) {
 // TestApplicationMenuSubmenuPaint confere a faixa e a grade de um submenu comum.
 func TestApplicationMenuSubmenuPaint(t *testing.T) {
 	component, menu := newMenuComponent(t)
-	// convenios não possui itens no seed, mas ainda exibe a faixa do título.
-	convenios := menuNodeByName(&menu.Root, "CONVÊNIOS")
+	// convenios exercita um submenu autorado vazio, sem alterar a árvore original do XML.
+	convenios := &catalog.SubmenuProperties{ID: "vazio", Name: "CONVÊNIOS", Title: "CONVÊNIOS", Layout: catalog.MenuLayoutStandard}
 	if convenios == nil || convenios.Layout != catalog.MenuLayoutStandard {
 		t.Fatalf("submenu CONVÊNIOS inválido: %+v", convenios)
 	}
@@ -136,19 +136,19 @@ func TestApplicationMenuSubmenuPaint(t *testing.T) {
 	if faixa := primitivesByName(empty, "faixa"); len(faixa) != 1 || faixa[0].Text != "CONVÊNIOS" {
 		t.Fatalf("faixa do submenu vazio divergente: %+v", faixa)
 	}
-	if len(empty.Shapes) != 1 || len(MenuHitAreas(component, convenios)) != 0 {
+	if len(empty.Shapes) != 4 || len(MenuHitAreas(component, convenios)) != 0 {
 		t.Fatalf("submenu vazio não deve pintar itens: %d", len(empty.Shapes))
 	}
 	// meios exibe três itens na grade comum.
-	meios := menuNodeByName(&menu.Root, "MEIOS DE PAGAMENTO")
+	meios := menu.Root.Items[20].Submenu
 	if meios == nil || meios.Layout != catalog.MenuLayoutStandard || len(meios.Items) != 3 {
 		t.Fatalf("submenu MEIOS DE PAGAMENTO inválido: %+v", meios)
 	}
 	group := ApplicationMenuState(component, meios)
-	if len(group.Shapes) != 1+len(meios.Items) {
+	if len(group.Shapes) != 4+len(meios.Items) {
 		t.Fatalf("formas do submenu divergentes: %d", len(group.Shapes))
 	}
-	if group.Shapes[0].Name != "faixa" || group.Shapes[0].Text != "MEIOS DE PAGAMENTO" {
+	if group.Shapes[1].Name != "faixa" || group.Shapes[1].Text != "MEIOS DE PAGAMENTO" {
 		t.Fatalf("faixa do submenu divergente: %+v", group.Shapes[0])
 	}
 	areas := MenuHitAreas(component, meios)
@@ -156,7 +156,7 @@ func TestApplicationMenuSubmenuPaint(t *testing.T) {
 		t.Fatalf("áreas do submenu divergentes: %d", len(areas))
 	}
 	for index, area := range areas {
-		shape := group.Shapes[1+index]
+		shape := group.Shapes[2+index]
 		if area.ItemID != shape.Name || area.ItemID != meios.Items[index].ID {
 			t.Fatalf("item %d do submenu divergente: %+v", index+1, area)
 		}
@@ -174,11 +174,11 @@ func TestApplicationMenuBolaoLegends(t *testing.T) {
 		t.Fatalf("BOLÕES DIGITAIS inválido: %+v", digital)
 	}
 	group := ApplicationMenuState(component, digital)
-	// 1 faixa + 3 botões + 3 legendas.
-	if len(group.Shapes) != 7 {
+	// 3 botões + 3 legendas + Cancelar/Voltar; sem faixa principal não declarada.
+	if len(group.Shapes) != 8 {
 		t.Fatalf("layout bolao deve produzir sete formas: %d", len(group.Shapes))
 	}
-	if group.Shapes[0].Name != "faixa" || group.Shapes[0].Text != "BOLÕES DIGITAIS" {
+	if len(primitivesByName(group, "faixa")) != 0 {
 		t.Fatalf("faixa do bolão divergente: %+v", group.Shapes[0])
 	}
 	// wantLegends fixa os três textos literais do contrato, na ordem.
@@ -195,14 +195,14 @@ func TestApplicationMenuBolaoLegends(t *testing.T) {
 		if legend.Text != wantLegends[index] {
 			t.Fatalf("legenda %d divergente: %q", index+1, legend.Text)
 		}
-		if legend.Color != "#334155" || legend.FontSize != 10 || !legend.Wrap {
+		if legend.Color != "#5064AA" || legend.FontAsset != "/fonts/futura_mh.ttf" || !legend.Wrap {
 			t.Fatalf("estilo da legenda %d divergente: %+v", index+1, legend)
 		}
-		button := group.Shapes[1+2*index]
+		button := group.Shapes[2*index]
 		if button.Name != digital.Items[index].ID || button.Text != digital.Items[index].Label {
 			t.Fatalf("botão %d do bolão divergente: %+v", index+1, button)
 		}
-		if legend.Bounds.Y != button.Bounds.Y+button.Bounds.Height+4 {
+		if legend.Bounds.Y != button.Bounds.Y+button.Bounds.Height {
 			t.Fatalf("legenda %d fora da posição contratada: %+v", index+1, legend.Bounds)
 		}
 	}
@@ -212,7 +212,7 @@ func TestApplicationMenuBolaoLegends(t *testing.T) {
 		t.Fatalf("áreas do bolão divergentes: %d", len(areas))
 	}
 	for index, area := range areas {
-		button := group.Shapes[1+2*index]
+		button := group.Shapes[2*index]
 		if area.ItemID != button.Name || area.Bounds != button.Bounds {
 			t.Fatalf("área %d do bolão não coincide com o botão: %+v", index+1, area)
 		}
@@ -221,7 +221,7 @@ func TestApplicationMenuBolaoLegends(t *testing.T) {
 
 // TestApplicationMenuFinancialGrid confere a grade financeira de três colunas e 140 por 80.
 func TestApplicationMenuFinancialGrid(t *testing.T) {
-	// node é construído à mão porque o seed não oferece filhos financeiros.
+	// node usa quatro itens para isolar a ordem da primeira coluna financeira.
 	items := []catalog.MenuItem{}
 	for index := 0; index < 4; index++ {
 		items = append(items, catalog.MenuItem{ID: project.NewID(), Label: fmt.Sprintf("Financeiro %d", index+1), Category: "SERVIÇOS", Enabled: true})
@@ -229,33 +229,30 @@ func TestApplicationMenuFinancialGrid(t *testing.T) {
 	node := &catalog.SubmenuProperties{ID: project.NewID(), Name: "FINANCEIROS", Title: "FINANCEIROS", Layout: catalog.MenuLayoutFinancial, Items: items}
 	component, _ := newMenuComponent(t)
 	group := ApplicationMenuState(component, node)
-	if len(group.Shapes) != 1+len(items) {
+	if len(group.Shapes) != 3+len(items) {
 		t.Fatalf("formas da grade financeira divergentes: %d", len(group.Shapes))
 	}
 	// item percorre a grade financeira conferindo nome, texto e dimensão contratada.
 	for index, item := range items {
-		shape := group.Shapes[1+index]
-		if shape.Name != item.ID || shape.Text != item.Label {
+		shape := group.Shapes[2+index]
+		if shape.Name != item.ID || (item.Category != "JOGOS" && shape.Text != item.Label) || (item.Category == "JOGOS" && shape.Text != "") {
 			t.Fatalf("item financeiro %d divergente: %+v", index+1, shape)
 		}
 		if shape.Bounds.Width != 140 || shape.Bounds.Height != 80 {
 			t.Fatalf("botão financeiro %d deve medir 140 por 80: %+v", index+1, shape.Bounds)
 		}
 	}
-	// os três primeiros botões formam a primeira linha e o quarto inicia a segunda.
-	first, second, third, fourth := group.Shapes[1].Bounds, group.Shapes[2].Bounds, group.Shapes[3].Bounds, group.Shapes[4].Bounds
-	if first.Y != second.Y || second.Y != third.Y || !(first.X < second.X && second.X < third.X) {
-		t.Fatalf("primeira linha financeira fora de três colunas: %+v %+v %+v", first, second, third)
-	}
-	if fourth.Y <= first.Y || fourth.X != first.X {
-		t.Fatalf("quarto botão deve iniciar a segunda linha na primeira coluna: %+v", fourth)
+	// A grade financeira é preenchida em colunas de quatro linhas, conforme o Java.
+	first, second, third, fourth := group.Shapes[2].Bounds, group.Shapes[3].Bounds, group.Shapes[4].Bounds, group.Shapes[5].Bounds
+	if first.X != second.X || second.X != third.X || third.X != fourth.X || first.Y != 160 || fourth.Y != 430 {
+		t.Fatalf("coluna financeira divergente: %+v %+v %+v %+v", first, second, third, fourth)
 	}
 	areas := MenuHitAreas(component, node)
 	if len(areas) != len(items) {
 		t.Fatalf("áreas financeiras divergentes: %d", len(areas))
 	}
 	for index, area := range areas {
-		if area.Bounds != group.Shapes[1+index].Bounds || area.ItemID != items[index].ID {
+		if area.Bounds != group.Shapes[2+index].Bounds || area.ItemID != items[index].ID {
 			t.Fatalf("área financeira %d não coincide com a pintura: %+v", index+1, area)
 		}
 	}

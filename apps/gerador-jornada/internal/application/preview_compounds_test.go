@@ -162,7 +162,7 @@ func TestMenuRuntimeNavigation(t *testing.T) {
 		t.Fatal("BOLÃO ausente no seed")
 	}
 	// alvo é uma folha raiz convertida em destino explícito.
-	target := &menu.Root.Items[0]
+	target := &menu.Root.Items[10]
 	target.TargetScreenID = document.Screens[1].ID
 	// desabilitado permanece habilitado no modelo; a cópia da prévia usa o valor confirmado.
 	disabled := &menu.Root.Items[1]
@@ -212,12 +212,12 @@ func TestMenuCurrentScreenDoesNotNavigate(t *testing.T) {
 	document.Screens = append(document.Screens, screen.New("02 · Destino"))
 	id := addCompound(t, &document, 0, catalog.ApplicationMenu, "menu", 0, 0)
 	menu := document.Screens[0].ComponentByID(id).Properties.Menu
-	menu.Root.Items[0].TargetScreenID = document.Screens[1].ID
+	menu.Root.Items[10].TargetScreenID = document.Screens[1].ID
 	preview, err := NewScreenPreview(document, document.Screens[0].ID)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if outcome, err := preview.MenuActivate(id, menu.Root.Items[0].ID); err != nil || outcome != MenuSimulated {
+	if outcome, err := preview.MenuActivate(id, menu.Root.Items[10].ID); err != nil || outcome != MenuSimulated {
 		t.Fatalf("Tela Atual deveria simular: %v %v", outcome, err)
 	}
 	if preview.ScreenID != document.Screens[0].ID {

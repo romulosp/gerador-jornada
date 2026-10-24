@@ -44,6 +44,8 @@ type MenuItem struct {
 	Submenu *SubmenuProperties
 	// TargetScreenID referencia uma tela de destino autorada, quando folha.
 	TargetScreenID string
+	// TargetJourney referencia somente um arquivo .jornada relativo à pasta do workspace.
+	TargetJourney string
 	// MovementCode contém metadado legado inerte.
 	MovementCode string
 	// MovementOption contém metadado legado inerte.
@@ -126,8 +128,22 @@ func (p ApplicationMenuProperties) Validate() error {
 				return fmt.Errorf("item de menu sem identidade única")
 			}
 			seen[item.ID] = true
-			if item.Submenu != nil && item.TargetScreenID != "" {
+			// destinations conta alternativas mutuamente exclusivas, sem resolver arquivos no domínio.
+			destinations := 0
+			if item.Submenu != nil {
+				destinations++
+			}
+			if item.TargetScreenID != "" {
+				destinations++
+			}
+			if item.TargetJourney != "" {
+				destinations++
+			}
+			if destinations > 1 {
 				return fmt.Errorf("item de menu combina submenu e destino")
+			}
+			if item.TargetJourney != "" && !ValidJourneyFilename(item.TargetJourney) {
+				return fmt.Errorf("destino de jornada inválido: %s", item.TargetJourney)
 			}
 			if item.Submenu != nil {
 				if err := walk(item.Submenu, depth+1, false); err != nil {

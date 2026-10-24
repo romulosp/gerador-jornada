@@ -475,3 +475,23 @@ Preservado o módulo Go/Fyne existente e suas alterações locais. `scripts/impo
 O inspector oferece skin compatível, família real incorporada, fonte/tamanho, cores de texto/fundo/borda e alinhamento. O adaptador PPT mantém imagens apenas nas decorações, texto/formas editáveis, fonte real, flags físicas, alpha, centralização e espaçamento entre linhas. Fontes não são redistribuídas dentro do PPT: sua instalação/licença e a renderização no Office de destino precisam de validação manual.
 
 Este incremento não muda o schema vigente do código fornecido, não implementa os tipos adicionais ausentes do backlog e não declara os formatos/perfis portáteis de expansões anteriores como entregues.
+
+## Menu integral e skins por item — 1.0.0.2
+
+Importação XML ocorre no desenvolvimento e gera dados Go puros do Catálogo. `presentation.ApplicationMenuItem` resolve variantes/defaults e estados; o composto e os controles transparentes da prévia compartilham a mesma função. PPT incorpora os bytes originais e preserva texto autorado em formas separadas. O check Windows confere os dois importadores antes de vet/test/build. Nenhuma dependência nova ou versão de formato foi criada.
+
+## Submenus derivados do Java — 1.0.0.3
+
+`presentation/menu_layout.go` centraliza caixas e comandos derivados; `menus.go` usa a mesma geometria do hit-test. `preview_compounds_view.go` remove comandos opacos externos e reconstrói a página após navegar. A seleção por UUID pode ser consultada por MenuSelectedItem e mostra metadados, sem resolver um cadastro ausente. O inspector de árvore confirma Movement*/Shortcut já existentes. Formato permanece 3/3 e a compilação usa scripts/check.ps1 + scripts/build.ps1, sem empacotar. Cadastro movimento.xml é dependência aberta, não um parser fictício.
+
+## Integração modular da inicialização — 1.0.0.9
+
+Adicionar o pacote puro internal/startup (035) por solicitação explícita de separação do modelo. Eventos de carga/reprodução e liberação única não importam tecnologias. A spec 036 controla adaptadores desktop/builtinassets/nativevideo, janela de vídeo própria e composição em cmd/gerador-jornada. Nenhum serviço/módulo Go externo nem alteração do wire. Os domínios de autoria conservam seus próprios modelos; não colocar widgets/player dentro de Project/Document.
+
+## Integração 1.0.0.10
+
+Coordenador `desktop.StartDesktop` consulta `startup.Preference` antes de criar player/fullscreen. Adaptador JSON por usuário e Check do launcher implementam as specs 035/036/034 sem novo campo no projeto. Regressões e sequência de processos reais descritas em 036/quickstart. Entrega somente JornadaStudio.exe, conforme README.
+
+## Integração 1.0.0.11
+
+Apenas apresentação/adaptador 036 muda para janela normal centralizada, sem troca fullscreen. Domínio, preferências e formato permanecem como antes. Smoke deve conferir cliente/moldura, imagem em dois instantes, áudio e política; entregar somente JornadaStudio.exe e evidências em 036/quickstart.

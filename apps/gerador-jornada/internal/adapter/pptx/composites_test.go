@@ -122,7 +122,6 @@ func TestCompositesExportEditableShapes(t *testing.T) {
 		"12.345.678/0001-90",
 		"Ação Comércio Ltda",
 		"BOLETO",
-		"MEGA-SENA",
 	}
 	for _, text := range texts {
 		if !strings.Contains(content, text) {
@@ -140,7 +139,7 @@ func TestCompositesExportEditableShapes(t *testing.T) {
 		processed.ID + "/bloco-1-título",
 		processed.ID + "/bloco-1-linha-1-rótulo",
 		processed.ID + "/bloco-1-linha-2-valor",
-		menu.ID + "/" + menu.Properties.Menu.Root.Items[0].ID,
+		menu.ID + "/" + menu.Properties.Menu.Root.Items[10].ID,
 	}
 	for _, name := range names {
 		if !strings.Contains(content, `name="`+name+`"`) {
@@ -164,8 +163,8 @@ func TestCompositesExportEditableShapes(t *testing.T) {
 	// Cada mídia deve ser uma decoração original conhecida, nunca uma captura da tela.
 	// allowed conserva os bytes independentes usados como referência para a exportação.
 	allowed := [][]byte{}
-	// path identifica as duas decorações dos serviços raiz.
-	for _, path := range []string{"/azul/botao_menu_released.png", "/azul/botao_menu_seta_released.png"} {
+	// path identifica as decorações originais dos serviços e dos doze jogos da raiz.
+	for _, path := range []string{"/azul/botao_menu_released.png", "/azul/botao_menu_seta_released.png", "/botao_megasena.png", "/botao_lotofacil.png", "/botao_quina.png", "/botao_lotomania.png", "/botao_loteca.png", "/botao_lotogol.png", "/botao_dupla_sena.png", "/botao_dia_de_sorte.png", "/botao_super_sete.png", "/botao_timemania.png", "/botao_milionaria.png", "/botao_federal.png", "/azul/botao_menu_peq_released.png"} {
 		// data representa o recurso original e não uma renderização do teste.
 		data, err := skin.MustBuiltin().Asset(path)
 		if err != nil {
@@ -226,8 +225,8 @@ func TestCompositesExportUsesInitialMenu(t *testing.T) {
 		"Consulta bolões de concursos abertos para comercialização.",
 		"Consulta bolões de concursos encerrados e não prescritos.",
 	}
-	if !strings.Contains(content, "BOLÕES DIGITAIS") {
-		t.Fatal("faixa do submenu inicial ausente")
+	if !strings.Contains(content, "VENDER COTAS") || strings.Contains(content, ">BOLÕES DIGITAIS</a:t>") {
+		t.Fatal("nomes XML perdidos ou título principal inexistente inventado")
 	}
 	for _, legend := range legends {
 		if !strings.Contains(content, legend) {
@@ -245,8 +244,8 @@ func TestCompositesExportUsesInitialMenu(t *testing.T) {
 	if count := strings.Count(content, "ppaction://hlinksldjump"); count != 1 {
 		t.Fatalf("menu estático não pode criar vínculos próprios: %d", count)
 	}
-	if strings.Count(content, `name="`+menuComponent.ID+`/faixa"`) != 1 {
-		t.Fatal("faixa do submenu inicial não foi nomeada para edição")
+	if strings.Count(content, `name="`+menuComponent.ID+`/faixa"`) != 0 {
+		t.Fatal("faixa não declarada pelo XML foi inventada")
 	}
 	for index, item := range digital.Items {
 		name := menuComponent.ID + "/" + item.ID

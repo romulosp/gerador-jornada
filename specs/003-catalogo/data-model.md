@@ -2,7 +2,7 @@
 
 ## Situação corrente — revisão 1.0.0.1
 
-catalog.Definition contém Kind/Name/Width/Height. Properties é uma união tipada de dez Kinds; catalogVersion=3 não significa implementação das 16 famílias planejadas. As skins estáticas vêm de internal/skin e não são entidades persistidas de Catálogo.
+catalog.Definition contém Kind/Name/Width/Height. Properties é uma união tipada de dez Kinds; catalogVersion=4 não significa implementação das 16 famílias planejadas. As skins estáticas vêm de internal/skin e não são entidades persistidas de Catálogo.
 
 Este quadro e a [spec](spec.md#estado-verificado-1-0-0-1) descrevem a implementação atual. As seções datadas de expansão conservam decisões/requisitos e registros históricos: tipos, arquivos, testes e perfis ali citados só são evidência atual quando existem na árvore e estão cobertos pela seção 22 do [quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Não atribuir ao build atual resultados de uma revisão antiga.
 
@@ -16,7 +16,7 @@ No código atual, catalog.Definition mantém Kind, Name, Width e Height; Propert
 
 ## Invariantes
 
-catalogVersion atual é 3 (versões 1 e 2 são históricas). Enums devem pertencer à lista do contrato; fontSize positivo; Style usa cores #RRGGBB e não tem FillAlpha; alpha importado existe na primitiva de apresentação, não como override RGBA normalizado da instância; radio tem ao menos uma opção e selectedOptionId existente ou nulo; formatos não implicam validação CPF/data. Teclado aponta a campo da mesma tela, validado pela aplicação.
+catalogVersion atual é 4 (versões 1, 2 e 3 são históricas). Enums devem pertencer à lista do contrato; fontSize positivo; Style usa cores #RRGGBB e não tem FillAlpha; alpha importado existe na primitiva de apresentação, não como override RGBA normalizado da instância; radio tem ao menos uma opção e selectedOptionId existente ou nulo; formatos não implicam validação CPF/data. Teclado aponta a campo da mesma tela, validado pela aplicação.
 
 ## Limites e relacionamento com outros domínios
 
@@ -62,7 +62,7 @@ FR-013–FR-015, [contrato canônico](../001-gerador-jornada/contracts/component
 
 Cópia profunda conserva IDs para snapshot; duplicação em Tela gera novos IDs de instância/blocos/linhas. Validar união discriminada, enum, lista mínima e identidade; a aplicação verifica unicidade global do documento. Definição de tipo/default não incorpora widgets, arquivos, payload de leitora, mensagens modais ou funções de UI. Não usar structs anônimas/JSON livre para contornar tipagem.
 
-Versão efetiva do writer: `catalogVersion=3`; essa revisão foi implementada para os compostos e não equivale à expansão integral dos tipos planejados. Os contratos de Projeto discriminam leitores e escritores; não enriquecer perfis antigos ou inventar definições Java/XML para estes compostos novos.
+Versão efetiva do writer: `catalogVersion=4`; a revisão 3 introduziu os compostos e a 4 acrescentou TargetJourney e não equivale à expansão integral dos tipos planejados. Os contratos de Projeto discriminam leitores e escritores; não enriquecer perfis antigos ou inventar definições Java/XML para estes compostos novos.
 
 <a id="modelo-menu-aplicacao-2026-10-23"></a>
 ## Modelo canônico planejado — Menu aplicação
@@ -72,10 +72,18 @@ API Go acordada, **não declaração de implementação validada**:
 - `Kind ApplicationMenu = "applicationMenu"`; união `Properties.Menu *ApplicationMenuProperties` presente somente neste Kind.
 - `ApplicationMenuProperties{Root SubmenuProperties; InitialMenuID string}`: raiz por valor e UUID do submenu inicial; factory seleciona `Root.ID` por padrão. InitialMenuID deve resolver raiz ou descendente existente, nunca título/índice. Não usar vazio como fallback implícito.
 - `SubmenuProperties{ID, Name, Title, Layout string; Items []MenuItem}`: UUID único, nome/título Unicode (inclusive vazios), ordem do slice significativa. Layout é exatamente `root`, `standard`, `financial` ou `bolao`; raiz usa `root`, descendentes usam os outros layouts. Lista vazia é válida.
-- `MenuItem{ID, Label, Legend, Category, Variant string; Enabled bool; Submenu *SubmenuProperties; TargetScreenID, MovementCode, MovementOption, MovementName, Shortcut string}`: UUID próprio; Label é o rótulo do botão e Legend é a legenda ilustrativa independente de MovementName, Unicode literal, inclusive vazia, sem preenchimento implícito a partir de metadados. Categoria/metadados também são literais, inclusive vazios; Category é texto editável, não domínio de negócio. Variant identifica estilo suportado pelo catálogo e não código executável; desconhecido tem diagnóstico de estilo, sem troca silenciosa. Enabled é explícito; factory de item e seed usam true. Submenu ausente/nil representa folha; TargetScreenID vazio representa ausência de destino. Submenu e TargetScreenID não vazio são mutuamente exclusivos.
+- `MenuItem{ID, Label, Legend, Category, Variant string; Enabled bool; Submenu *SubmenuProperties; TargetScreenID, TargetJourney, MovementCode, MovementOption, MovementName, Shortcut string}`: UUID próprio; Label é o rótulo do botão e Legend é a legenda ilustrativa independente de MovementName, Unicode literal, inclusive vazia, sem preenchimento implícito a partir de metadados. Categoria/metadados também são literais, inclusive vazios; Category é texto editável, não domínio de negócio. Variant identifica estilo suportado pelo catálogo e não código executável; desconhecido tem diagnóstico de estilo, sem troca silenciosa. Enabled é explícito; factory de item e seed usam true. Submenu ausente/nil representa folha; TargetScreenID vazio representa ausência de destino. Submenu, TargetScreenID e TargetJourney são mutuamente exclusivos. TargetJourney contém apenas o nome relativo de uma `.jornada` na raiz do workspace; vazio não infere destino.
 
 Layout `bolao` sempre representa três posições de botões com Legend, independentemente do Name editável; excedentes geram diagnóstico e recorte, sem poda da árvore. No seed, BOLÃO ordinário usa `standard`, preservando jogos e rótulos; BOLÕES DIGITAIS usa `bolao` com Legend, na ordem: “Visualizar cotas digitais para venda na lotérica.”, “Consulta bolões de concursos abertos para comercialização.” e “Consulta bolões de concursos encerrados e não prescritos.”. Navegação usa somente itens pertencentes ao nó autorado, sem importar irmãos por nome.
 
 Menus/submenus e itens têm IDs distintos entre si e dos demais UUIDs do documento, sem FileID próprio. Limites por árvore: profundidade <=16 (raiz=1), total de MenuItem <=1000 somando descendentes; menus vazios não violam limite mínimo. Ciclos, UUID inválido/repetido e inicial não resolvido são erros estruturais; referências de destino são validadas em Jornada. Nenhum limite é relaxado por desabilitar um ramo. Cópia profunda conserva IDs/ordem e não compartilha ponteiros/slices; duplicação/regeneração/remapeio pertence a Tela.
 
 Factory recebe callback `supplyID` que entrega UUIDs; não lê relógio, arquivo ou rede. Seed único deve transcrever serviços/jogos e submenus aninhados da fonte Java/XML fornecida, incluindo Bolão digital; não copiar sua árvore inteira neste documento. MovementCode/MovementOption/MovementName/Shortcut não disparam ação, navegação, QR ou lookup. Categoria/variante não inferem destino. Caminho atual, modo raiz/submenu, foco e mensagem de seleção não são propriedades persistidas.
+
+## Vínculo visual e fonte integral — 1.0.0.2
+
+Sem mudança da união ou versão: `MenuItem.Variant` guarda a chave XML para preservar a marca após renomear. Variante vazia em projeto anterior pode resolver marca conhecida somente na apresentação; não altera dados persistidos. A fábrica usa dados estáticos do XML preservado e mantém os metadados nos ramos e folhas. Títulos principais dos ramos alimentam Submenu.Title; não existe título separado em MenuItem. Legendas digitais são complementos visuais documentados, não substitutos dos nomes XML.
+
+## Ajuste dos defaults — 1.0.0.3
+
+Sem novos campos/versões. Submenu.Title conserva literalmente tituloPrincipal, inclusive vazio; Name não o preenche. Variant pode referenciar menu2/menu2_seta/menu_peq ou marca reutilizada no Bolão conforme Java. Os campos Movement* e Shortcut existentes passam a ter autoria no formulário, mantendo identidade, cópia e confirmação atômica. O cadastro XML de movimentos permanece indisponível; não é equivalente à árvore de MenuItem.

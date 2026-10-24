@@ -7,6 +7,12 @@
 
 **Instrução vigente — 2026-10-21:** a [clarificação FR-012](#builtin-filtrado-fr-012) delimita a disponibilidade operacional do builtin após a mudança de escopo. Inventário original e perfis/documentos existentes continuam preservados; verificação ainda aberta, sem alterar o checklist 13/2. Detalhes e evidências atuais na [seção 14 da coordenadora](../001-gerador-jornada/quickstart.md#14-builtin-filtrado).
 
+## Incremento implementado — 2026-10-24 / 1.0.0.4
+
+O catálogo vigente passa a **4** pelo novo `MenuItem.TargetJourney string`, nome de arquivo `.jornada` da raiz do workspace. `Submenu`, `TargetScreenID` e `TargetJourney` são mutuamente exclusivos. A factory conserva destino vazio e as dez famílias existentes; não há expansão implícita de Kinds. Validação pura recusa caminhos, dispositivos Windows e extensões inválidas. Catálogo 3 permanece base histórica dos compostos.
+
+Backlog e evidência específicos em [034/tasks](../034-launcher-estrutura-projeto/tasks.md) e [034/quickstart](../034-launcher-estrutura-projeto/quickstart.md), sem duplicar tarefas deste domínio. Homologação humana continua pendente. O estado 1.0.0.1 abaixo é histórico.
+
 <a id="estado-verificado-1-0-0-1"></a>
 ## Estado verificado — 2026-10-24 / 1.0.0.1
 
@@ -138,3 +144,11 @@ Detalhes de uso nos componentes [031 — entrada validada](../031-codigo-barras-
 - **FR-016**: Definir Menu aplicação como família composta com modelos separados de menu/submenu e itens ordenados; defaults baseados na árvore Java/XML do usuário, propriedades editáveis de legenda/categoria/estilo/habilitação e submenu opcional ou destino explícito de folha. Aplicar as regras puras de [033/FR-002–FR-004/FR-008](../033-menu-aplicacao-efl/spec.md): layouts raiz/padrão/financeiro/Bolão, menus vazios válidos, até 16 níveis contando raiz e 1000 itens por árvore, UUIDs globalmente únicos e ausência de submenu+destino. Metadados de movimento/atalho são dados inertes, não autenticação, dispatch ou rota inferida.
 
 **Aceitação**: defaults recebem gerador de IDs externo e itens habilitados; snapshot conserva identidade com cópia profunda. Duplicações e referências globais são verificadas por Tela/aplicação/Jornada. Catálogo contém só regras puras, sem Fyne/IO/Java. [T021](tasks.md#tarefas-menu-aplicacao-2026-10-23) acrescenta este modelo ao alvo catálogo 3 **já planejado para 031/032**, sem catálogo 4 e sem novo domínio financeiro. Implementação autorizada não significa executada ou homologada nesta entrega.
+
+## Correção da fonte do menu — 1.0.0.2
+
+FR-016 e T022 passam a usar a árvore ativa preservada em `material-legado/menu/menu.xml`, gerada em Go estático no desenvolvimento. Nomes, espaços, ordem e metadados não são abreviados. Variantes de jogos referenciam as chaves XML, incluindo Milionária e os quatro ramos normal/especial. LotoGol comentado não entra no seed. Regras e limites atuais em [033/estado](../033-menu-aplicacao-efl/spec.md#estado-verificado-1-0-0-2).
+
+## Títulos, variantes e referências de movimento — 1.0.0.3
+
+Nova fábrica preserva Title vazio quando tituloPrincipal não existe. Usa marcas de jogo também nas opções Bolão previstas no mapa Java, menu2/menu2_seta no ramo financeiro e menu_peq para Bolões Digitais. MovementCode, MovementName, MovementOption e Shortcut permanecem literais editáveis. Código compartilhado não identifica univocamente um movimento; não reconstruir cadastro ausente. Comportamento e limite em [033/estado vigente](../033-menu-aplicacao-efl/spec.md#estado-verificado-1-0-0-3).

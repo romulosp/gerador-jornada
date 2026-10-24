@@ -1614,10 +1614,10 @@ Limites desta evidência: o seed do menu foi gerado a partir da transcrição do
 ### Entrega concreta
 
 - Executável: [JornadaStudio.exe](../../apps/gerador-jornada/dist/windows-amd64/JornadaStudio.exe), **33.093.120 bytes**; FileVersion/ProductVersion `1.0.0.1`.
-- Pacote: [JornadaStudio-1.0.0.1-windows-amd64.zip](../../apps/gerador-jornada/dist/JornadaStudio-1.0.0.1-windows-amd64.zip).
-- Projeto das sete famílias: [estilos-legado.jornada](../../apps/gerador-jornada/dist/estilos-legado.jornada).
-- Projeto dos compostos: [compostos-legado.jornada](../../apps/gerador-jornada/dist/compostos-legado.jornada).
-- Saídas editáveis: [estilos-legado.pptx](../../apps/gerador-jornada/dist/estilos-legado.pptx) e [compostos-legado.pptx](../../apps/gerador-jornada/dist/compostos-legado.pptx).
+- Pacote: JornadaStudio-1.0.0.1-windows-amd64.zip (`../../apps/gerador-jornada/dist/JornadaStudio-1.0.0.1-windows-amd64.zip`; artefato histórico ausente no checkout atual).
+- Projeto das sete famílias: estilos-legado.jornada (`../../apps/gerador-jornada/dist/estilos-legado.jornada`; artefato histórico ausente no checkout atual).
+- Projeto dos compostos: compostos-legado.jornada (`../../apps/gerador-jornada/dist/compostos-legado.jornada`; artefato histórico ausente no checkout atual).
+- Saídas editáveis: estilos-legado.pptx (`../../apps/gerador-jornada/dist/estilos-legado.pptx`; artefato histórico ausente no checkout atual) e compostos-legado.pptx (`../../apps/gerador-jornada/dist/compostos-legado.pptx`; artefato histórico ausente no checkout atual).
 - Captura Fyne em memória da prévia: [legacy-preview.png](../../apps/gerador-jornada/build/legacy-preview.png), 800 × 600, após exercício real dos controles de cursor/TAB/Backspace.
 - Captura de startup/renderização do executável Windows: [legacy-menu-native.png](../../apps/gerador-jornada/build/legacy-menu-native.png), framebuffer 1366 × 768, zoom do editor 60%, tema Escuro existente preservado. Isso não é teste humano de todos os fluxos.
 
@@ -1694,3 +1694,143 @@ As oito definições com recursos ausentes ficam fora da oferta. Escolhas antiga
 **Verificação documental:** revisão de caminhos/âncoras locais nos 127 Markdown de `specs` e dos READMEs de origem; unicidade de IDs nos oito backlogs; presença do quadro de estado em todas as 33 specs; revisão de whitespace. Os checklists de qualidade e os registros de aprovação humana foram preservados. Resultado final da checagem: PASS, sem links locais/âncoras inválidos e sem IDs de tarefa duplicados.
 
 **Pendências:** concluir as tarefas reabertas e o restante do backlog nos respectivos donos, depois executar os cenários manuais Windows/DPI/PowerPoint da revisão escolhida. Esta atualização documental não declara conformidade funcional integral.
+
+
+<a id="24-menu-xml-e-skins-dos-jogos--1002"></a>
+## 24. Menu XML e skins dos jogos — 1.0.0.2
+
+**Executor:** agente nesta sessão em Windows amd64, 2026-10-24. Revisão técnica disponível para teste humano; sem aceite presumido.
+
+### Fonte recuperada e comportamento
+
+Cópia original recuperada de `D:/desenvolvimento/ia/estudo/sistema-prototipo-android/componentes/src/java/menu/menu.xml`, preservada em `material-legado/menu/menu.xml`: 30.514 bytes, SHA-256 `f54ad100a67ec1ec947ee74d35123a908e0fc06004813c82f1d541317dee6bd8`. Codificação ISO-8859-1 respeitada, sem transcodificar a fonte nem incluir elementos comentados.
+
+A fábrica preserva 22 itens raiz: dez jogos primeiro e doze serviços depois, conforme ordem XML. A cena separa as categorias nas metades sem alterar o modelo. Jogos: MEGA-SENA, LOTOFÁCIL, QUINA, LOTOMANIA, LOTECA, DUPLA-SENA, TIMEMANIA, DIA DE SORTE, SUPER SETE, MILIONÁRIA. LotoGol comentado e Federal não são acrescentados à raiz. Mega-Sena, Lotofácil, Quina e Dupla-Sena mantêm seus dois filhos normal/especial; RELATÓRIOS usa os 27 títulos descendentes e 148 folhas reais. BOLÕES DIGITAIS803 é último filho de BOLÃO, com VENDER COTAS791, BOLÕES MARKETPLACE790 e BOLÕES CONCLUÍDOS792.
+
+O PNG original inclui ícone e nome: a marca não ganha texto duplicado. Legenda personalizada fica editável em caixa separada. Variante explícita prevalece; item/composto desabilitado usa disabled, inclusive durante pressão. Prévia usa touched enquanto pressionado e restaura default ao soltar/sair. Projeto existente não é reescrito nem recebe novos itens; variante vazia reconhecida só resolve a aparência. Inserir novo Menu aplicação para obter a árvore corrigida.
+
+### Verificações executadas
+
+- `python -X utf8 scripts/import_legacy_menu.py --check`: PASS, dados estáticos conferidos com o XML. Não há leitura de XML no aplicativo.
+- `menu_xml_test.go`: PASS, comparação independente de cada caminho, ordem, nome com espaços, códigos, opções, nomes de movimento e atalhos; títulos principais aplicados aos submenus. O modelo não armazena título separado de folha.
+- `menu_games_test.go` de presentation: PASS, doze marcas normais disponíveis e quatro especiais ativos, paths literais dos três estados, variantes vazias/explícitas, disabled do composto, override e legenda personalizada.
+- `desktop/TestGameMenuPreview`: PASS, recursos realmente renderizados, pressão/liberação/saída, bloqueio disabled e abertura do submenu normal/especial pelo controle de Mega-Sena. Estado confirmado preservado.
+- `pptx/TestMenuGamePPTImages`: PASS, comparação byte a byte de todos os recursos na fixture, incluindo Milionária disabled e os acréscimos explícitos LotoGol/Federal somente nesse teste; texto autorado editável e ausência de marca sobreposta.
+- Build final `python -X utf8 scripts/build.py --target windows --arch amd64 --check`: exit 0. gofmt, `go vet ./...`, `go test ./...` (13 pacotes com testes), importador de skins (205 chaves/224 recursos, oito indisponíveis) e três testes Python de empacotamento aprovados. Log local: `apps/gerador-jornada/build/games-build.log`.
+- EXE final gerou as duas fixtures `.jornada` e os dois PPTs; capturou canvas com novo XML e abriu uma cópia da fixture anterior para verificar skins sem migrar a árvore.
+
+### Artefatos identificados
+
+| Arquivo | SHA-256 |
+| --- | --- |
+| `dist/windows-amd64/JornadaStudio.exe` | `20f0bbcaf25b81ef572b12ca7a1b9754361a78ea8e0a3c022636c30ba5927a27` |
+| `dist/JornadaStudio-1.0.0.2-windows-amd64.zip` | `519d680adef9053f4945b05b7305d5fc023f539c709fccedd923bf295c321ab1` |
+
+Caminhos relativos a `apps/gerador-jornada`. O EXE tem 33.133.568 bytes. Fixtures atualizadas: `dist/estilos-legado.jornada`, `dist/compostos-legado.jornada` e PPTs homônimos. Evidências locais:
+
+- [Canvas nativo, menu atual](../../apps/gerador-jornada/build/game-menu-native.png).
+- [Prévia realmente renderizada](../../apps/gerador-jornada/build/game-menu-preview.png), [pressionado](../../apps/gerador-jornada/build/game-menu-preview-pressed.png), [desabilitado](../../apps/gerador-jornada/build/game-menu-preview-disabled.png).
+- [Projeto anterior preservado](../../apps/gerador-jornada/build/game-menu-compatibility.png), cuja árvore continua antiga e cujas skins já resolvem.
+- [PPT renderizado no LibreOffice](../../apps/gerador-jornada/build/game-menu-ppt.png), através de PDF temporário de três páginas. Imagens dos jogos conferidas visualmente. **A fonte dos textos editáveis foi substituída pelo visualizador**, pois a face Futura não está incorporada ao PPT; esta captura não comprova paridade tipográfica nem homologação no PowerPoint.
+
+### Teste humano pendente
+
+1. Abrir o EXE identificado e `dist/compostos-legado.jornada`, tela 02. Conferir Milionária ativa, ausência de LotoGol e ordem dos jogos/serviços; comparar com o XML preservado.
+2. Na Prévia, abrir Mega-Sena e os demais ramos normal/especial, pressionar/soltar os botões e conferir os ícones específicos. Desabilitar um jogo no editor, confirmar e verificar imagem disabled e ausência de ação.
+3. Explorar BOLÃO/digital, RELATÓRIOS, PAGA PREMIADOS e MEIOS; conferir nomes, códigos, opções, espaços e voltar/cancelar. Não executar movimentos externos.
+4. Renomear uma legenda sem trocar sua variante: manter marca e texto autorado separado. Salvar/reabrir e testar Undo/Redo; abrir cópia de projeto anterior e conferir que a árvore não foi substituída.
+5. Abrir o PPT no PowerPoint com as fontes necessárias disponíveis e conferir imagens/textos, navegação e DPI 100/150/200%. Registrar ambiente, capturas e aceite explícito. T147 e demais gates manuais continuam abertos.
+
+<a id="25-submenus-java-e-movimentos--1003"></a>
+## 25. Submenus Java e movimentos — 1.0.0.3
+
+**Executor:** agente nesta sessão, Windows amd64, 2026-10-24. Revisão executável para teste manual; não é aceite do usuário nem homologação Office/DPI.
+
+### Fontes e diferença encontrada
+
+O menu.xml tinha sido preservado, mas faltava conferir a pintura de `PnlMenu.java` e a semântica de `UIMenuControle.java`. Ambos foram copiados integralmente, sem transcodificação, para `material-legado/menu`; origem/hashes na seção correspondente de research.md. O Java percorre `getItemMenuXml()` (coleção de itens/filhos), desenha a faixa específica e centraliza as duas opções dos jogos. A fábrica anterior copiava Name para Title ausente, e o renderer usava uma grade genérica no topo. O teste anterior abria o runtime, mas não inspecionava a janela reconstruída.
+
+Corrigidos: ausência literal de tituloPrincipal; faixa verde Mega-Sena (0,150,800,27); botões normal/especial em (220,310,164,52)/(400,310,164,52); jogos root 164×52/pitch77; grade dinâmica Java; composição financeira/digital; legendas com fonte física; rodapé compartilhado com Cancelar/Voltar no submenu e Sair na raiz. O comando financeiro omite Cancelar conforme Java. Mesma geometria de pintura/clique para canvas/prévia/PPT; comandos derivados não acrescentam itens persistidos.
+
+MovementCode/MovementName/MovementOption/Shortcut passam a ser editáveis no formulário e aparecem na seleção simulada. Normal/especial são folhas distintas por UUID e nomeMovimento, mesmo com código 702 compartilhado. Voltar/Cancelar limpam a seleção; componente desabilitado e sessão encerrada bloqueiam ativação. Nenhuma rota ou operação é inferida desses metadados.
+
+**Pendência explícita:** movimento.xml/movimentos.xml não foi recuperado nos materiais, anexos e registros locais acessíveis. UIMenuControle consulta InfoMovimento por nome quando nomeMovimento existe. Referências preservadas não validam esse cadastro; classes/telas/associações ausentes não foram inventadas. T154 continua aberta. Título separado de folha também não foi acrescentado ao modelo atual.
+
+### Verificações executadas
+
+- Regressão `presentation/TestMegaSubmenuLegacyScene` falhou antes da correção com “Mega-Sena sem tituloPrincipal ganhou faixa principal inventada”; passou depois, conferindo faixa, caixas, clique e comandos.
+- `desktop/TestGameSubmenuRedraw`: PASS, clique nos controles reais de `window.Content()`, reconstrução da página, quatro duplas normal/especial, metadados distintos, Voltar/Cancelar/Sair e isolamento do documento. A captura mostra o conteúdo já reconstruído, não só Path.
+- `desktop/TestMenuMovementFields`: PASS, selecionar Mega-Sena Especial no formulário, editar código com zeros/Unicode/opção/atalho, confirmar cópia independente e conservar a folha normal/origem.
+- `pptx/TestMegaSubmenuPPT`: PASS, pacote em memória incorpora bytes originais da faixa, Mega-Sena, Mega da Virada e rodapé; texto dos comandos permanece editável e não aparece título inventado. Não foi gerado PPT de entrega.
+- `scripts/check.ps1`: PASS, gofmt, importadores --check, go vet ./..., go test ./... nos 13 pacotes com testes e três testes Python do empacotador. Testes do empacotador usam dados temporários e não criam um pacote de distribuição.
+- `scripts/build.ps1 -OutputDirectory dist/windows-amd64`: PASS. Único artefato de compilação entregue: `JornadaStudio.exe`. Nenhum ZIP, instalador ou build de outra plataforma foi gerado. Inventários/pacotes anteriores são históricos.
+- Smoke do EXE: uma fixture temporária em build/ recebeu o submenu Mega-Sena como inicial e foi aberta no editor nativo, sem migrar arquivos do usuário. Captura revisada visualmente.
+
+### Identidade e evidências
+
+`apps/gerador-jornada/dist/windows-amd64/JornadaStudio.exe`, software **1.0.0.3**, **33.153.536 bytes**, SHA-256 `6e5d11ead077cc97078a3d9bb3f14f56e54ee7f2a8f9e92cd6587bf3e4959f3d`. A cópia de compatibilidade já existente em `dist/JornadaStudio.exe` também foi atualizada com os mesmos bytes/hash, para evitar abrir a revisão anterior por esse caminho; nenhum novo formato foi produzido.
+
+- [Submenu reconstruído na prévia](../../apps/gerador-jornada/build/submenu-megasena.png).
+- [Canvas do EXE Windows 1.0.0.3](../../apps/gerador-jornada/build/submenu-megasena-native.png).
+- [Raiz com comandos e altura dos jogos corrigidas](../../apps/gerador-jornada/build/submenu-raiz.png).
+- Log local: `apps/gerador-jornada/build/submenus-check-build.log`.
+
+Reprodução dos checks/build, a partir da aplicação:
+
+```powershell
+./scripts/check.ps1
+./scripts/build.ps1 -OutputDirectory dist/windows-amd64
+```
+
+Captura opcional do teste, exclusivamente em build/:
+
+```powershell
+. ./scripts/env.ps1
+$env:JORNADA_SUBMENU_CAPTURE = "$PWD/build"
+go test ./internal/adapter/desktop -run TestGameSubmenuRedraw -count=1
+Remove-Item Env:JORNADA_SUBMENU_CAPTURE
+```
+
+### Teste humano pendente
+
+1. Abrir o EXE identificado, inserir novo Menu aplicação e iniciar Prévia Tela Atual. Clicar Mega-Sena: conferir faixa verde, dois botões centralizados, Mega da Virada como imagem especial e Cancelar/Voltar no rodapé. Repetir Lotofácil, Quina e Dupla-Sena.
+2. Selecionar normal/especial: conferir nomesMovimento distintos apesar do código compartilhado; nenhuma operação externa deve iniciar. Testar Voltar, Cancelar e Sair e verificar que somente a prévia fecha.
+3. Em Propriedades, selecionar uma folha e editar código/nome/opção/atalho. Descartar/confirmar, Undo/Redo e salvar/reabrir devem preservar o estado esperado. Conferir financeiro/digital e múltiplas instâncias em DPI 100/150/200%.
+4. Arquivos existentes mantêm títulos/variantes autorados. Para comparar defaults corrigidos, usar uma nova instância; se um menu antigo contém título automático herdado igual ao nome, limpar explicitamente seu Título no formulário para reproduzir a ausência no XML. Fixtures/pacotes de dist anteriores não foram regenerados.
+5. Conferir o cadastro de movimentos somente após recuperar sua fonte real; T154 não pode ser concluída pela contagem de itens do menu. Office e aceite humano continuam em T147 e nos gates anteriores.
+
+## 26. Launcher e estrutura de projeto — 1.0.0.4
+
+Feature [034](../034-launcher-estrutura-projeto/spec.md) implementada tecnicamente. Base Git `2319beb05 + árvore de trabalho local (sem commit de entrega)`. Writer schema **3**/catalog **4**, leitores 1/1, 2/1, 3/2, 3/3 e 3/4. Não confundir com a versão do produto.
+
+C1 (launcher/recentes/branco/exemplo), C2 (workspace/tree/criar/importar) e C3 (sugestão/cancelamento/vínculo/ida e volta) passaram em testes com arquivos reais temporários e controles Fyne. A captura detectou uma raiz de Tree não renderizada; a correção foi verificada por labels reais e nova captura. Listagem de 100 jornadas com fundo: **54,96 ms** no ambiente atual. `scripts/check.ps1` e `scripts/build.ps1 -OutputDirectory dist/windows-amd64` passaram após a correção final; startup nativo sem `-open` e com `-open` passou.
+
+EXE **33334784 bytes**, SHA-256 `366f6a7276d781bb7193d15fde70dbd12f0a0f8ec7837744495e2655f47a9378`. Entrega apenas `JornadaStudio.exe`; cópia de compatibilidade idêntica. Capturas: [launcher nativo](../../apps/gerador-jornada/build/034-launcher-native.png), [árvore nativa](../../apps/gerador-jornada/build/034-workspace-native.png), [prévia C3 no backend de teste](../../apps/gerador-jornada/build/034-preview-test.png). Logs, testes e restrições detalhados em [034/quickstart — resultado técnico](../034-launcher-estrutura-projeto/quickstart.md#resultado-técnico--2026-10-24--1004).
+
+O README explica as alterações necessárias, a preferência local de recentes, a pasta como workspace, a confirmação que salva a origem, a migração com backup e a preservação do arquivo ao desfazer vínculo. Homologação manual/DPI/Office/aceite continuam separados; 001/T156 permanece aberto. A ausência de `movimento.xml`/`movimentos.xml` continua em T154, sem atribuir sua recuperação a esta entrega.
+
+## 27. Correção da transição launcher → editor — 1.0.0.5
+
+Relato do usuário reproduzido: o `.jornada` era criado, mas o processo fechava ao criar/abrir pelos recentes. Causa demonstrada no driver Fyne/Windows: SetTheme durante New do editor tentava acessar HWND de janela ainda não exibida. A versão 1.0.0.4 testou startup e gravação, mas deixou essa passagem nativa descoberta. Corrigidos tema antes de NewWindow, inicialização do seletor sem callback e contraste inicial do título; não se alterou o formato 3/4.
+
+Regressão unitária, oito fluxos completos no driver nativo e uma reabertura final passaram. Check completo, build somente EXE e startup final aprovados. EXE 1.0.0.5: **33336320 bytes**, SHA-256 `2576917419e883744ff411ee362506935f808f6f9a01eb83242b70b563845568`. Logs, capturas e comandos no [quickstart 034](../034-launcher-estrutura-projeto/quickstart.md#correção-de-encerramento--1005). A documentação anterior registra o estado histórico da 1.0.0.4; aceite manual continua separado.
+
+## 28. Inicialização separada e splash nativa — 1.0.0.9
+
+Modelos e implementação separados: [035 domínio Inicialização](../035-inicializacao/spec.md) / internal/startup; [036 apresentação e adaptadores](../036-splash-screen/spec.md) / desktop, builtinassets e nativevideo. O MP4 v2 original com áudio é incorporado; apresentação fullscreen somente vídeo; autoria movida para o launcher. Recursos e reprodução completam em qualquer ordem, mas ambos são obrigatórios. Wire preservado em 3/4.
+
+Corrigidas as falhas observadas na revisão intermediária: escala física/DPI, razão 16/9 interpretada como dimensão e superfície de vídeo sem protocolo de pintura. A revisão final usa janela nativa própria com WM_PAINT/WM_SIZE e Play após mídia pronta. Quatro inicializações do EXE confirmaram imagem no início e no fim, trilha de áudio ativa e transição posterior. Criar/reabrir/carga lenta de 14 s/cancelamento/falha e -open passaram na integração. Check completo e build somente EXE aprovados. [Evidências, capturas e roteiro](../036-splash-screen/quickstart.md).
+
+EXE **1.0.0.9**, **37851648 bytes**, SHA-256 `af4400c379ad87096a693f30ee97275fa565f6ba0fa1d7196ae4ef388f4aaa03`; cópia de compatibilidade idêntica. Aprovação humana continua em T159/036-T009. Capturas de vídeo nativo exigem a janela real; um Canvas.Capture GL ou evento PLAY não comprova imagem no player.
+
+## 29. Primeira apresentação e fullscreen — 1.0.0.10
+
+Integração 035/T005, 036/T011–T013 e 034/T024: vídeo em fullscreen na maior área proporcional (sem limite de pixels originais), preferência por usuário “Mostrar splash screen ao iniciar”, padrão desmarcado após primeira apresentação completa, marcar/desmarcar persistidos fora do projeto. Carga de recursos continua obrigatória sem vídeo. [Modelo, revisão, roteiro e evidências atuais](../036-splash-screen/quickstart.md#revisão-atual--10010).
+
+Checks completos e build passaram. Quatro reproduções reais com captura inicial/final e duas aberturas sem vídeo passaram; -open sem splash abriu o editor preservando o projeto. Testes Go cobrem política pura, checkbox real, persistência e falhas. EXE Windows amd64: 37860864 bytes, SHA-256 `c71eb5d0a0c342e2576e0d748214ded693a7831bd51bfc819c7f979a3bedb7ad`, cópia de compatibilidade idêntica. Nenhum pacote ou outro formato gerado. Aprovação humana permanece em T159/036-T009/034-T025, sem encerrar pendências antigas.
+
+## 30. Vídeo em janela normal — 1.0.0.11
+
+Por solicitação posterior do usuário, remover fullscreen da splash e reproduzir em janela normal centralizada, 960×540 unidades Fyne inicialmente. Não alterar áudio, política de primeira exibição/repetição ou domínio 035. Detalhes e limites em [036/quickstart](../036-splash-screen/quickstart.md#revisão-vigente--10011-em-janela).
+
+Checks completos/build aprovados; duas reproduções do ciclo nativo com capturas inicial/final em janela normal e dois caminhos sem vídeo aprovados. Duas tentativas extras foram canceladas por fechamento e não contam como repetições aprovadas. Imagem no computador do usuário permanece pendente. EXE Windows amd64 37860864 bytes, SHA-256 `74aa094afa2e98a6e8d5f213ac735307b4ada6c8591b0c4c78bbeb2bff506c85`, cópia de compatibilidade idêntica; nenhum pacote ou outro formato gerado. Manter T159/036-T009 abertos.

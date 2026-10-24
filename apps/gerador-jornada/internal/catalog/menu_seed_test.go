@@ -6,59 +6,44 @@ import (
 	"gerador-jornada.local/editor/internal/project"
 )
 
-// TestMenuSeedStructure confere a fábrica documentada de serviços, jogos e relatórios.
+// TestMenuSeedStructure verifica a árvore real, sem completar contagens com títulos sintéticos.
 func TestMenuSeedStructure(t *testing.T) {
-	// menu contém a árvore inicial de uma nova instância.
+	// menu recebe UUIDs novos para todos os nós importados.
 	menu := NewApplicationMenuProperties(project.NewID)
 	if err := menu.Validate(); err != nil {
-		t.Fatalf("seed inválido: %v", err)
+		t.Fatal(err)
 	}
-	if menu.InitialMenuID != menu.Root.ID || menu.Root.Layout != MenuLayoutRoot {
-		t.Fatalf("raiz/inicial incorretos: %+v", menu.Root)
+	if len(menu.Root.Items) != 22 || menu.Root.Items[9].Label != "MILIONÁRIA" || menu.Root.Items[9].Variant != "botao_milionaria" {
+		t.Fatal("raiz XML divergente")
 	}
-	// services e games contam as duas colunas da raiz.
-	services, games := 0, 0
-	for _, item := range menu.Root.Items {
-		if item.Category == "JOGOS" {
-			games++
-		} else {
-			services++
+	// bolao mantém os dez ramos ativos; digital é seu último filho.
+	bolao := menu.Root.Items[17].Submenu
+	if bolao == nil || len(bolao.Items) != 10 {
+		t.Fatal("BOLÃO divergente")
+	}
+	// digital conserva nomes e códigos XML, além do layout visual de três posições.
+	digital := bolao.Items[9]
+	if digital.Label != "BOLÕES DIGITAIS" || digital.MovementCode != "803" || digital.Submenu == nil || digital.Submenu.Layout != MenuLayoutBolao {
+		t.Fatal("BOLÕES DIGITAIS divergente")
+	}
+	// reports e counters verificam os 27 títulos descendentes e as 148 folhas reais.
+	reports := menu.Root.Items[18].Submenu
+	titles, leaves := 0, 0
+	var count func(*SubmenuProperties)
+	count = func(node *SubmenuProperties) {
+		// item representa um título real ou uma folha da árvore original.
+		for _, item := range node.Items {
+			if item.Submenu != nil {
+				titles++
+				count(item.Submenu)
+			} else {
+				leaves++
+			}
 		}
 	}
-	if services != 12 || games != 10 {
-		t.Fatalf("raiz deve ter 12 serviços e 10 jogos: %d/%d", services, games)
-	}
-	// bolao contém BOLÕES DIGITAIS como último filho, em layout bolao.
-	bolao := menu.FindSubmenu(menu.Root.Items[7].Submenu.ID)
-	if bolao == nil || len(bolao.Items) != 2 {
-		t.Fatalf("submenu BOLÃO inesperado: %+v", bolao)
-	}
-	digital := bolao.Items[len(bolao.Items)-1].Submenu
-	if digital == nil || digital.Layout != MenuLayoutBolao || len(digital.Items) != 3 {
-		t.Fatalf("BOLÕES DIGITAIS inválido: %+v", digital)
-	}
-	// legends preserva os textos exatos do contrato.
-	legends := []string{
-		"Visualizar cotas digitais para venda na lotérica.",
-		"Consulta bolões de concursos abertos para comercialização.",
-		"Consulta bolões de concursos encerrados e não prescritos.",
-	}
-	for index, legend := range legends {
-		if digital.Items[index].Legend != legend {
-			t.Fatalf("legenda %d divergente: %q", index+1, digital.Items[index].Legend)
-		}
-	}
-	// reports contém 27 títulos e 148 folhas no total.
-	reports := menu.Root.Items[8].Submenu
-	if reports == nil || len(reports.Items) != 27 {
-		t.Fatalf("RELATÓRIOS deve ter 27 títulos: %+v", reports)
-	}
-	leaves := 0
-	for _, title := range reports.Items {
-		leaves += len(title.Submenu.Items)
-	}
-	if leaves != 148 {
-		t.Fatalf("RELATÓRIOS deve ter 148 folhas: %d", leaves)
+	count(reports)
+	if titles != 27 || leaves != 148 {
+		t.Fatalf("relatórios: %d títulos / %d folhas", titles, leaves)
 	}
 }
 

@@ -78,7 +78,7 @@ func EncodeManifest(document application.Document) ([]byte, error) {
 	// root reúne os metadados e coleções independentes somente na fronteira JSON.
 	root := wire(reflect.ValueOf(document.Project)).(map[string]any)
 	root["schemaVersion"] = 3
-	root["catalogVersion"] = 3
+	root["catalogVersion"] = 4
 	root["screens"] = wire(reflect.ValueOf(document.Screens))
 	root["journey"] = wire(reflect.ValueOf(document.Journey))
 	root["scenarios"] = wire(reflect.ValueOf(document.Scenarios))
@@ -99,7 +99,7 @@ func DecodeManifest(data []byte) (application.Document, error) {
 	_ = json.Unmarshal(root["schemaVersion"], &schema)
 	_ = json.Unmarshal(root["catalogVersion"], &catalog)
 	// supported reconhece somente os pares históricos preservados e o alvo 3/3.
-	supported := (schema == 1 && catalog == 1) || (schema == 2 && catalog == 1) || (schema == 3 && (catalog == 2 || catalog == 3))
+	supported := (schema == 1 && catalog == 1) || (schema == 2 && catalog == 1) || (schema == 3 && (catalog == 2 || catalog == 3 || catalog == 4))
 	if !supported {
 		return application.Document{}, fmt.Errorf("PROJECT_VERSION_UNSUPPORTED")
 	}
@@ -130,7 +130,7 @@ func DecodeManifest(data []byte) (application.Document, error) {
 	}
 	// screens é normalizado antes da decodificação tipada estrita.
 	// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
-	screens, err := normalizeScreens(envelope["screens"])
+	screens, err := normalizeScreensVersion(envelope["screens"], catalog)
 	if err != nil {
 		return application.Document{}, err
 	}
@@ -177,6 +177,11 @@ func DecodeManifest(data []byte) (application.Document, error) {
 
 // normalizeScreens expande o discriminador serializado para sua variante concreta em Go.
 func normalizeScreens(data []byte) ([]byte, error) {
+	return normalizeScreensVersion(data, 4)
+}
+
+// normalizeScreensVersion migra somente a ausência de destino entre jornadas nos catálogos anteriores.
+func normalizeScreensVersion(data []byte, catalogVersion int) ([]byte, error) {
 	// pages preserva as composições ordenadas e seus campos para validação estrita posterior.
 	pages := []map[string]json.RawMessage{}
 	// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
@@ -217,6 +222,14 @@ func normalizeScreens(data []byte) ([]byte, error) {
 			// presence recusa campos obrigatórios ausentes que o decoder tipado confundiria com zero.
 			if err := validateCompoundPresence(kind, component["properties"]); err != nil {
 				return nil, err
+			}
+			if kind == "applicationMenu" {
+				// properties migra os itens antigos de maneira explícita, antes do decoder estrito.
+				properties, err := migrateMenuTargets(component["properties"], catalogVersion)
+				if err != nil {
+					return nil, err
+				}
+				component["properties"] = properties
 			}
 			// wrapped restaura a união esperada pelo decodificador tipado.
 			// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.

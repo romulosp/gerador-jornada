@@ -22,7 +22,7 @@ import (
 )
 
 // Save codifica o projeto completo e substitui seu destino atomicamente.
-// Documentos antigos recebem uma cópia de segurança integral antes da primeira escrita 3/3.
+// Documentos antigos recebem uma cópia de segurança integral antes da primeira escrita 3/4.
 func Save(ctx context.Context, destination string, document application.Document) error {
 	// content contém os bytes ou a composição intermediária verificada para a operação atual.
 	// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
@@ -53,7 +53,25 @@ func backupLegacy(ctx context.Context, destination string, catalogVersion int) e
 		}
 		return err
 	}
-	return atomicfile.Write(ctx, destination+".bak", original)
+	// backup conserva também backups de migrações anteriores, sem sobrescrever o original guardado.
+	backup := destination + ".bak"
+	if saved, err := os.ReadFile(backup); err == nil {
+		if bytes.Equal(saved, original) {
+			return nil
+		}
+		backup = fmt.Sprintf("%s.catalog-%d.bak", destination, catalogVersion)
+		if saved, err := os.ReadFile(backup); err == nil {
+			if bytes.Equal(saved, original) {
+				return nil
+			}
+			return fmt.Errorf("Backup de migração já existe e difere do original: %s", backup)
+		} else if !os.IsNotExist(err) {
+			return err
+		}
+	} else if !os.IsNotExist(err) {
+		return err
+	}
+	return atomicfile.Write(ctx, backup, original)
 }
 
 // Load lê um pacote com tamanho limitado sem substituir a sessão quando ocorre erro.

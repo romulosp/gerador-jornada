@@ -19,8 +19,8 @@ func (e *Editor) toolsPanel() fyne.CanvasObject {
 	// structure seleciona controles que estejam cobertos por outras camadas.
 	structure := container.NewBorder(widget.NewLabel("Selecione um componente\npelo seu nome na tela."), nil, nil, nil, container.NewVScroll(e.Structure))
 	// tabs preserva o espaço da paleta e não mistura suas alturas com a lista de telas.
-	tabs := container.NewAppTabs(container.NewTabItem("Telas", pages), container.NewTabItem("Paleta", components), container.NewTabItem("Estrutura", structure))
-	tabs.SelectIndex(1)
+	tabs := container.NewAppTabs(container.NewTabItem("Estrutura projeto", e.workspacePanel()), container.NewTabItem("Telas", pages), container.NewTabItem("Paleta", components), container.NewTabItem("Estrutura", structure))
+	tabs.SelectIndex(0)
 	return tabs
 }
 

@@ -23,11 +23,16 @@ func ValidateStyle(component screen.Component) error {
 		// checkNode verifica também submenus ainda não visitados pela prévia.
 		var checkNode func(catalog.SubmenuProperties) error
 		checkNode = func(node catalog.SubmenuProperties) error {
+			if name := menuBannerName(&node); name != "" {
+				if _, ok := skin.MustBuiltin().StateByType("label", name, "default"); !ok {
+					return fmt.Errorf("faixa do submenu %s indisponível: %s", node.Name, name)
+				}
+			}
 			// item identifica a definição exata de cada parte da árvore.
 			for _, item := range node.Items {
-				if item.Variant != "" {
-					if _, ok := skin.MustBuiltin().Lookup(catalog.Button, item.Variant); !ok {
-						return fmt.Errorf("skin do item %s indisponível: %s", item.Label, item.Variant)
+				if name := menuItemSkin(item, component); name != "" {
+					if _, ok := skin.MustBuiltin().Lookup(catalog.Button, name); !ok {
+						return fmt.Errorf("skin do item %s indisponível: %s", item.Label, name)
 					}
 				}
 				if item.Submenu != nil {

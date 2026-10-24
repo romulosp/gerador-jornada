@@ -5,6 +5,12 @@
 **Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Decomposição por domínio da [feature coordenadora](../001-gerador-jornada/spec.md).
 
+## Incremento implementado — 2026-10-24 / 1.0.0.4
+
+A prévia completa resolve `MenuItem.TargetJourney` explícito na mesma pasta, valida o destino antes de substituir o estado e entra em `Journey.StartScreenID`. Uma pilha transitória de até 32 visitas permite voltar à tela/submenu de origem; Prévia Tela Atual não navega entre arquivos. Folha sem destino oferece criação confirmada, sem inferência por metadados. Cancelamento, rollback, persistência e desfazer/refazer do vínculo foram verificados. Ausência/corrupção têm diagnósticos distintos; o campo exige catálogo 4, schema 3.
+
+Backlog e evidência específicos em [034/tasks](../034-launcher-estrutura-projeto/tasks.md) e [034/quickstart](../034-launcher-estrutura-projeto/quickstart.md), sem duplicar tarefas deste domínio. Homologação humana continua pendente. O estado 1.0.0.1 abaixo é histórico.
+
 <a id="estado-verificado-1-0-0-1"></a>
 ## Estado verificado — 2026-10-24 / 1.0.0.1
 

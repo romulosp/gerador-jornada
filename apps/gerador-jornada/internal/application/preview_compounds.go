@@ -339,9 +339,12 @@ func (p *Preview) MenuNode(componentID string) *catalog.SubmenuProperties {
 // MenuActivate executa um item habilitado do nó visível, sem inferir rotas por texto.
 func (p *Preview) MenuActivate(componentID, itemID string) (MenuOutcome, error) {
 	// runtime identifica a árvore consultada na visita.
-	runtime, _, err := p.menuComponent(componentID)
+	runtime, component, err := p.menuComponent(componentID)
 	if err != nil {
 		return MenuNoop, err
+	}
+	if !component.Enabled || runtime.Exited {
+		return MenuBlocked, nil
 	}
 	node := p.MenuNode(componentID)
 	if node == nil {
@@ -360,6 +363,12 @@ func (p *Preview) MenuActivate(componentID, itemID string) (MenuOutcome, error) 
 			runtime.SimulatedItemID = ""
 			return MenuOpened, nil
 		}
+		if item.TargetJourney != "" && p.AllowScreenNavigation {
+			if err := p.EnterJourney(item.TargetJourney); err != nil {
+				return MenuBlocked, err
+			}
+			return MenuNavigated, nil
+		}
 		if item.TargetScreenID != "" && p.AllowScreenNavigation {
 			if p.Document.Screen(item.TargetScreenID) == nil {
 				return MenuBlocked, fmt.Errorf("destino de menu inexistente")
@@ -375,6 +384,27 @@ func (p *Preview) MenuActivate(componentID, itemID string) (MenuOutcome, error) 
 	return MenuNoop, nil
 }
 
+// MenuSelectedItem devolve a folha simulada do nó atual com seus metadados literais.
+// Nome de movimento, código e opção são independentes; nenhum deles resolve ou executa movimento XML.
+func (p *Preview) MenuSelectedItem(componentID string) (catalog.MenuItem, bool) {
+	// runtime e node identificam a seleção local, sem procurar itens por código ou legenda.
+	runtime, ok := p.Menus[componentID]
+	if !ok || runtime.SimulatedItemID == "" {
+		return catalog.MenuItem{}, false
+	}
+	// node conserva o contexto mesmo quando outras folhas compartilham o código de movimento.
+	node := p.MenuNode(componentID)
+	if node != nil {
+		// item compara somente identidade confirmada dentro do nó visível.
+		for _, item := range node.Items {
+			if item.ID == runtime.SimulatedItemID && item.Submenu == nil {
+				return item, true
+			}
+		}
+	}
+	return catalog.MenuItem{}, false
+}
+
 // MenuBack remove um nível do caminho local; na raiz não muda nada.
 func (p *Preview) MenuBack(componentID string) error {
 	// runtime contém o caminho local da instância.
@@ -385,6 +415,7 @@ func (p *Preview) MenuBack(componentID string) error {
 	if len(runtime.Path) > 1 {
 		runtime.Path = runtime.Path[:len(runtime.Path)-1]
 	}
+	runtime.SimulatedItemID = ""
 	return nil
 }
 
@@ -398,6 +429,7 @@ func (p *Preview) MenuCancel(componentID string) error {
 	if len(runtime.Path) > 1 {
 		runtime.Path = runtime.Path[:1]
 	}
+	runtime.SimulatedItemID = ""
 	return nil
 }
 

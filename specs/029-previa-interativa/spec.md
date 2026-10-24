@@ -138,3 +138,11 @@ Como autor, quero trocar de seleção ou modo e voltar ao painel sem perda ou al
 - **FR-016**: Operar [033](../033-menu-aplicacao-efl/spec.md) como uma interface com vista raiz/submenu selecionado e caminho local, inicialmente no menu autorado. Abrir submenus habilitados, Voltar um nível e Cancelar para raiz; Sair fecha somente prévia, não editor ou autenticação. Estado isolado por instância/visita, sem gravar no projeto. Folha sem destino informa seleção simulada; somente destino de tela explicitamente autorado e validado por Jornada permite transição na prévia completa. Não inferir rota ou dispatch de texto/categoria/atalho/Movement*.
 
 **Aceitação**: raiz→submenu→aninhado→Voltar conserva contexto; Cancelar retorna raiz mesmo com inicial diferente; fechar/reabrir/revisitar restaura inicial. Enabled efetivo bloqueia ativação. Prévia Tela Atual explora menus mas não segue rotas nem exige destinos externos no snapshot individual. Canvas/PPT usam estado inicial confirmado, não percurso da prévia. Layout financeiro140x80 e Bolão três botões+legendas seguem [033/DESIGN](../033-menu-aplicacao-efl/DESIGN.md), sem fidelidade visual alegada de anexos vazios. Sessão/cena em [001/T140/T142](../001-gerador-jornada/tasks.md#tarefas-menu-aplicacao-2026-10-23); nenhuma operação bancária, timer, conta, periférico, rede, QR ou Java/EFL. Implementação autorizada não encerra aceite manual pendente.
+
+## Estados dos jogos do menu — 1.0.0.2
+
+Controles de menu usam a cena compartilhada por item, com PNG touched ao pressionar, default ao soltar/sair e disabled para bloqueio. Mouse não pode acionar item bloqueado; foco/pressão não alteram a árvore. Normal/especial seguem os ramos reais do XML; nomes/códigos não inferem destinos. Regra canônica em 033/FR-011–FR-012.
+
+## Submenu reconstruído e comandos — 1.0.0.3
+
+Após abrir jogo, a janela deve reconstruir as opções normal/especial com faixa e geometria originais. Voltar/Cancelar no rodapé usam a cena compartilhada e limpam a seleção anterior; Sair encerra somente a prévia. Seleção simulada mostra a folha e seus metadados, diferenciando nomes com mesmo código. Componente desabilitado/sessão encerrada bloqueiam ativação. Verificação deve acionar controles do conteúdo atual da janela, não apenas conferir Path. Cadastro movimento.xml ausente e homologação permanecem pendentes.

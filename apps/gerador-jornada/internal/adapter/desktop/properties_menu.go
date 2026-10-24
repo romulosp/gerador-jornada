@@ -177,6 +177,13 @@ func (e *Editor) menuFields(form *widget.Form, component screen.Component) func(
 	legendEntry.SetMinRowsVisible(2)
 	categoryEntry := entry("")
 	variantEntry := entry("")
+	// journeyEntry guarda somente o nome relativo do arquivo destino explicitamente autorado.
+	journeyEntry := entry("")
+	// movementCodeEntry, movementNameEntry, movementOptionEntry e shortcutEntry preservam metadados literais.
+	movementCodeEntry := entry("")
+	movementNameEntry := entry("")
+	movementOptionEntry := entry("")
+	shortcutEntry := entry("")
 	enabledCheck := widget.NewCheck("", nil)
 	// targetSelect vincula uma folha a uma tela existente ou à ausência de destino.
 	targetSelect := newSelect(nil, nil)
@@ -249,6 +256,11 @@ func (e *Editor) menuFields(form *widget.Form, component screen.Component) func(
 		item.Legend = legendEntry.Text
 		item.Category = categoryEntry.Text
 		item.Variant = variantEntry.Text
+		item.TargetJourney = journeyEntry.Text
+		item.MovementCode = movementCodeEntry.Text
+		item.MovementName = movementNameEntry.Text
+		item.MovementOption = movementOptionEntry.Text
+		item.Shortcut = shortcutEntry.Text
 		item.Enabled = enabledCheck.Checked
 		if item.Submenu != nil {
 			item.TargetScreenID = ""
@@ -328,6 +340,11 @@ func (e *Editor) menuFields(form *widget.Form, component screen.Component) func(
 			legendEntry.Disable()
 			categoryEntry.Disable()
 			variantEntry.Disable()
+			journeyEntry.Disable()
+			movementCodeEntry.Disable()
+			movementNameEntry.Disable()
+			movementOptionEntry.Disable()
+			shortcutEntry.Disable()
 			enabledCheck.Disable()
 			targetSelect.Disable()
 			submenuLabel.SetText("Selecione um item para editar legenda, destino e submenu.")
@@ -353,10 +370,21 @@ func (e *Editor) menuFields(form *widget.Form, component screen.Component) func(
 		categoryEntry.SetText(item.Category)
 		variantEntry.Enable()
 		variantEntry.SetText(item.Variant)
+		journeyEntry.SetText(item.TargetJourney)
+		journeyEntry.Enable()
+		movementCodeEntry.Enable()
+		movementCodeEntry.SetText(item.MovementCode)
+		movementNameEntry.Enable()
+		movementNameEntry.SetText(item.MovementName)
+		movementOptionEntry.Enable()
+		movementOptionEntry.SetText(item.MovementOption)
+		shortcutEntry.Enable()
+		shortcutEntry.SetText(item.Shortcut)
 		enabledCheck.Enable()
 		enabledCheck.SetChecked(item.Enabled)
 		targetSelect.ClearSelected()
 		if item.Submenu != nil {
+			journeyEntry.Disable()
 			submenuLabel.SetText("Submenu: " + menuVisibleText(item.Submenu.Name, "(sem nome)"))
 			targetSelect.Disable()
 		} else {
@@ -509,8 +537,14 @@ func (e *Editor) menuFields(form *widget.Form, component screen.Component) func(
 	form.Append("Legenda explicativa", legendEntry)
 	form.Append("Categoria", categoryEntry)
 	form.Append("Variante", variantEntry)
+	form.Append("Código do movimento", movementCodeEntry)
+	form.Append("Nome do movimento", movementNameEntry)
+	form.Append("Opção do movimento", movementOptionEntry)
+	form.Append("Atalho legado", shortcutEntry)
+	form.Append("", widget.NewLabel("Metadados descritivos; não executam movimentos nem validam movimento.xml."))
 	form.Append("Habilitado", enabledCheck)
 	form.Append("Destino", targetSelect)
+	form.Append("Jornada destino (.jornada)", journeyEntry)
 	form.Append("Submenu", submenuLabel)
 	form.Append("Menu inicial", initialSelect)
 	form.Append("Ações", container.NewGridWithColumns(2,

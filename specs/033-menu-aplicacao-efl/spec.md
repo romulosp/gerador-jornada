@@ -2,19 +2,31 @@
 
 **Feature Branch**: `033-menu-aplicacao-efl` (identificador documental; nenhuma branch criada)
 **Created**: 2026-10-23
-**Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
+**Status**: Implementação parcial na revisão 1.0.0.3; requisitos remanescentes e homologação/aceite pendentes
 **Input**: Adicionar Menu aplicação em Itens legados, junto aos componentes 031/032; editar árvore de serviços e jogos e simular sua navegação local. Usuário autorizou implementar os três componentes e fará o teste manual depois.
 **Domínio responsável**: [003-catalogo](../003-catalogo/spec.md#menu-aplicacao-2026-10-23); instâncias em [004-tela](../004-tela/spec.md#menu-aplicacao-2026-10-23); integração em [001-gerador-jornada](../001-gerador-jornada/spec.md#menu-aplicacao-2026-10-23).
-**Referência**: Java/XML fornecidos pelo usuário na conversa; não se presume que sejam arquivos locais. Os anexos de imagem estão realmente vazios. [DESIGN.md](DESIGN.md) distingue geometria derivada do código de fidelidade visual ainda não verificada.
+**Referência**: fonte integral recuperada e preservada em `material-legado/menu/menu.xml`, skins em `material-legado/elemetos_componente/xml/skin.xml` e classes Java relevantes. Os anexos de imagem estão realmente vazios. [DESIGN.md](DESIGN.md) distingue geometria derivada do código de fidelidade visual ainda não verificada.
+
+<a id="estado-verificado-1-0-0-3"></a>
+## Estado vigente — 1.0.0.3
+
+Conferência adicional com `material-legado/menu/PnlMenu.java` e `UIMenuControle.java`: preservar ausência de tituloPrincipal; aplicar faixa horizontal do jogo em y150/27px; centralizar os dois botões de Mega-Sena em x220/400, y310, 164×52; compartilhar pintura e clique. Rodapé local com Cancelar/Voltar no submenu e Sair na raiz, com as skins do XML e sem widgets opacos externos. Grade padrão usa a fórmula Java; layouts financeiro/digital e exceções visuais seguem a referência preservada. Casos especiais por nome servem somente à apresentação, nunca à resolução de movimentos ou rotas.
+
+Propriedades passam a editar código, nome, opção e atalho já existentes no formato. A seleção simulada identifica a folha e seus metadados, sem fundir normal/especial que compartilham código. Voltar/Cancelar limpam a seleção; componente desabilitado ou sessão encerrada não ativa itens. Novas instâncias não inventam título; projetos existentes não são migrados.
+
+**Limite aberto:** movimento.xml/movimentos.xml e a implementação de controle/InfoMovimento não estão acessíveis. O cadastro não foi validado e não se afirma configuração completa. Java disponível demonstra lookup por nomeMovimento quando presente; nomes/códigos permanecem referências inertes no app. Títulos de folhas ainda não possuem campo próprio no modelo. Validações e revisão executável na [seção 25](../001-gerador-jornada/quickstart.md#25-submenus-java-e-movimentos--1003); Office/DPI/aceite continuam pendentes.
 
 <a id="estado-verificado-1-0-0-1"></a>
-## Estado verificado — 2026-10-24 / 1.0.0.1
+<a id="estado-verificado-1-0-0-2"></a>
+## Estado verificado — 2026-10-24 / 1.0.0.2
 
-**Implementação existente:** Menu 800 × 600 implementa árvore/inicial, raiz 12 serviços + 10 jogos, vistas de submenu, estilos de botão/faixa, comandos locais e destinos autorados. Contagem de RELATÓRIOS é 27 títulos/148 folhas na fixture atual.
+A fonte completa foi recuperada de `D:/desenvolvimento/ia/estudo/sistema-prototipo-android/componentes/src/java/menu/menu.xml` e preservada sem transcodificação em [material-legado/menu/menu.xml](../../material-legado/menu/menu.xml). O importador de desenvolvimento gera `menu_legacy_generated.go`; a fábrica instancia novos UUIDs e conserva a ordem, os nomes, espaços e metadados ativos. Isso substitui os relatórios sintéticos e a transcrição parcial descritos na 1.0.0.1.
 
-**Pendências e limites:** O XML integral de menus não está no workspace. menu_reports.go completa a contagem com títulos e tokens sintéticos: isso não cumpre a fidelidade literal exigida pela referência. Integridade global dos destinos, foco/recorte completo e homologação visual permanecem pendentes.
+A raiz permanece **12 serviços + 10 jogos**, mas a lista correta é: MEGA-SENA, LOTOFÁCIL, QUINA, LOTOMANIA, LOTECA, DUPLA-SENA, TIMEMANIA, DIA DE SORTE, SUPER SETE, MILIONÁRIA. LotoGol está comentado; Federal não é jogo root. Quatro jogos possuem ramos normal/especial. BOLÃO tem dez filhos, com BOLÕES DIGITAIS (`803`) por último: VENDER COTAS (`791`), BOLÕES MARKETPLACE (`790`) e BOLÕES CONCLUÍDOS (`792`). RELATÓRIOS tem 27 títulos descendentes e 148 folhas reais.
 
-**Fontes verificadas:** [menu_reports.go](../../apps/gerador-jornada/internal/catalog/menu_reports.go), [menus.go](../../apps/gerador-jornada/internal/presentation/menus.go), [preview_compounds_view.go](../../apps/gerador-jornada/internal/adapter/desktop/preview_compounds_view.go). Os checks e as capturas desta revisão estão na [seção 22 do quickstart](../001-gerador-jornada/quickstart.md#22-reimplementação-visual-do-legado--2026-10-24). Critérios de aceitação abaixo são requisitos a verificar, não resultados automaticamente aprovados. As seções de expansão preservam o escopo planejado; não descrevem capacidades disponíveis apenas por constarem nesta spec.
+Cada item de jogo recebe sua chave de skin, com imagens default/touched/disabled do XML. A mesma cena serve canvas, prévia e PPT; pressão é transitória. A marca já contida no PNG não ganha texto sobreposto; legenda personalizada continua editável em caixa separada. Escolhas explícitas prevalecem, e skins indisponíveis geram diagnóstico. Arquivos existentes conservam sua árvore: a correção do seed vale para nova instância.
+
+**Limites:** `tituloPrincipal` de ramos alimenta o título do submenu; o modelo atual não possui título separado para folhas. Legendas ilustrativas do layout digital são complemento da referência visual existente, não atributos do XML. Integridade global completa, recorte/foco/DPI, Office e aceite humano continuam pendentes. Evidências, hashes e roteiro na [seção 24 do quickstart](../001-gerador-jornada/quickstart.md#24-menu-xml-e-skins-dos-jogos--1002).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -81,6 +93,8 @@ Como autor, quero escolher qual menu aparece inicialmente no canvas, na prévia 
 - **FR-007**: Preservar árvore e escolha inicial no projeto; manter caminho, seleção simulada, foco e estado de saída somente durante a sessão, isolados por instância/visita.
 - **FR-008**: Permitir menus vazios em autoria; exigir identidades únicas, até 16 níveis e 1000 itens por árvore, e recusar submenu misturado com destino ou referência inicial/destino inválida sem perda parcial.
 - **FR-009**: Renderizar canvas, prévia, quadro e PPT pelo mesmo conteúdo confirmado; a saída estática usa o menu inicial escolhido e mantém textos/formas editáveis, sem ler widgets ou capturar tela.
+- **FR-011**: Derivar novas instâncias da árvore ativa do XML preservado, respeitando comentários, ordem, espaços e metadados; conferir cada nó com teste independente contra a fonte. Não reconstruir árvore a partir da lista de assets nem migrar documentos existentes silenciosamente.
+- **FR-012**: Vincular jogos normais/especiais à chave original e aos estados default/touched/disabled definidos em skin.xml. Preservar a marca do PNG sem texto duplicado, legenda autorada editável, precedência de variantes e bloqueio de skin indisponível nos três consumidores.
 - **FR-010**: Não executar Java/EFL, timers de negócio, periféricos, contas, autenticação, rede, QR ou despacho de movimentos. Metadados legados são descrição, nunca comandos executáveis; digitação de roteiro não é suportada neste composto.
 
 ### Key Entities *(include if feature involves data)*
@@ -101,7 +115,9 @@ Como autor, quero escolher qual menu aparece inicialmente no canvas, na prévia 
 
 ## Assumptions
 
-### Correção após teste parcial — 2026-10-23
+### Histórico: correção após teste parcial — 2026-10-23
+
+A transcrição abaixo foi superada pela fonte recuperada e pelo estado 1.0.0.2 acima; nomes abreviados e lista antiga não são mais a fábrica vigente.
 
 - Usuário aprovou quase, mas faltava **PAGA PREMIADOS**; pediu RELATÓRIOS abaixo de APOIO, MEIOS abaixo de RELATÓRIOS e OFERTAR abaixo de PAGA. Não é aceite integral.
 - XML recebido na conversa confirma **12 serviços + 10 jogos root**. Ordem: boleto/convênios/benefícios/financeiros/atendimento/resultados/apoio/bolão/relatórios/paga premiados/meios de pagamento/ofertar. **BOLÕES DIGITAIS (`803`) é último filho de BOLÃO**, não serviço root.

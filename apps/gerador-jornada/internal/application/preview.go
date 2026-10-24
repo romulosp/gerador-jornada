@@ -72,6 +72,14 @@ type Preview struct {
 	Menus map[string]*MenuRuntime
 	// AllowScreenNavigation autoriza folhas de menu a abrirem telas existentes do documento.
 	AllowScreenNavigation bool
+	// LoadJourney é a fronteira de leitura fornecida pelo adaptador; recebe somente nome relativo.
+	LoadJourney func(string) (Document, error)
+	// CurrentJourney identifica o arquivo atual dentro do workspace, sem caminho absoluto no documento.
+	CurrentJourney string
+	// JourneyHistory conserva snapshots transitórios das jornadas visitadas.
+	JourneyHistory []*Preview
+	// OnMissingJourney solicita uma decisão ao autor, sem criar arquivos pelo domínio.
+	OnMissingJourney func(componentID, itemID string)
 }
 
 // NewPreview valida a jornada antes de abrir uma sessão isolada.

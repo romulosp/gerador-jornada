@@ -129,6 +129,17 @@ type Resource struct {
 	Family string `json:"Family"`
 }
 
+// ResourcePaths enumera os recursos operacionais para o carregamento antecipado, em ordem estável.
+func (l *Library) ResourcePaths() []string {
+	// paths é uma cópia independente; nenhum consumidor altera o índice de integridade.
+	paths := make([]string, 0, len(l.resources))
+	for path := range l.resources {
+		paths = append(paths, path)
+	}
+	sort.Strings(paths)
+	return paths
+}
+
 // load lê somente dados gerados; nenhum XML Java é interpretado em execução.
 func load() (*Library, error) {
 	// sub isola os caminhos lógicos dos recursos incorporados.

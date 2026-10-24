@@ -445,3 +445,27 @@ A seção anterior descreve a intenção. Este gate define o que **reprova** a e
 | Diagnóstico | PPT recusa skin/fonte não resolvida e projeto antigo é preservado | fallback silencioso, remoção de escolha ou publicação parcial |
 
 O gate é critério de conclusão técnica; DPI 100/150/200%, PowerPoint real e aceite humano continuam em T148–T150/quickstart §22.
+
+## Correção do menu e skins de jogos — 1.0.0.2
+
+A árvore passa a derivar da fonte integral recuperada, preservada em `material-legado/menu/menu.xml`, substituindo o preenchimento sintético anterior. O inventário de PNGs não determina itens do menu. [033/FR-011–FR-012](../033-menu-aplicacao-efl/spec.md#estado-verificado-1-0-0-2) define fidelidade de conteúdo e estados originais; evidência na seção 24 do quickstart. Documentos salvos não são migrados automaticamente.
+
+## Correção dos submenus e limites de movimentos — 1.0.0.3
+
+Conferência com PnlMenu/UIMenuControle preservados corrige faixas, geometria, rodapé e navegação normal/especial. Propriedades editam os metadados existentes; testes exercitam a janela reconstruída. O cadastro movimento.xml/movimentos.xml não foi recuperado, portanto sua configuração e referências externas não são consideradas completas. Entrega somente EXE Windows, conforme regra vigente do README; detalhes na spec 033 e quickstart seção 25.
+
+## Launcher e estrutura de projeto — incremento 034 / 1.0.0.4
+
+Implementados launcher sem documento implícito, recentes locais, criação em branco/com exemplo, árvore de workspace com criar/importar e destino explícito entre jornadas em `MenuItem.TargetJourney`. Writer **3/4**, leitores **1/1, 2/1, 3/2, 3/3 e 3/4**. A [spec 034](../034-launcher-estrutura-projeto/spec.md) é o backlog canônico deste incremento; o [quickstart 034](../034-launcher-estrutura-projeto/quickstart.md) registra validação técnica C1/C2/C3. O estado inicial 1.0.0.1 acima continua histórico, sem converter pendências dos outros domínios em entrega. Aceite humano permanece pendente.
+
+## Inicialização e splash — integração 035/036 / 1.0.0.9
+
+O novo modelo de domínio do ciclo de inicialização está na [035](../035-inicializacao/spec.md) e em internal/startup, separado de UI/mídia/IO. A apresentação e os adaptadores têm [spec/modelo/plano próprios na 036](../036-splash-screen/spec.md). Carregar recursos e reproduzir vídeo v2 com áudio em paralelo; liberar transição somente após ambos. Splash fullscreen somente vídeo, quadro integral sem ampliação acima de 100%, autoria exclusivamente no launcher. Falha/cancelamento impedem avanço. Modelo persistido dos domínios de autoria continua 3/4; aprovação humana ainda não concedida.
+
+## Inicialização opcional e fullscreen — 1.0.0.10
+
+Integrar 035/FR-008–FR-010 (política por usuário), 036/FR-011/FR-013/FR-014 (mídia fullscreen e armazenamento fora do projeto) e 034/FR-014 (checkbox no launcher). Primeira apresentação obrigatória uma vez; repetição desmarcada por padrão e optativa nas próximas aberturas. Vídeo ocupa a maior área proporcional da tela, sem limite de resolução original nem corte. Não alterar formato .jornada ou regra de entrega somente EXE; evidência atual em 036/quickstart.
+
+## Vídeo em janela — 1.0.0.11
+
+O pedido vigente substitui o fullscreen do incremento anterior: apresentação em janela normal centralizada, 960×540 unidades Fyne inicialmente, mantendo áudio, vídeo inteiro, espera de recursos e opção de primeiro uso/repetição. Detalhes em 036/FR-001/FR-011 e DESIGN. Não alterar o modelo de domínio 035 nem formato de projeto. Exibição no ambiente do usuário ainda pendente de teste.

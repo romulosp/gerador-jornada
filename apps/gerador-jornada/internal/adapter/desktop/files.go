@@ -69,7 +69,15 @@ func (e *Editor) loadDocument(document application.Document, path string) {
 	e.Selected = ""
 	e.PageID = ""
 	if len(document.Screens) > 0 {
-		e.PageID = document.Screens[0].ID
+		e.PageID = document.Journey.StartScreenID
+		if document.Screen(e.PageID) == nil {
+			e.PageID = document.Screens[0].ID
+		}
+	}
+	if path != "" {
+		e.SetProjectPath(path)
+	} else {
+		e.refreshWorkspace()
 	}
 	e.refresh()
 }
@@ -152,15 +160,28 @@ func (e *Editor) saveProject(saveAs bool) {
 		// snapshot é independente do estado que pode continuar sendo editado.
 		snapshot := e.Session.Document.Copy()
 		if e.check(projectzip.Save(context.Background(), path, snapshot)) {
-			e.FilePath = path
+			e.Session.Document.Project.CatalogVersion = 4
+			e.SetProjectPath(path)
 			e.Session.SavedRevision = snapshot.Project.Revision
 			e.Status.SetText("Projeto salvo · " + path)
 		}
 	}
+	// confirmed avisa antes da primeira escrita incompatível e conserva o arquivo legado no codec.
+	confirmed := func(path string) {
+		if _, err := os.Stat(path); err == nil && project.RequiresCatalogMigration(e.Session.Document.Project.CatalogVersion) {
+			dialog.ShowConfirm("Atualizar formato do projeto", "O arquivo será salvo no catálogo 4. Uma cópia do original será preservada antes da gravação. Continuar?", func(yes bool) {
+				if yes {
+					save(path)
+				}
+			}, e.Window)
+		} else {
+			save(path)
+		}
+	}
 	if e.FilePath != "" && !saveAs {
-		save(e.FilePath)
+		confirmed(e.FilePath)
 	} else {
-		e.chooseOutput("Salvar projeto", ".jornada", save)
+		e.chooseOutput("Salvar projeto", ".jornada", confirmed)
 	}
 }
 

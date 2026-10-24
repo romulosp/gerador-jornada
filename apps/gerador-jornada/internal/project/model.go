@@ -57,14 +57,14 @@ func ValidID(id string) bool { return idPattern.MatchString(id) }
 
 // New cria metadados vazios com identidade nova e catálogo na versão corrente.
 func New(name string) Project {
-	return Project{ID: NewID(), Name: name, CatalogVersion: 3, Assets: []Asset{}}
+	return Project{ID: NewID(), Name: name, CatalogVersion: 4, Assets: []Asset{}}
 }
 
 // ValidCatalogVersion informa se a versão de catálogo é reconhecida pelo leitor.
-func ValidCatalogVersion(version int) bool { return version >= 1 && version <= 3 }
+func ValidCatalogVersion(version int) bool { return version >= 1 && version <= 4 }
 
 // RequiresCatalogMigration informa se um documento antigo precisa de aviso e cópia antes do save.
-func RequiresCatalogMigration(version int) bool { return version < 3 }
+func RequiresCatalogMigration(version int) bool { return version < 4 }
 
 // Validate verifica identidade, nome não vazio e versão do catálogo sem resolver outros domínios.
 func (p Project) Validate() error {

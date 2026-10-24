@@ -40,6 +40,11 @@ type Editor struct {
 	CurrentScreenPreview *widget.Button
 	// FilePath é o destino explícito atual.
 	FilePath string
+	// WorkspacePath identifica a pasta escolhida enquanto a jornada ainda não tem caminho salvo.
+	WorkspacePath string
+	// WorkspaceTree e WorkspaceEntries conservam a árvore de arquivos, separada das camadas da tela.
+	WorkspaceTree    *widget.Tree
+	WorkspaceEntries []WorkspaceEntry
 	// Zoom afeta somente o desenho.
 	Zoom float32
 	// Board desenha e manipula os componentes.
@@ -85,6 +90,8 @@ type Editor struct {
 
 // New monta a interface e mantém composição de dependências fora dos domínios.
 func New(app fyne.App, document application.Document) *Editor {
+	// O tema precisa estar instalado antes de registrar uma janela sem viewport no driver em execução.
+	prepareApplicationTheme(app, app.Preferences().String(themePreferenceKey))
 	// editor recebe uma sessão completamente isolada.
 	editor := &Editor{App: app, Window: app.NewWindow("Gerador de Jornada " + buildinfo.Version()), Session: application.NewSession(document), Zoom: 1}
 	// A janela principal encerra o aplicativo também quando existem prévias abertas.
@@ -99,7 +106,7 @@ func New(app fyne.App, document application.Document) *Editor {
 		}
 	}
 	editor.Status = widget.NewLabel("Pronto · funcionamento offline")
-	editor.Title = canvas.NewText(document.Project.Name, rgb("#0F172A"))
+	editor.Title = canvas.NewText(document.Project.Name, app.Settings().Theme().Color(theme.ColorNameForeground, theme.VariantLight))
 	editor.Title.TextSize = 24
 	editor.Title.TextStyle.Bold = true
 	editor.initTheme()

@@ -12,6 +12,8 @@ try {
     if ($unformatted) { throw ('Arquivos sem gofmt: ' + ($unformatted -join ', ')) }
     python -X utf8 scripts/import_legacy_skin.py --check
     if ($LASTEXITCODE -ne 0) { throw 'Biblioteca visual desatualizada.' }
+    python -X utf8 scripts/import_legacy_menu.py --check
+    if ($LASTEXITCODE -ne 0) { throw 'Árvore de menu desatualizada.' }
     go vet ./...
     if ($LASTEXITCODE -ne 0) { throw 'go vet reprovado.' }
     python -X utf8 -m unittest discover -s scripts -p test_build.py -v

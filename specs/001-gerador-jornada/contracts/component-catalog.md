@@ -206,3 +206,11 @@ Prévia livre possui apenas vista raiz ou submenu selecionado com caminho local.
 No recorte de componentes existente, Style vazio resolve o default do legado na apresentação; os defaults genéricos v1 acima são históricos. Variantes de botão mapeiam `botao_confirmar`, `botao_cancelar`, `botao_sim` e `botao_nao`; rótulo usa `label_texto_azul`, título `label_titulo_1`, campo `textField/type1`. Relatório/teclado/menu usam partes derivadas com suas próprias skins. Seleção mantém marcadores quando nenhuma skin de toggle foi escolhida. Overrides explícitos são preservados.
 
 Novo teclado usa 200 × 350 e 14 teclas; carregar/gerar cena não altera bounds de instâncias anteriores. LIMPAR produz Backspace; TAB/setas são comandos de runtime, sem novos campos persistidos. Este incremento mantém o schema do código fornecido, sem promover o alvo documental de formatos posteriores a implementação concluída.
+
+## Menu/XML e skins por item — 1.0.0.2
+
+A fonte ativa é `material-legado/menu/menu.xml`, preservada em ISO-8859-1. Factory mantém ordem, espaços e metadados dos elementos ativos; comentários não geram itens. Variant vincula a chave exata do skin.xml, não um caminho inferido. O resolvedor usa imagens default/touched/disabled originais, com disabled prevalecendo sobre pressão. Conteúdo e limites em 033/FR-011–FR-012; a existência de uma skin não autoriza inserir item no seed.
+
+## Menu e referências de movimentos — 1.0.0.3
+
+Title vazio permanece vazio; não derivar nome como título ausente na fábrica. Itens continuam identificados por UUID: ramo abre submenu e folha simula seleção ou segue destino explícito. Código, nome, opção e atalho são editáveis como metadados literais; nome de movimento distingue referências que compartilham código. Sua exposição não comprova validação do cadastro movimento.xml ausente. Rodapé e faixas são primitivas derivadas, nunca novos itens persistidos.

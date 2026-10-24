@@ -43,6 +43,7 @@ func (e *Editor) showPreview(state *application.Preview, title, description stri
 	status := widget.NewLabel(description)
 	// tools reúne os comandos explícitos dos compostos da tela.
 	tools := container.NewHBox()
+	e.configureWorkspacePreview(state, window)
 	// closed impede callbacks de tocar um canvas destruído.
 	closed := false
 	// redraw reconstrói apenas após uma navegação ou troca de submenu.
@@ -53,6 +54,15 @@ func (e *Editor) showPreview(state *application.Preview, title, description stri
 		}
 		// Uma nova página precisa recriar os comandos do nó atual.
 		tools.RemoveAll()
+		if len(state.JourneyHistory) > 0 {
+			tools.Add(widget.NewButton("Voltar à jornada anterior", func() {
+				if err := state.BackJourney(); err != nil {
+					status.SetText(err.Error())
+					return
+				}
+				redraw()
+			}))
+		}
 		// surface isola controles runtime do tema do editor, preservando o visual claro da prévia.
 		surface := container.NewThemeOverride(previewPage(state, window, redraw, status, tools), jornadaTheme{})
 		window.SetContent(container.NewBorder(container.NewVBox(status, container.NewHScroll(tools)), nil, nil, nil, container.NewScroll(surface)))
@@ -135,7 +145,7 @@ func previewPage(state *application.Preview, window fyne.Window, redraw func(), 
 		case catalog.BarcodeInput:
 			objects = append(objects, barcodes[component.ID].objectsList()...)
 		case catalog.ApplicationMenu:
-			objects = append(objects, newMenuView(copy, state, window, status, tools, redraw).objects...)
+			objects = append(objects, newMenuView(copy, state, window, status, redraw).objects...)
 		default:
 			objects = append(objects, previewPrimitives(state.Document, component)...)
 		}

@@ -200,8 +200,8 @@ func TestApplicationMenuDefaults(t *testing.T) {
 		t.Fatalf("raiz deve ter 12 serviços e 10 jogos: %d/%d", len(services), len(games))
 	}
 	// wantServices e wantGames fixam os rótulos e a ordem do contrato.
-	wantServices := []string{"BOLETO", "CONVÊNIOS", "BENEFÍCIOS", "FINANCEIROS", "ATENDIMENTO", "RESULTADOS", "APOIO", "BOLÃO", "RELATÓRIOS", "PAGA PREMIADOS", "MEIOS DE PAGAMENTO", "OFERTAR"}
-	wantGames := []string{"MEGA-SENA", "LOTOFÁCIL", "QUINA", "LOTOMANIA", "LOTECA", "LOTOGOL", "DUPLA SENA", "DIA DE SORTE", "SUPER SETE", "TIMEMANIA"}
+	wantServices := []string{"  ARRECADA BOLETO  DE COBRANÇA", "ARRECADAÇÃO DE CONVÊNIOS", "BENEFÍCIOS SOCIAIS", "OUTROS SERVIÇOS FINANCEIROS", "ATENDIMENTO", "ÚLTIMOS RESULTADOS", "APOIO", "BOLÃO", "RELATÓRIOS", "PAGA PREMIADOS", "MEIOS DE PAGAMENTO", "OFERTAR"}
+	wantGames := []string{"MEGA-SENA", "LOTOFÁCIL", "QUINA", "LOTOMANIA", "LOTECA", "DUPLA-SENA", "TIMEMANIA", "DIA DE SORTE", "SUPER SETE", "MILIONÁRIA"}
 	// index percorre as duas colunas para comparar cada rótulo.
 	for index, label := range wantServices {
 		if services[index].Label != label {
@@ -233,7 +233,7 @@ func TestApplicationMenuDefaults(t *testing.T) {
 		"Consulta bolões de concursos abertos para comercialização.",
 		"Consulta bolões de concursos encerrados e não prescritos.",
 	}
-	wantLabels := []string{"BOLÕES DIGITAIS", "CONCURSOS ABERTOS", "CONCURSOS ENCERRADOS"}
+	wantLabels := []string{"VENDER COTAS", "BOLÕES MARKETPLACE", "BOLÕES CONCLUÍDOS"}
 	for index := range digital.Items {
 		if digital.Items[index].Legend != wantLegends[index] {
 			t.Fatalf("legenda %d divergente: %q", index+1, digital.Items[index].Legend)
@@ -250,7 +250,7 @@ func TestApplicationMenuDefaults(t *testing.T) {
 	if bolao == nil || bolao.Submenu == nil || bolao.Submenu.Layout != MenuLayoutStandard {
 		t.Fatalf("BOLÃO ordinário deve usar layout standard: %+v", bolao)
 	}
-	if len(bolao.Submenu.Items) != 2 || bolao.Submenu.Items[1].Submenu != digital {
+	if len(bolao.Submenu.Items) != 10 || bolao.Submenu.Items[9].Submenu != digital {
 		t.Fatalf("BOLÕES DIGITAIS deve ser o último filho de BOLÃO: %+v", bolao.Submenu.Items)
 	}
 }
@@ -520,10 +520,10 @@ func TestPropertiesCopyIsolatesCompounds(t *testing.T) {
 		copied.Menu.Root.Items[1].Submenu.Items = append(copied.Menu.Root.Items[1].Submenu.Items, leafMenu(ids(), "Novo", "SERVIÇOS"))
 		copied.Menu.Root.Items = append(copied.Menu.Root.Items, leafMenu(ids(), "Extra", "SERVIÇOS"))
 		copied.Menu.InitialMenuID = copied.Menu.Root.Items[0].ID
-		if source.Menu.Root.Name != "Menu da aplicação" || source.Menu.Root.Items[0].Label != "BOLETO" {
+		if source.Menu.Root.Name != "Principal" || source.Menu.Root.Items[0].Label != "MEGA-SENA" {
 			t.Fatalf("nó ou item original alterado: %+v", source.Menu.Root.Items[0])
 		}
-		if source.Menu.Root.Items[1].Submenu.Name != "CONVÊNIOS" || len(source.Menu.Root.Items[1].Submenu.Items) != 0 {
+		if source.Menu.Root.Items[1].Submenu.Name != "LOTOFÁCIL" || len(source.Menu.Root.Items[1].Submenu.Items) != 2 {
 			t.Fatalf("submenu original alterado: %+v", source.Menu.Root.Items[1].Submenu)
 		}
 		if len(source.Menu.Root.Items) != 22 || source.Menu.Root.ID != originalRootID || source.Menu.InitialMenuID != originalInitial {

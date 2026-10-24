@@ -7,6 +7,7 @@ import (
 	desktopdriver "fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/widget"
 	"gerador-jornada.local/editor/internal/application"
+	"gerador-jornada.local/editor/internal/catalog"
 	"gerador-jornada.local/editor/internal/presentation"
 	"gerador-jornada.local/editor/internal/screen"
 )
@@ -18,6 +19,8 @@ type legacyControl struct {
 	document application.Document
 	// component conserva o conteúdo tipado local, sem publicar alterações de interação.
 	component screen.Component
+	// menuItem permite que o mesmo controle renderize uma parte do menu pela cena compartilhada.
+	menuItem *catalog.MenuItem
 	// onTapped executa a intenção do controle sem modificar sua decoração.
 	onTapped func()
 	// focused e pressed selecionam os estados visuais transitórios.
@@ -88,6 +91,15 @@ func (c *legacyControl) MouseDown(event *desktopdriver.MouseEvent) {
 // MouseUp restaura a imagem normal; a ativação pertence ao evento Tapped.
 func (c *legacyControl) MouseUp(_ *desktopdriver.MouseEvent) { c.pressed = false; c.Refresh() }
 
+// MouseIn e MouseMoved mantêm a imagem normal até pressionar o botão principal.
+func (c *legacyControl) MouseIn(_ *desktopdriver.MouseEvent) {}
+
+// MouseMoved não altera o documento nem cria estado hover ausente no XML.
+func (c *legacyControl) MouseMoved(_ *desktopdriver.MouseEvent) {}
+
+// MouseOut cancela a aparência pressionada quando o ponteiro deixa a área clicável.
+func (c *legacyControl) MouseOut() { c.pressed = false; c.Refresh() }
+
 // legacyControlRenderer conserva a cena e seu indicador de foco no mesmo widget.
 type legacyControlRenderer struct {
 	// control fornece o conteúdo e o estado transitório.
@@ -121,7 +133,11 @@ func (r *legacyControlRenderer) Refresh() {
 	if r.control.pressed {
 		state = "touched"
 	}
-	r.content.Objects = drawGroup(r.control.document, presentation.ComponentState(r.control.component, state))
+	if r.control.menuItem != nil {
+		r.content.Objects = drawGroup(r.control.document, presentation.ApplicationMenuItem(r.control.component, *r.control.menuItem, state))
+	} else {
+		r.content.Objects = drawGroup(r.control.document, presentation.ComponentState(r.control.component, state))
+	}
 	if r.control.focused && !r.control.Disabled() {
 		// outline é decoração de interação, ausente do canvas estático e do PPT.
 		outline := canvas.NewRectangle(transparent())

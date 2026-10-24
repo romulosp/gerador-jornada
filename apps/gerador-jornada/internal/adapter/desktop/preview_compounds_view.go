@@ -1,8 +1,10 @@
 package desktop
 
 import (
+	"errors"
 	"fmt"
 	"image/color"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -320,69 +322,134 @@ type menuView struct {
 	status *widget.Label
 	// redraw reconstrói a página após abrir um submenu.
 	redraw func()
-	// surface captura cliques nas áreas internas.
-	surface *previewSurface
 	// objects contém a lista pronta para o contêiner.
 	objects []fyne.CanvasObject
-	// tools recebe Voltar, Cancelar e Sair.
-	tools *fyne.Container
 }
 
 // newMenuView monta o nó visível do menu da aplicação.
-func newMenuView(component screen.Component, session *application.Preview, window fyne.Window, status *widget.Label, tools *fyne.Container, redraw func()) *menuView {
+func newMenuView(component screen.Component, session *application.Preview, window fyne.Window, status *widget.Label, redraw func()) *menuView {
 	// view agrupa os objetos e comandos de uma instância.
-	view := &menuView{component: component, session: session, window: window, status: status, tools: tools, redraw: redraw}
+	view := &menuView{component: component, session: session, window: window, status: status, redraw: redraw}
 	view.state, _ = session.MenuState(component.ID)
 	// node contém o submenu inicial ou o caminho da sessão.
 	node := session.MenuNode(component.ID)
-	view.objects = drawGroup(session.Document, presentation.ApplicationMenuState(component, node))
-	view.surface = newPreviewSurface(view.tapped, nil, nil, nil)
-	place(view.surface, component.Bounds)
-	view.objects = append(view.objects, view.surface)
+	// group mantém faixas e legendas; cada botão recebe seu próprio estado de pressão.
+	group := presentation.ApplicationMenuState(component, node)
+	if node != nil {
+		// decorations exclui partes dos botões que serão pintadas pelos controles transparentes.
+		decorations := group
+		decorations.Shapes = nil
+		// primitive conserva somente a decoração compartilhada externa aos itens.
+		for _, primitive := range group.Shapes {
+			if primitive.Role == "menu-control" {
+				continue
+			}
+			// isItem impede desenhar duas vezes os pixels semitransparentes da imagem.
+			isItem := false
+			// item relaciona a forma à identidade estável, inclusive sua legenda autorada.
+			for _, item := range node.Items {
+				isItem = isItem || primitive.Name == item.ID || strings.HasPrefix(primitive.Name, item.ID+"/")
+			}
+			if !isItem {
+				decorations.Shapes = append(decorations.Shapes, primitive)
+			}
+		}
+		view.objects = drawGroup(session.Document, decorations)
+		// area conserva as mesmas regiões de clique usadas no canvas e na cena estática.
+		for _, area := range presentation.MenuHitAreas(component, node) {
+			// item encontra o conteúdo tipado correspondente à região exibida.
+			for _, item := range node.Items {
+				if item.ID != area.ItemID {
+					continue
+				}
+				// part recebe geometria local e habilitação combinada de item e composto.
+				part := component
+				part.Bounds, part.Enabled = area.Bounds, component.Enabled && item.Enabled
+				// control conserva ícone, fonte e estados originais sem widget temático opaco.
+				control := newLegacyControl(session.Document, part, func() { view.activate(item.ID) })
+				control.menuItem = &item
+				place(control, area.Bounds)
+				view.objects = append(view.objects, control)
+				break
+			}
+		}
+	}
 	view.buildTools()
 	return view
 }
 
-// buildTools acrescenta os comandos de navegação local.
+// buildTools pinta os comandos locais no próprio rodapé usando a cena e os estados originais.
 func (v *menuView) buildTools() {
-	v.tools.Add(widget.NewButton("Voltar", func() {
-		_ = v.session.MenuBack(v.component.ID)
-		v.redraw()
-	}))
-	v.tools.Add(widget.NewButton("Cancelar", func() {
-		_ = v.session.MenuCancel(v.component.ID)
-		v.redraw()
-	}))
-	v.tools.Add(widget.NewButton("Sair", func() {
-		_ = v.session.MenuExit(v.component.ID)
-		v.window.Close()
-	}))
+	// command conserva o mesmo ID e a mesma caixa da cena estática.
+	for _, command := range presentation.MenuCommands(v.component, v.session.MenuNode(v.component.ID)) {
+		// part e item criam somente um capturador transitório, sem acrescentar itens ao documento.
+		part := v.component
+		part.Bounds = command.Bounds
+		item := catalog.MenuItem{ID: "command/" + command.ID, Label: command.Label, Variant: command.Variant, Enabled: true}
+		// control é transparente e compartilha default/touched/disabled do botão original.
+		control := newLegacyControl(v.session.Document, part, func() { v.command(command.ID) })
+		control.menuItem = &item
+		place(control, command.Bounds)
+		v.objects = append(v.objects, control)
+	}
 }
 
-// tapped ativa o item cuja área contém o ponto.
-func (v *menuView) tapped(event *fyne.PointEvent) {
-	node := v.session.MenuNode(v.component.ID)
-	// point converte a posição relativa ao widget para coordenadas lógicas absolutas.
-	point := fyne.NewPos(float32(v.component.Bounds.X)+event.Position.X, float32(v.component.Bounds.Y)+event.Position.Y)
-	// area representa uma região clicável do item.
-	for _, area := range presentation.MenuHitAreas(v.component, node) {
-		if point.X < float32(area.Bounds.X) || point.X > float32(area.Bounds.X+area.Bounds.Width) || point.Y < float32(area.Bounds.Y) || point.Y > float32(area.Bounds.Y+area.Bounds.Height) {
-			continue
-		}
-		outcome, err := v.session.MenuActivate(v.component.ID, area.ItemID)
-		if err != nil {
-			v.status.SetText(err.Error())
-			return
-		}
-		switch outcome {
-		case application.MenuOpened, application.MenuNavigated:
-			v.redraw()
-		case application.MenuSimulated:
-			v.status.SetText("Seleção simulada: nenhum destino configurado.")
-		case application.MenuBlocked:
-			v.status.SetText("Item desabilitado; nenhuma ação executada.")
+// command executa somente navegação local ou fechamento da prévia, nunca movimentos externos.
+func (v *menuView) command(commandID string) {
+	switch commandID {
+	case "back":
+		_ = v.session.MenuBack(v.component.ID)
+	case "cancel":
+		_ = v.session.MenuCancel(v.component.ID)
+	case "exit":
+		_ = v.session.MenuExit(v.component.ID)
+		v.window.Close()
+		return
+	}
+	v.status.SetText("")
+	v.redraw()
+}
+
+// activate encaminha a intenção pelo ID; pressione/solte altera somente a imagem transitória.
+func (v *menuView) activate(itemID string) {
+	// outcome informa navegação, simulação ou bloqueio sem executar movimentos externos.
+	outcome, err := v.session.MenuActivate(v.component.ID, itemID)
+	if err != nil {
+		v.status.SetText(err.Error())
+		if errors.Is(err, application.ErrJourneyMissing) && v.session.OnMissingJourney != nil {
+			v.session.OnMissingJourney(v.component.ID, itemID)
 		}
 		return
+	}
+	switch outcome {
+	case application.MenuOpened, application.MenuNavigated:
+		v.redraw()
+	case application.MenuSimulated:
+		// item mantém a distinção nomeMovimento entre normal/especial que compartilham código.
+		item, ok := v.session.MenuSelectedItem(v.component.ID)
+		if ok {
+			// details usa somente metadados fornecidos; código/atalho não são rotas executáveis.
+			details := "Seleção simulada: " + strings.TrimSpace(item.Label)
+			if item.MovementName != "" {
+				details += " · movimento: " + item.MovementName
+			}
+			if item.MovementCode != "" {
+				details += " · código: " + item.MovementCode
+			}
+			if item.MovementOption != "" {
+				details += " · opção: " + item.MovementOption
+			}
+			if item.TargetScreenID != "" || item.TargetJourney != "" {
+				v.status.SetText(details + " · navegação entre telas desativada nesta prévia.")
+			} else {
+				v.status.SetText(details + " · nenhum destino configurado.")
+			}
+			if item.TargetScreenID == "" && item.TargetJourney == "" && v.session.OnMissingJourney != nil {
+				v.session.OnMissingJourney(v.component.ID, itemID)
+			}
+		}
+	case application.MenuBlocked:
+		v.status.SetText("Item desabilitado; nenhuma ação executada.")
 	}
 }
 
