@@ -125,6 +125,8 @@ Como autor, quero trocar de seleção ou modo e voltar ao painel sem perda ou al
 
 **Aceitação**: fixture de cada classe/skin/estado compara pintura com canvas/PPT/referência independente e eventos com contrato; fechar/revisitar não muda documento/histórico. 001/T114 é sessão, T115 desktop, T111 cena e T120–T122 manuais/aceite. Automatizados/autorização do plano não são homologação; Java permanece pausado.
 
+**Gate objetivo (2026-10-24):** um teste de prévia deve falhar se `Style.Skin == ""` produzir aparência genérica, se a árvore de objetos contiver `widget.Button`/`widget.Entry`/`widget.Select` visível sobre a decoração, ou se as primitivas da prévia divergirem das do canvas/PPT. Fonte física (`canvas.Text.FontSource`) e alpha explícito também são asserções, não inspeção visual. Skill obrigatória: [jornada-visual-parity](../../.agents/skills/jornada-visual-parity/SKILL.md).
+
 ## Interação de código de barras — planejamento 2026-10-23
 
 - **FR-015**: Operar [031](../031-codigo-barras-efl/spec.md) com subcampo ativo, validação sequencial por par/DV geral, captura integral atômica e diálogo “Código de barras inválido” / “OK, entendi”; respeitar teclado numérico/habilitação e reset por visita. [032](../032-codigo-barras-processado-efl/spec.md) apresenta somente dados confirmados de seus blocos; combos são autoria. Usar regras puras de Catálogo e estado de sessão isolado, sem gerar processamento financeiro, navegação ou transferência automática entre os dois compostos.

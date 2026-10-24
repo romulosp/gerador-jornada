@@ -428,3 +428,20 @@ O pedido do usuário nesta revisão é reaplicar aos componentes existentes o es
 - Recursos ausentes não recebem substitutos silenciosos: oito definições são retiradas da oferta; escolhas antigas não resolvidas continuam preservadas e mostram diagnóstico. PPT recusa aparência não resolvida antes de publicar.
 
 Aprovação visual Windows/DPI e Office permanece separada dos testes executados. Este recorte não aprova o acervo completo nem altera a suspensão de Java/EFL. Evidências e limites na seção 22 do quickstart; tarefas T148–T150 e T147.
+
+### Gate de fidelidade visual — critérios objetivos (2026-10-24)
+
+A seção anterior descreve a intenção. Este gate define o que **reprova** a entrega, para que “skin aplicada” não seja aceita por inspeção parcial. A skill [jornada-visual-parity](../../.agents/skills/jornada-visual-parity/SKILL.md) é obrigatória em qualquer alteração visual.
+
+| Critério | Evidência mínima | Reprova se |
+| --- | --- | --- |
+| Default sem skin explícita | teste de cena inserindo cada família com `Style.Skin == ""` | a cena cai em cor genérica (`#4864A0`/`#2563EB`) ou não contém decoração do legado |
+| Cena compartilhada | teste/inspeção dos mesmos `presentation.Group` em canvas, prévia e PPT | a prévia usa `widget.Button`/`Entry`/`Select` opaco no lugar da pintura |
+| Fonte física | asserção de `canvas.Text.FontSource` não nulo e família SFNT esperada | só o nome/tipo foi transportado; Fyne usa a fonte do tema |
+| Alpha | testes de fundo transparente, preto sem alpha e alfa parcial | `alpha=0` explícito vira ausência ou transparência vira branco |
+| Importação | `import_legacy_skin.py --check` PASS; 205 chaves/224 recursos/6 fontes; 8 indisponíveis fora da oferta | runtime interpreta XML, oferta definição com recurso faltante ou não valida SHA/tamanho |
+| Interação | teste de cursor/TAB/Backspace/clipboard com decoração EFL visível | o controle nativo cobre ou substitui a skin |
+| Compostos | fixture de relatório/teclado/menu/ficha com partes próprias | só a caixa externa recebe estilo; partes internas ficam genéricas |
+| Diagnóstico | PPT recusa skin/fonte não resolvida e projeto antigo é preservado | fallback silencioso, remoção de escolha ou publicação parcial |
+
+O gate é critério de conclusão técnica; DPI 100/150/200%, PowerPoint real e aceite humano continuam em T148–T150/quickstart §22.
