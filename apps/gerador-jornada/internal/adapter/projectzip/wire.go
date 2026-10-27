@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strings"
 
+	"gerador-jornada.local/editor/internal/adapter/jsonwire"
 	"gerador-jornada.local/editor/internal/application"
 	"gerador-jornada.local/editor/internal/catalog"
 	"gerador-jornada.local/editor/internal/screen"
@@ -64,6 +65,9 @@ func wire(value reflect.Value) any {
 
 // EncodeManifest serializa os campos explícitos da raiz e as propriedades planas dos componentes.
 func EncodeManifest(document application.Document) ([]byte, error) {
+	if err := jsonwire.ValidateStrings(document); err != nil {
+		return nil, fmt.Errorf("PROJECT_SCHEMA_INVALID: %w", err)
+	}
 	if err := document.ValidateFileIDs(); err != nil {
 		return nil, fmt.Errorf("PROJECT_SCHEMA_INVALID: %w", err)
 	}
@@ -88,6 +92,9 @@ func EncodeManifest(document application.Document) ([]byte, error) {
 
 // DecodeManifest rejeita campos desconhecidos e restaura as variantes tipadas das propriedades.
 func DecodeManifest(data []byte) (application.Document, error) {
+	if err := jsonwire.Validate(data, 10<<20, 64); err != nil {
+		return application.Document{}, fmt.Errorf("PROJECT_CORRUPT: %w", err)
+	}
 	// root reúne os metadados e coleções independentes somente na fronteira JSON.
 	root := map[string]json.RawMessage{}
 	// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.

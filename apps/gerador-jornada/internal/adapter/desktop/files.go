@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -116,10 +117,17 @@ func (e *Editor) openProject() {
 
 // chooseOutput solicita um caminho sem truncar um arquivo existente pelo diálogo.
 func (e *Editor) chooseOutput(title, extension string, accept func(string)) {
+	e.chooseOutputResult(title, extension, accept, func() {})
+}
+
+// chooseOutputResult notifica cancelamento sem abrir ou truncar o arquivo de destino.
+func (e *Editor) chooseOutputResult(title, extension string, accept func(string), canceled func()) {
 	// directory é um destino local selecionável.
 	directory, _ := os.Getwd()
 	if e.FilePath != "" {
 		directory = filepath.Dir(e.FilePath)
+	} else if e.WorkspacePath != "" {
+		directory = e.WorkspacePath
 	}
 	// path é editável e não abre um stream de gravação.
 	path := entry(filepath.Join(directory, "minha-jornada"+extension))
@@ -133,6 +141,7 @@ func (e *Editor) chooseOutput(title, extension string, accept func(string)) {
 	})
 	dialog.ShowCustomConfirm(title, "Continuar", "Cancelar", container.NewVBox(widget.NewForm(widget.NewFormItem("Arquivo", path)), browse), func(yes bool) {
 		if !yes {
+			canceled()
 			return
 		}
 		// destination inclui a extensão esperada sem alterar nomes já compatíveis.
@@ -145,6 +154,8 @@ func (e *Editor) chooseOutput(title, extension string, accept func(string)) {
 			dialog.ShowConfirm("Substituir arquivo?", "O destino já existe. Substituir somente após concluir a gravação?", func(replace bool) {
 				if replace {
 					accept(destination)
+				} else {
+					canceled()
 				}
 			}, e.Window)
 		} else {
@@ -155,16 +166,31 @@ func (e *Editor) chooseOutput(title, extension string, accept func(string)) {
 
 // saveProject publica snapshot explícito sem marcar edições posteriores como salvas.
 func (e *Editor) saveProject(saveAs bool) {
+	e.saveWithCompletion(saveAs, func(error) {})
+}
+
+// errSaveCanceled distingue cancelamento de falha de gravação sem apresentá-lo como erro técnico.
+var errSaveCanceled = errors.New("Salvamento cancelado")
+
+// saveWithCompletion só libera publicação após gravação íntegra e confirmação de migração.
+func (e *Editor) saveWithCompletion(saveAs bool, completed func(error)) {
+	if !e.gitCanWrite() {
+		completed(errSaveCanceled)
+		return
+	}
 	// save captura todos os dados antes de iniciar IO.
 	save := func(path string) {
 		// snapshot é independente do estado que pode continuar sendo editado.
 		snapshot := e.Session.Document.Copy()
-		if e.check(projectzip.Save(context.Background(), path, snapshot)) {
+		// err conserva o resultado para o chamador distinguir falha de cancelamento.
+		err := projectzip.Save(context.Background(), path, snapshot)
+		if e.check(err) {
 			e.Session.Document.Project.CatalogVersion = 4
 			e.SetProjectPath(path)
 			e.Session.SavedRevision = snapshot.Project.Revision
 			e.Status.SetText("Projeto salvo · " + path)
 		}
+		completed(err)
 	}
 	// confirmed avisa antes da primeira escrita incompatível e conserva o arquivo legado no codec.
 	confirmed := func(path string) {
@@ -172,6 +198,8 @@ func (e *Editor) saveProject(saveAs bool) {
 			dialog.ShowConfirm("Atualizar formato do projeto", "O arquivo será salvo no catálogo 4. Uma cópia do original será preservada antes da gravação. Continuar?", func(yes bool) {
 				if yes {
 					save(path)
+				} else {
+					completed(errSaveCanceled)
 				}
 			}, e.Window)
 		} else {
@@ -180,8 +208,25 @@ func (e *Editor) saveProject(saveAs bool) {
 	}
 	if e.FilePath != "" && !saveAs {
 		confirmed(e.FilePath)
+	} else if e.WorkspacePath != "" && !saveAs {
+		// workspace já foi escolhido; o primeiro salvamento não precisa pedir a pasta novamente.
+		workspace, err := e.workspace()
+		if !e.check(err) {
+			completed(err)
+			return
+		}
+		// filename é exclusivo, preservando qualquer jornada homônima já existente.
+		filename, err := JourneyFilename(e.Session.Document.Project.Name)
+		if err == nil {
+			filename, err = workspace.uniqueName(filename)
+		}
+		if !e.check(err) {
+			completed(err)
+			return
+		}
+		confirmed(filepath.Join(workspace.Root, filename))
 	} else {
-		e.chooseOutput("Salvar projeto", ".jornada", confirmed)
+		e.chooseOutputResult("Salvar projeto", ".jornada", confirmed, func() { completed(errSaveCanceled) })
 	}
 }
 

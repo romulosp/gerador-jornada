@@ -8,6 +8,7 @@ Contrato da feature 034. Complementa o contrato canônico `project-format.md` da
 - O nó raiz da árvore representa a pasta (nome = nome da pasta).
 - A listagem considera somente arquivos `.jornada` na raiz da pasta (não recursiva), identificados por nome de arquivo relativo.
 - Criar/importar adiciona um arquivo `.jornada` à pasta; importar preserva o arquivo de origem (cópia para dentro do workspace).
+- Na criação pelo launcher, a pasta escolhida é o destino final: não acrescentar uma subpasta com o nome do projeto. Correção exigida no teste manual da feature 037 em 2026-10-25; o nome define o arquivo `.jornada`, preservando homônimos.
 - A pasta em uso é resolvida pelo adaptador desktop; `Project`/`Document` não armazenam caminhos do sistema operacional.
 
 ## 2. Destino entre jornadas (`MenuItem.TargetJourney`)

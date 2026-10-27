@@ -73,7 +73,7 @@ func (e *Editor) navigationFor(pageID string, component screen.Component) fyne.C
 			if targets[value] == "" {
 				kind = "none"
 			}
-			return document.Journey.Bind(journey.Action{SourceScreenID: pageID, SourceComponentID: component.ID, Kind: kind, TargetScreenID: targets[value]})
+			return application.BindNavigation(document, journey.Action{SourceScreenID: pageID, SourceComponentID: component.ID, Kind: kind, TargetScreenID: targets[value]})
 		}))
 		e.changed()
 	}

@@ -18,6 +18,8 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'go vet reprovado.' }
     python -X utf8 -m unittest discover -s scripts -p test_build.py -v
     if ($LASTEXITCODE -ne 0) { throw 'Validação do empacotamento de 64 bits reprovada.' }
+    python -X utf8 -m unittest discover -s scripts -p test_configure_github.py -v
+    if ($LASTEXITCODE -ne 0) { throw 'Validação da configuração OAuth reprovada.' }
     if ($env:JORNADA_TEST_JDK) {
         python -X utf8 -m unittest discover -s scripts -p test_java6.py -v
         if ($LASTEXITCODE -ne 0) { throw 'Validação da toolchain Java 6 reprovada.' }

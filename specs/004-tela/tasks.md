@@ -129,3 +129,16 @@ Ordem: 003/T018/T020 → T015 → T016; 001/T135–T139 consome os comandos, nã
 Após contrato de tipos, persistência e consumidores usam o mesmo modelo. Código de T015–T017 concluído; execução de testes, round-trip real, UI nativa/DPI/PowerPoint e aceite permanecem abertos em seus donos (001/T138–T139/T143–T144 e 002/T014–T015). Não encerrar caixas históricas de verificação por estas implementações.
 
 **Evidência limitada:** 27 Python e importador `--check` PASS informados pelo principal; vet/14 suítes Go compile-only PASS e build Windows gerado antecedem as últimas alterações de Jornada/Demonstração. O principal repetirá checks/build; a última revisão não está validada. Nenhum teste Go executado neste incremento por política Windows, sem contorno; sem novos hashes ou PASS Go histórico reaproveitado. Checklists preservados.
+
+## Extensão planejada — 038 / seleção e instâncias, 2026-10-25
+
+Somente tarefas futuras. `004/T004` e comandos atuais continuam donos das operações gerais de edição; a parcela MCP é adaptação em 038/T021. Captura/expansão abaixo reutiliza Component/Bounds/Style/Properties e funções de cópia/IDs existentes, sem modelo visual paralelo ou importação de MCP.
+
+- [ ] T018 Criar testes puros de seleção/template em `apps/gerador-jornada/internal/screen/reusable_selection_test.go`, com “Limite 256; sem aninhamento de definições; referências externas recusadas inicialmente”, ordem, geometria relativa, ParentID e alvo de teclado/IDs internos, sem publicar seleção parcial. Dep.: 038/T004 e 003/T025. Refs.: 038/FR-007/FR-022/FR-023/FR-032.
+- [ ] T019 Implementar captura/normalização da seleção de uma tela em `apps/gerador-jornada/internal/screen/reusable_selection.go`, preservando proporção/ordem/defaults/overrides e recusando referências locais externas à seleção; aplicação verifica vínculos de Jornada/recursos entre domínios, sem mover regras de outros domínios para Tela. Dep.: T018. Refs.: 038/FR-002/FR-007/FR-022–FR-024.
+- [ ] T020 Criar testes de expansão/cópia em `apps/gerador-jornada/internal/screen/reusable_instance_test.go`: “Nenhuma colisão; ordem/geometria preservadas; cada vínculo aponta para a cópia correspondente”, UUIDs/FileIDs/IDs internos, cópias independentes e erros sem mutação; manter aparência do legado sem redefinir defaults. Dep.: T019. Refs.: 038/FR-007/FR-022/FR-023/FR-032; SC-004.
+- [ ] T021 Implementar expansão pura e mapa de identidades em `apps/gerador-jornada/internal/screen/reusable_instance.go`, reutilizando cópia e regeneração existentes, com contexto/provedor de identidade explícito para evitar colisão e sem IO; aplicação resolve transferências de recursos e referências de Jornada. Operação final manual/MCP é integral e reversível em 038/T053/T063. Dep.: T020. Refs.: 038/FR-002/FR-007/FR-022–FR-024; SC-013.
+
+Essas tarefas não implementam atualização vinculada à biblioteca nem alteram schema/catalogVersion; snapshot não é duplicação e deve preservar IDs quando a operação pede somente cópia independente em memória.
+
+Parcela de 004/T004 integrada em 038/T021–T023: criação/configuração/componente/preset com validação comum e cópia de IDs internos; testes técnicos de ambos os canais, sem encerrar o escopo amplo ou homologação. Ver tarefas/evidências da 038.

@@ -13,7 +13,6 @@ import (
 	"io"
 	"os"
 	"path"
-	"sort"
 	"strings"
 
 	"gerador-jornada.local/editor/internal/adapter/atomicfile"
@@ -103,51 +102,9 @@ func Load(source string) (application.Document, error) {
 
 // Encode produz entradas ZIP determinísticas com recursos verificados.
 func Encode(document application.Document) ([]byte, error) {
-	// manifest descreve a revisão do projeto e é obrigatório mesmo em rascunhos.
-	// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
-	manifest, err := EncodeManifest(document)
-	if err != nil {
-		return nil, err
-	}
-	// output contém o pacote portátil montado em memória.
-	output := &bytes.Buffer{}
-	// writer produz um ZIP com ordem e datas determinísticas.
-	writer := zip.NewWriter(output)
-	// entries reúne o manifesto e os recursos incorporados com conteúdo limitado e validado.
-	entries := map[string][]byte{"manifest.json": manifest}
-	// asset descreve uma imagem incorporada imutável e permite validar seu conteúdo.
-	for _, asset := range document.Project.Assets {
-		// content contém os bytes ou a composição intermediária verificada para a operação atual.
-		// ok informa se a consulta encontrou um valor válido.
-		content, ok := document.Resources[asset.Path]
-		if !ok {
-			return nil, fmt.Errorf("PROJECT_RESOURCE_MISSING: %s", asset.Path)
-		}
-		if err = validateAsset(asset.Path, content, asset.SHA256, asset.SizeBytes); err != nil {
-			return nil, err
-		}
-		entries[asset.Path] = content
-	}
-	// names controla nomes únicos ou sua ordem lexical para empacotamento determinístico.
-	names := []string{}
-	// name identifica uma entrada relativa do pacote ou arquivo gerado.
-	for name := range entries {
-		names = append(names, name)
-	}
-	sort.Strings(names)
-	// name identifica o caminho relativo da entrada ou do recurso incorporado imutável.
-	for _, name := range names {
-		// entry representa uma entrada do pacote; caminhos são validados antes do uso.
-		// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
-		entry, err := writer.CreateHeader(&zip.FileHeader{Name: name, Method: zip.Deflate})
-		if err != nil {
-			return nil, err
-		}
-		if _, err = entry.Write(entries[name]); err != nil {
-			return nil, err
-		}
-	}
-	if err = writer.Close(); err != nil {
+	// output conserva a API existente; a codificação única também pode escrever diretamente em staging.
+	var output bytes.Buffer
+	if err := Write(context.Background(), &output, document); err != nil {
 		return nil, err
 	}
 	return output.Bytes(), nil

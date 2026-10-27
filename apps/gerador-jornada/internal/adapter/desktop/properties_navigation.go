@@ -38,7 +38,7 @@ func (e *Editor) navigationControl(component screen.Component) fyne.CanvasObject
 			if targets[value] == "" {
 				kind = "none"
 			}
-			return document.Journey.Bind(journey.Action{SourceScreenID: e.PageID, SourceComponentID: component.ID, Kind: kind, TargetScreenID: targets[value]})
+			return application.BindNavigation(document, journey.Action{SourceScreenID: e.PageID, SourceComponentID: component.ID, Kind: kind, TargetScreenID: targets[value]})
 		}))
 		e.changed()
 	}

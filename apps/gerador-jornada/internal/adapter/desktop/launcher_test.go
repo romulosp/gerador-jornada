@@ -10,6 +10,38 @@ import (
 	"gerador-jornada.local/editor/internal/application"
 )
 
+// TestLauncherUsesSelectedFolder reproduz a duplicação Meu projeto/Meu projeto no teste manual.
+func TestLauncherUsesSelectedFolder(t *testing.T) {
+	t.Setenv("JORNADA_CONFIG_DIR", t.TempDir())
+	// app e launcher não acessam preferências nem arquivos do usuário real.
+	app := test.NewApp()
+	defer app.Quit()
+	launcher := NewLauncher(app, nil)
+	defer launcher.Window.Close()
+	// root já possui o nome do projeto e deve receber diretamente o pacote.
+	root := filepath.Join(t.TempDir(), "Meu projeto")
+	if err := os.Mkdir(root, 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := launcher.createProject("Meu projeto", root, true); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(filepath.Join(root, "Meu projeto.jornada")); err != nil {
+		t.Fatal("pacote não foi salvo na pasta escolhida")
+	}
+	// entries garante que nenhuma subpasta ou arquivo auxiliar foi criado pelo launcher.
+	entries, err := os.ReadDir(root)
+	if err != nil || len(entries) != 1 || entries[0].IsDir() {
+		t.Fatal("launcher criou conteúdo além do pacote .jornada")
+	}
+	if err = launcher.createProject("Meu projeto", root, false); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = os.Stat(filepath.Join(root, "Meu projeto (2).jornada")); err != nil {
+		t.Fatal("homônimo não foi preservado")
+	}
+}
+
 // TestRecentsAndLauncher percorre persistência, entrada removida e os dois modos sem documento implícito.
 func TestRecentsAndLauncher(t *testing.T) {
 	t.Setenv("JORNADA_CONFIG_DIR", t.TempDir())

@@ -110,28 +110,12 @@ func NewComponent(kind catalog.Kind, name string, x, y int) (Component, error) {
 	}
 	// component contém o controle tipado em processamento, validado nas coordenadas e referências da própria tela.
 	component := Component{ID: project.NewID(), Name: name, FileID: SuggestFileID(name, false), Kind: kind, Bounds: Bounds{x, y, definition.Width, definition.Height}, Enabled: true}
-	switch kind {
-	case catalog.Button:
-		component.Properties.Button = &catalog.ButtonProperties{Text: "Continuar", Variant: "confirm"}
-	case catalog.Label:
-		component.Properties.Label = &catalog.TextProperties{Text: "Rótulo"}
-	case catalog.Title:
-		component.Properties.Title = &catalog.TextProperties{Text: "Título da tela"}
-	case catalog.TextField:
-		component.Properties.Field = &catalog.FieldProperties{Format: "text"}
-	case catalog.Radio:
-		component.Properties.Radio = &catalog.RadioProperties{Orientation: "vertical", Options: []catalog.Option{{ID: project.NewID(), Text: "Opção 1"}, {ID: project.NewID(), Text: "Opção 2"}}}
-	case catalog.Report:
-		component.Properties.Report = &catalog.ReportProperties{Title: "Relatório", Rows: []catalog.Option{}}
-	case catalog.NumericKeyboard:
-		component.Properties.Keyboard = &catalog.KeyboardProperties{}
-	case catalog.BarcodeInput:
-		component.Properties.BarcodeInput = catalog.NewBarcodeInputProperties()
-	case catalog.BarcodeProcessed:
-		component.Properties.BarcodeProcessed = catalog.NewBarcodeProcessedProperties(project.NewID)
-	case catalog.ApplicationMenu:
-		component.Properties.Menu = catalog.NewApplicationMenuProperties(project.NewID)
+	// properties vêm do mesmo construtor de Catálogo usado pela descoberta e por ambos os canais.
+	properties, err := catalog.DefaultProperties(kind, project.NewID)
+	if err != nil {
+		return Component{}, err
 	}
+	component.Properties = properties
 	return component, nil
 }
 

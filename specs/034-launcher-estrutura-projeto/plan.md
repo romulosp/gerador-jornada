@@ -10,6 +10,8 @@ Estender o editor desktop (módulo Go `gerador-jornada.local/editor`, UI Fyne) c
 
 ## Technical Context
 
+Correção de 2026-10-25 coordenada por `037-integracao-github/T073`: `desktop.Launcher.createProject` usa a pasta selecionada diretamente. `Workspace.Create` mantém a normalização do nome e exclusividade do arquivo. `TestLauncherUsesSelectedFolder` cobre ausência de subpasta e preservação de homônimo; sem mudança em entidades/formato.
+
 **Language/Version**: Go (módulo único `gerador-jornada.local/editor`), Fyne v2.
 
 **Primary Dependencies**: Fyne v2 (janela/controles), biblioteca padrão Go (`os`, `path/filepath`, `encoding/json`). Sem dependências de rede.

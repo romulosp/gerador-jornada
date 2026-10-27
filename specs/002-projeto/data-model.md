@@ -1,5 +1,9 @@
 # Data Model: Domínio Projeto
 
+## Extensão planejada — recursos portáteis 038
+
+O [modelo 038](../038-integracao-mcp-agentes/data-model.md) mantém Project/Asset e o codec vigente como fonte de verdade. A biblioteca contém template `.jornada` de uma tela com somente recursos selecionados; instanciação transfere imagens com novos IDs quando necessário e deduplicação por hash, preservando integridade. Sessão/revisão/consentimento não são novos campos persistidos. Nenhum schema/catalogVersion é alterado por MCP; evolução futura exige contrato próprio. Desenho de 2026-10-25, ainda não implementado.
+
 ## Situação corrente — revisão 1.0.0.1
 
 Project contém ID, Name, Revision, CatalogVersion e Assets; Document agrega telas, jornada, roteiros, JavaOptions e Resources. Writer 3/3; pares de leitura reconhecidos: 1/1, 2/1, 3/2 e 3/3. Campos desconhecidos são recusados. Perfis visuais privados por documento não foram implementados.

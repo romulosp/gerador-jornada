@@ -6,27 +6,14 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"gerador-jornada.local/editor/internal/adapter/builtinassets"
 	"gerador-jornada.local/editor/internal/application"
-	"gerador-jornada.local/editor/internal/screen"
 )
 
 // addScreen acrescenta uma composição vazia em uma única operação.
 func (e *Editor) addScreen() {
-	// created identifica a composição adicionada.
-	created := screen.New(fmt.Sprintf("Tela %d", len(e.Session.Document.Screens)+1))
-	created.FileID = application.UniqueScreenFileID(e.Session.Document, created.FileID)
-	if e.check(e.Session.Change(func(document *application.Document) error {
-		document.Screens = append(document.Screens, created)
-		if current := document.Screen(e.PageID); current != nil && current.Background.AssetID != "" {
-			document.Screen(created.ID).Background = current.Background
-		} else if err := builtinassets.UseBackground(document, created.ID); err != nil {
-			return err
-		}
-		if document.Journey.StartScreenID == "" {
-			document.Journey.StartScreenID = created.ID
-		}
-		return nil
-	})) {
-		e.PageID = created.ID
+	// id é criado pelo mesmo caso de uso consumido pelo MCP; a UI fornece apenas contexto e recurso.
+	id, err := e.Session.CreateScreen(fmt.Sprintf("Tela %d", len(e.Session.Document.Screens)+1), e.PageID, application.ScreenChanges{}, builtinassets.UseBackground)
+	if e.check(err) {
+		e.PageID = id
 		e.Selected = ""
 		e.changed()
 	}

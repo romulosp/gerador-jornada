@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0.11",
+  "version": "1.0.0.13",
   "os": "windows",
   "arch": "amd64",
   "cgo": true,
@@ -12,6 +12,5 @@
   "signing": "unsigned",
   "manualApproval": "pending",
   "binary": "JornadaStudio.exe",
-  "compiler": "gcc.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r2) 16.2.0",
-  "binarySHA256": "74aa094afa2e98a6e8d5f213ac735307b4ada6c8591b0c4c78bbeb2bff506c85"
+  "compiler": "gcc.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r2) 16.2.0"
 }

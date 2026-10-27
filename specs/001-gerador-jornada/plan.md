@@ -1,5 +1,9 @@
 # Implementation Plan: Gerador de Jornada
 
+## Coordenação da 038 — planejamento autorizado em 2026-10-25
+
+A constituição 1.4.0 autoriza MCP local opcional dentro dos limites aprovados pelo usuário; a [SPEC 038 v0.4](../038-integracao-mcp-agentes/spec.md) foi aprovada para planejamento. [Plano 038](../038-integracao-mcp-agentes/plan.md) coordena adaptador stdio, consentimento headless, biblioteca comum e fábrica assistida; Projeto/Catálogo/Tela conservam modelos e backlogs próprios, Jornada/Demonstração seus contratos existentes. Editor manual e MCP com LLM externa são complementares e mantêm o mesmo estilo legado. Não duplicar tarefas de domínio nesta coordenadora. Plano proposto para revisão; tasks/implementação/builds/aceite da 038 não foram autorizados ou executados por esse registro.
+
 ## Situação corrente — revisão 1.0.0.1
 
 Composição em application.Document; sete famílias base e três compostos; Style/Enabled/ParentID na instância. JSON schemaVersion=3/catalogVersion=3. Não existe Document.AppearanceProfile, appearance tipada, skin.Profile ou adaptador visualprofile no código atual.
@@ -11,6 +15,8 @@ Este quadro e a [spec](spec.md#estado-verificado-1-0-0-1) descrevem a implementa
 **Input**: Especificação funcional aprovada e análise estática do material legado.
 
 ## Summary
+
+**Incremento 1.0.0.15 — destino no workspace**: `desktop.exportPPT` mantém opções e usa `workspacePPTOutput` para resolver a raiz física e o nome do pacote, sem escolher destino. O writer PPTX/atomicfile permanece responsável pela publicação íntegra; a UI confirma apenas a substituição de apresentação existente e recusa diretórios/links como destino. `saveWithCompletion` usa o workspace definido no primeiro save, com nome exclusivo. Testes em `desktop/export_workspace_test.go` geram PPTX real, verificam caminho e cancelamento/preservação. Sem mudança de contrato `.jornada`, entidades ou representação visual; 001/FR-062/T162.
 
 **Referência vigente:** consultar a situação corrente 1.0.0.1 acima. A regra de filtragem de dependências ausentes permanece; os inventários de perfis 214/206 e suas APIs são históricos/alvo de expansão.
 

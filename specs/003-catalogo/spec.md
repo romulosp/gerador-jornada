@@ -1,5 +1,9 @@
 # Feature Specification: Domínio Catálogo
 
+## Integração planejada — biblioteca e MCP da 038, 2026-10-25
+
+A [038 v0.4](../038-integracao-mcp-agentes/spec.md) foi autorizada para planejamento sob constituição 1.4.0. Catálogo é dono das definições reutilizáveis, propriedades/capacidades e validação semântica; persistência da biblioteca é adaptador, não outro catálogo para MCP. Requisitos coordenados 038/FR-003–FR-004/FR-018–FR-021/FR-025–FR-031 referenciam as classificações FR-007–FR-012 existentes aqui. Pacote/versão imutável e instâncias independentes estão no [contrato](../038-integracao-mcp-agentes/contracts/biblioteca.md). Não houve implementação nem expansão de Kinds nesta fase; novos Kinds continuam no backlog deste domínio, sem tarefa duplicada na 038.
+
 **Feature Branch**: `003-catalogo` (identificador; sem branch Git criada)
 **Created**: 2026-10-17
 **Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
@@ -152,3 +156,7 @@ FR-016 e T022 passam a usar a árvore ativa preservada em `material-legado/menu/
 ## Títulos, variantes e referências de movimento — 1.0.0.3
 
 Nova fábrica preserva Title vazio quando tituloPrincipal não existe. Usa marcas de jogo também nas opções Bolão previstas no mapa Java, menu2/menu2_seta no ramo financeiro e menu_peq para Bolões Digitais. MovementCode, MovementName, MovementOption e Shortcut permanecem literais editáveis. Código compartilhado não identifica univocamente um movimento; não reconstruir cadastro ausente. Comportamento e limite em [033/estado vigente](../033-menu-aplicacao-efl/spec.md#estado-verificado-1-0-0-3).
+
+## Parcela instalada integrada à 038
+
+038/T019 implementa catalog/capabilities.go: PropertyDefinition e enums puros das sete famílias I1, com DefaultProperties compartilhado por screen.NewComponent e descoberta. Dez Kinds existentes preservados; compostos não anunciam patch avançado MCP. InstanceIDs/RegenerateInstanceIDs incluem opções/linhas/partes para cópias independentes. Não implementa o metamodelo completo do inspector, famílias novas, ReusableDefinition ou homologação. T004 amplo permanece aberto. Evidência de testes em 038/quickstart.

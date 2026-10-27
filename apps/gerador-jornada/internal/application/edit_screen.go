@@ -59,8 +59,17 @@ func UniqueName(page screen.Screen, base string) string {
 
 // DuplicateScreen copia composição, referências internas e navegação para a própria tela.
 func (s *Session) DuplicateScreen(id string) (string, error) {
+	// created conserva a API manual; o mapa também está disponível para consumidores de autoria.
+	created, _, err := s.DuplicateScreenWithMapping(id)
+	return created, err
+}
+
+// DuplicateScreenWithMapping devolve os UUIDs antigos/novos sem perder opções ou partes internas.
+func (s *Session) DuplicateScreenWithMapping(id string) (string, map[string]string, error) {
 	// created registra a identidade permanente atribuída pelo comando.
 	created := ""
+	// identities conserva o remapeamento integral da cópia.
+	identities := map[string]string{}
 	// err preserva o resultado da operação sem publicar estado parcial.
 	err := s.Change(func(document *Document) error {
 		// original é lido da transação independente.
@@ -73,16 +82,26 @@ func (s *Session) DuplicateScreen(id string) (string, error) {
 		duplicate.Name += " — cópia"
 		duplicate.FileID = UniqueScreenFileID(*document, original.FileID)
 		duplicate.ID = project.NewID()
+		identities[original.ID] = duplicate.ID
+		if err := ValidateAuthoringName(duplicate.Name); err != nil {
+			return err
+		}
 		duplicate.Components = append([]screen.Component{}, original.Components...)
 		// mapping remapeia referências da mesma tela e ações copiadas.
-		mapping := map[string]string{}
+		mapping := identities
 		// index localiza o item atual na coleção sem alterar sua ordem.
 		for index := range duplicate.Components {
 			mapping[duplicate.Components[index].ID] = project.NewID()
 			duplicate.Components[index].ID = mapping[duplicate.Components[index].ID]
 			duplicate.Components[index].Properties = duplicate.Components[index].Properties.Copy()
 			// compostos recebem identidades internas novas para não colidirem com o original.
-			duplicate.Components[index].Properties.RegenerateCompoundIDs(project.NewID)
+			// previous e renewed incluem opções/linhas, além das partes dos compostos.
+			previous := duplicate.Components[index].Properties.InstanceIDs()
+			duplicate.Components[index].Properties.RegenerateInstanceIDs(project.NewID)
+			renewed := duplicate.Components[index].Properties.InstanceIDs()
+			for position, oldID := range previous {
+				identities[oldID] = renewed[position]
+			}
 		}
 		// screenMapping remapeia destinos de menu que apontavam para a própria tela copiada.
 		screenMapping := map[string]string{id: duplicate.ID}
@@ -112,7 +131,7 @@ func (s *Session) DuplicateScreen(id string) (string, error) {
 		document.Screens = append(document.Screens, duplicate)
 		return nil
 	})
-	return created, err
+	return created, identities, err
 }
 
 // RemoveScreen remove as ações de saída da tela e preserva entradas como referências diagnosticáveis.

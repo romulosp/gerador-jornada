@@ -1,0 +1,496 @@
+[
+  {
+    "module": "dario.cat/mergo",
+    "version": "v1.0.0",
+    "files": [
+      "26b444dbad183e47f0d7/LICENSE"
+    ]
+  },
+  {
+    "module": "fyne.io/fyne/v2",
+    "version": "v2.8.2",
+    "files": [
+      "c011ebdca343bcf7c8db/LICENSE"
+    ]
+  },
+  {
+    "module": "fyne.io/systray",
+    "version": "v1.12.3-0.20260810170012-af4e8e793ec4",
+    "files": [
+      "860d82a5dce16d43cd5d/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/BurntSushi/toml",
+    "version": "v1.6.0",
+    "files": [
+      "2c8e80ea9802b5805646/COPYING"
+    ]
+  },
+  {
+    "module": "github.com/FyshOS/fancyfs",
+    "version": "v0.0.1",
+    "files": [
+      "42fa37fb51456d9d7b5d/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/Microsoft/go-winio",
+    "version": "v0.6.2",
+    "files": [
+      "bcf6e0cff0814b4c6d4f/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/ProtonMail/go-crypto",
+    "version": "v1.1.6",
+    "files": [
+      "9b4fc0a38b642d4b7e4e/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/anmitsu/go-shlex",
+    "version": "v0.0.0-20200514113438-38f4b401e2be",
+    "files": [
+      "1bc55d0a5654b1f82eb5/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/anthonynsimon/bild",
+    "version": "v0.14.0",
+    "files": [
+      "70ce14dd7b7398e21667/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/armon/go-socks5",
+    "version": "v0.0.0-20160902184237-e75332964ef5",
+    "files": [
+      "8ba45a2586b5cc80cb5f/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/clipperhouse/uax29/v2",
+    "version": "v2.2.0",
+    "files": [
+      "57080fbe75df810f143b/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/cloudflare/circl",
+    "version": "v1.6.3",
+    "files": [
+      "62b7b6f430db863c2caf/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/cyphar/filepath-securejoin",
+    "version": "v0.6.1",
+    "files": [
+      "1c087fee2863fbfce8a7/COPYING.md",
+      "1c087fee2863fbfce8a7/LICENSE.BSD",
+      "1c087fee2863fbfce8a7/LICENSE.MPL-2.0"
+    ]
+  },
+  {
+    "module": "github.com/davecgh/go-spew",
+    "version": "v1.1.1",
+    "files": [
+      "28f11a96bd6d67b115a0/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/elazarl/goproxy",
+    "version": "v1.7.2",
+    "files": [
+      "6f678c985cf337925f93/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/emirpasic/gods",
+    "version": "v1.18.1",
+    "files": [
+      "08b9764ab0880648513b/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/fsnotify/fsnotify",
+    "version": "v1.9.0",
+    "files": [
+      "378f777c98af074fd0b9/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/fyne-io/gl-js",
+    "version": "v0.2.1-0.20260315212741-029c47fd27e8",
+    "files": [
+      "fa4a30221c9b971de740/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/fyne-io/glfw-js",
+    "version": "v0.4.0",
+    "files": [
+      "377060f0b30c4bf0db08/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/fyne-io/image",
+    "version": "v0.1.1",
+    "files": [
+      "4e841899fa2b949cebe8/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/fyne-io/oksvg",
+    "version": "v0.2.1-0.20260918172519-a9af55fa95d9",
+    "files": [
+      "73377db9ca277114c175/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/gliderlabs/ssh",
+    "version": "v0.3.8",
+    "files": [
+      "c4092d6b8a149b23938b/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/go-git/gcfg",
+    "version": "v1.5.1-0.20230307220236-3a3c6141e376",
+    "files": [
+      "97bfcb7fdd4b872a667a/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/go-git/go-billy/v5",
+    "version": "v5.9.2",
+    "files": [
+      "acca9839866d1b48d9eb/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/go-git/go-git-fixtures/v4",
+    "version": "v4.3.2-0.20231010084843-55a94097c399",
+    "files": [
+      "16cbfca89d7e41e7938c/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/go-git/go-git/v5",
+    "version": "v5.19.3",
+    "files": [
+      "7ff7ce466e5a85c19a12/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/go-gl/gl",
+    "version": "v0.0.0-20260331235117-4566fea9a276",
+    "files": [
+      "9fc5849a00e2f6510454/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/go-gl/glfw/v3.4/glfw",
+    "version": "v0.1.0-pre.2",
+    "files": [
+      "ddf6b24ba17f3fe03930/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/go-text/render",
+    "version": "v0.2.1",
+    "files": [
+      "d5fad8ff90481853edb4/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/go-text/typesetting",
+    "version": "v0.3.5",
+    "files": [
+      "abee555848cdfd96c548/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/go-text/typesetting-utils",
+    "version": "v0.0.0-20260419141703-4ffe8874dabc",
+    "files": [
+      "83743b91a6e0d289ba72/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/godbus/dbus/v5",
+    "version": "v5.2.2",
+    "files": [
+      "65a846c6c827f5845329/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/golang/groupcache",
+    "version": "v0.0.0-20241129210726-2c02b8208cf8",
+    "files": [
+      "5ec6dd3c226939a07313/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/google/go-cmp",
+    "version": "v0.7.0",
+    "files": [
+      "68154086d1bb97c000b9/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/hack-pad/go-indexeddb",
+    "version": "v0.3.2",
+    "files": [
+      "d903ca31a5b194311227/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/hack-pad/safejs",
+    "version": "v0.1.0",
+    "files": [
+      "e5a95cab499d72c65aa1/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/jbenet/go-context",
+    "version": "v0.0.0-20150711004518-d14ea06fba99",
+    "files": [
+      "5ebb215574ae2b364e42/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/jeandeaual/go-locale",
+    "version": "v0.0.0-20250612000132-0ef82f21eade",
+    "files": [
+      "208511c9677e0095aecf/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/jsummers/gobmp",
+    "version": "v0.0.0-20230614200233-a9de23ed2e25",
+    "files": [
+      "8c77f8eff3c3a984037e/COPYING.txt"
+    ]
+  },
+  {
+    "module": "github.com/kevinburke/ssh_config",
+    "version": "v1.2.0",
+    "files": [
+      "f5b9b50262a97673a32e/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/kr/pretty",
+    "version": "v0.3.1",
+    "files": [
+      "2c52979daf079d1e3f6b/License"
+    ]
+  },
+  {
+    "module": "github.com/kr/text",
+    "version": "v0.2.0",
+    "files": [
+      "a2939ef098e24c1666cf/License"
+    ]
+  },
+  {
+    "module": "github.com/mattn/go-runewidth",
+    "version": "v0.0.24",
+    "files": [
+      "fb87ed1a8d007b3ccf45/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/nfnt/resize",
+    "version": "v0.0.0-20180221191011-83c6a9932646",
+    "files": [
+      "86388713452d3ebb54ba/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/nicksnyder/go-i18n/v2",
+    "version": "v2.5.1",
+    "files": [
+      "8965dada276d7220e12f/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/onsi/gomega",
+    "version": "v1.34.1",
+    "files": [
+      "c04e5ea859cb05f6d58e/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/pjbgf/sha1cd",
+    "version": "v0.7.0",
+    "files": [
+      "9dda19b63235acd08f4c/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/pkg/errors",
+    "version": "v0.9.1",
+    "files": [
+      "94dd5aaff89aa2c9802b/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/pmezard/go-difflib",
+    "version": "v1.0.0",
+    "files": [
+      "0e664ef15b3bc98c2fb1/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/rivo/uniseg",
+    "version": "v0.4.7",
+    "files": [
+      "10a5b277238545ab2a32/LICENSE.txt"
+    ]
+  },
+  {
+    "module": "github.com/rogpeppe/go-internal",
+    "version": "v1.14.1",
+    "files": [
+      "8d36bab0ca914bcfb3dd/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/rymdport/portal",
+    "version": "v0.4.2",
+    "files": [
+      "20a70e926526dcc371f3/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/sergi/go-diff",
+    "version": "v1.3.2-0.20230802210424-5b0b94c5c0d3",
+    "files": [
+      "e19633aa3d48fad413c1/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/skeema/knownhosts",
+    "version": "v1.3.1",
+    "files": [
+      "188e50257b9eca4cfb22/LICENSE",
+      "188e50257b9eca4cfb22/NOTICE"
+    ]
+  },
+  {
+    "module": "github.com/srwiley/oksvg",
+    "version": "v0.0.0-20221011165216-be6e8873101c",
+    "files": [
+      "6bdb1c33c19c4d683c2c/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/srwiley/rasterx",
+    "version": "v0.0.0-20220730225603-2ab79fcdd4ef",
+    "files": [
+      "c1c807533579f63a8c88/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/stretchr/testify",
+    "version": "v1.11.1",
+    "files": [
+      "87bb82a7d12bbd8ebdcd/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/xanzy/ssh-agent",
+    "version": "v0.3.3",
+    "files": [
+      "c28e5f9c2b5da6f2d6d0/LICENSE"
+    ]
+  },
+  {
+    "module": "github.com/yuin/goldmark",
+    "version": "v1.8.2",
+    "files": [
+      "d013249b8f7d57a87fa2/LICENSE"
+    ]
+  },
+  {
+    "module": "golang.org/x/crypto",
+    "version": "v0.56.0",
+    "files": [
+      "8065c5e35239739a3ff1/LICENSE"
+    ]
+  },
+  {
+    "module": "golang.org/x/exp",
+    "version": "v0.0.0-20260410095643-746e56fc9e2f",
+    "files": [
+      "3c28872f4c09339355b9/LICENSE"
+    ]
+  },
+  {
+    "module": "golang.org/x/image",
+    "version": "v0.24.0",
+    "files": [
+      "dfd99882fe45dde0ce8f/LICENSE"
+    ]
+  },
+  {
+    "module": "golang.org/x/net",
+    "version": "v0.57.0",
+    "files": [
+      "249afe93c89fea2738a2/LICENSE"
+    ]
+  },
+  {
+    "module": "golang.org/x/sys",
+    "version": "v0.47.0",
+    "files": [
+      "dc957412cc909276320f/LICENSE"
+    ]
+  },
+  {
+    "module": "golang.org/x/term",
+    "version": "v0.45.0",
+    "files": [
+      "6b13efd86cb2d64e3b14/LICENSE"
+    ]
+  },
+  {
+    "module": "golang.org/x/text",
+    "version": "v0.41.0",
+    "files": [
+      "7ed23dec1da49410ed6c/LICENSE"
+    ]
+  },
+  {
+    "module": "gopkg.in/check.v1",
+    "version": "v1.0.0-20201130134442-10cb98267c6c",
+    "files": [
+      "9dd335ea47fae73b0445/LICENSE"
+    ]
+  },
+  {
+    "module": "gopkg.in/warnings.v0",
+    "version": "v0.1.2",
+    "files": [
+      "67bc5f4807b988cff73a/LICENSE"
+    ]
+  },
+  {
+    "module": "gopkg.in/yaml.v3",
+    "version": "v3.0.1",
+    "files": [
+      "491112fe160db255d49b/LICENSE",
+      "491112fe160db255d49b/NOTICE"
+    ]
+  },
+  {
+    "module": "github.com/primer/octicons",
+    "version": "static-2026-10-24",
+    "files": [
+      "github-octicons-LICENSE.txt"
+    ]
+  }
+]

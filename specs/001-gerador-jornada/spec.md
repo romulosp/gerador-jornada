@@ -469,3 +469,9 @@ Integrar 035/FR-008–FR-010 (política por usuário), 036/FR-011/FR-013/FR-014 
 ## Vídeo em janela — 1.0.0.11
 
 O pedido vigente substitui o fullscreen do incremento anterior: apresentação em janela normal centralizada, 960×540 unidades Fyne inicialmente, mantendo áudio, vídeo inteiro, espera de recursos e opção de primeiro uso/repetição. Detalhes em 036/FR-001/FR-011 e DESIGN. Não alterar o modelo de domínio 035 nem formato de projeto. Exibição no ambiente do usuário ainda pendente de teste.
+
+## Arquivos no workspace — 2026-10-25 / 1.0.0.15
+
+- **FR-062**: Exportar PowerPoint DEVE usar automaticamente a pasta do workspace atual e o nome do arquivo `.jornada`, com extensão `.pptx`, sem solicitar pasta ou nome de saída. As opções de conteúdo/transição permanecem disponíveis; apresentação existente exige apenas confirmação de substituição e só é alterada após geração completa. Sem workspace definido, orientar definir/salvar o projeto, sem exportar para pasta implícita. O primeiro salvamento de jornada com workspace já configurado DEVE usar essa pasta, preservando homônimos. Formatos confirmados: `.jornada` e `.pptx`; `.ppt` antigo permanece fora deste incremento.
+
+**Aceitação**: abrir `Meu projeto (2).jornada`, exportar e encontrar `Meu projeto (2).pptx` ao lado, sem seletor de destino. Cancelar substituição preserva a apresentação anterior. Salvar documento novo com workspace definido cria nele o pacote, sem pedir a pasta novamente. A mudança é de destino de arquivos, sem alteração de formato, cena ou publicação Git.

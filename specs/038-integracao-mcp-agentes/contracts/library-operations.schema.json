@@ -1,0 +1,34 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"urn:jornada:038:library-operations:v1",
+  "title":"Entradas de revisão, admissão de importação e confirmação da biblioteca",
+  "description":"DTOs fechados de ferramentas futuras. Revisões uint64 exigem conferência de intervalo na aplicação; nomes são validados também pelas regras Windows e pela raiz física autorizada.",
+  "oneOf":[{"$ref":"#/$defs/ReviewRequest"},{"$ref":"#/$defs/PrepareImportRequest"},{"$ref":"#/$defs/CommitRequest"}],
+  "$defs":{
+    "UUID":{"type":"string","pattern":"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"},
+    "Hash":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "Revision":{"type":"string","pattern":"^(0|[1-9][0-9]{0,19})$"},
+    "ProposalRef":{"type":"object","additionalProperties":false,"required":["proposalId","proposalRevision"],"properties":{"proposalId":{"$ref":"#/$defs/UUID"},"proposalRevision":{"type":"integer","minimum":1,"maximum":2147483647}}},
+    "PublishedRef":{"type":"object","additionalProperties":false,"required":["definitionId","version","packageSha256"],"properties":{"definitionId":{"$ref":"#/$defs/UUID"},"version":{"type":"string","maxLength":64,"pattern":"^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"},"packageSha256":{"$ref":"#/$defs/Hash"}}},
+    "ExportTarget":{"type":"object","additionalProperties":false,"required":["filename"],"properties":{"filename":{"type":"string","minLength":7,"maxLength":120,"pattern":"^[^\\\\/\\r\\n:]+\\.jcomp$"}}},
+    "ReviewRequest":{
+      "type":"object","additionalProperties":false,
+      "required":["sessionId","requestId","expectedRevision","controlGeneration","operation","subject"],
+      "properties":{"sessionId":{"$ref":"#/$defs/UUID"},"requestId":{"$ref":"#/$defs/UUID"},"expectedRevision":{"$ref":"#/$defs/Revision"},"controlGeneration":{"$ref":"#/$defs/Revision"},"operation":{"enum":["publishDefinition","withdrawDefinition","importDefinition","exportDefinition"]},"subject":{"type":"object"},"target":{"$ref":"#/$defs/ExportTarget"}},
+      "allOf":[
+        {"if":{"properties":{"operation":{"enum":["publishDefinition","importDefinition"]}}},"then":{"properties":{"subject":{"$ref":"#/$defs/ProposalRef"}}},"else":{"properties":{"subject":{"$ref":"#/$defs/PublishedRef"}}}},
+        {"if":{"properties":{"operation":{"const":"exportDefinition"}}},"then":{"required":["target"]},"else":{"properties":{"target":false}}}
+      ]
+    },
+    "PrepareImportRequest":{
+      "type":"object","additionalProperties":false,
+      "required":["sessionId","requestId","expectedRevision","materialId","expectedPackageSha256"],
+      "properties":{"sessionId":{"$ref":"#/$defs/UUID"},"requestId":{"$ref":"#/$defs/UUID"},"expectedRevision":{"$ref":"#/$defs/Revision"},"materialId":{"$ref":"#/$defs/UUID"},"expectedPackageSha256":{"$ref":"#/$defs/Hash"}}
+    },
+    "CommitRequest":{
+      "type":"object","additionalProperties":false,
+      "required":["sessionId","requestId","reviewId","authorization"],
+      "properties":{"sessionId":{"$ref":"#/$defs/UUID"},"requestId":{"$ref":"#/$defs/UUID"},"reviewId":{"$ref":"#/$defs/UUID"},"authorization":{"$ref":"urn:jornada:038:authorization:v1#/$defs/Authorization"}}
+    }
+  }
+}

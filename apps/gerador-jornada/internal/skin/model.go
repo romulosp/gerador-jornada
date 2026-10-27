@@ -86,6 +86,34 @@ type Library struct {
 	assets fs.FS
 	// resources conserva hashes e famílias reais dos recursos incorporados.
 	resources map[string]Resource
+	// unavailable conserva diagnósticos do importador sem colocar definições quebradas na oferta.
+	unavailable []UnavailableDefinition
+}
+
+// UnavailableDefinition informa recursos ausentes de uma definição não ofertada.
+type UnavailableDefinition struct {
+	// Type/Name identificam a definição exata; Missing contém caminhos lógicos incorporáveis.
+	Type    string
+	Name    string
+	Missing []string
+}
+
+// Unavailable retorna cópia dos diagnósticos de importação, sem habilitar definições ausentes.
+func (l *Library) Unavailable() []UnavailableDefinition {
+	// result protege o catálogo compartilhado contra alterações de consumidores de metadados.
+	result := make([]UnavailableDefinition, len(l.unavailable))
+	for index, definition := range l.unavailable {
+		result[index] = definition
+		result[index].Missing = append([]string{}, definition.Missing...)
+	}
+	return result
+}
+
+// ResourceInfo retorna tamanho/hash/família física do recurso validado no carregamento.
+func (l *Library) ResourceInfo(path string) (Resource, bool) {
+	// resource é valor, sem expor os bytes ou o mapa da biblioteca incorporada.
+	resource, found := l.resources[path]
+	return resource, found
 }
 
 // builtin guarda a biblioteca carregada uma única vez.
@@ -158,6 +186,8 @@ func load() (*Library, error) {
 		Definitions map[string]map[string]Definition
 		// Resources descreve os bytes usados pelas definições operacionais.
 		Resources map[string]Resource
+		// Unavailable preserva falhas reais sem sintetizar substitutos visuais.
+		Unavailable []UnavailableDefinition
 	}
 	if err := json.Unmarshal(data, &manifest); err != nil {
 		return nil, err
@@ -173,7 +203,7 @@ func load() (*Library, error) {
 			return nil, fmt.Errorf("recurso de skin corrompido: %s", path)
 		}
 	}
-	return &Library{definitions: manifest.Definitions, resources: manifest.Resources, assets: sub}, nil
+	return &Library{definitions: manifest.Definitions, resources: manifest.Resources, assets: sub, unavailable: manifest.Unavailable}, nil
 }
 
 // FontFamily devolve a família real do recurso SFNT, sem inferência pelo nome.

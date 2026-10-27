@@ -73,7 +73,7 @@ func presetLabels(id string) []presetLabel {
 
 // InsertPreset insere componentes comuns; o chamador controla a transação e o histórico.
 // Data, hora e indicadores são conteúdo ilustrativo, sem relógio vivo ou monitoramento de rede.
-func InsertPreset(document *Document, pageID, presetID string, x, y int) ([]string, error) {
+func InsertPreset(document *Document, pageID, presetID string, x, y int, titleStrip func(*Document) string) ([]string, error) {
 	// page deve existir antes de construir qualquer componente.
 	page := document.Screen(pageID)
 	if page == nil {
@@ -97,6 +97,9 @@ func InsertPreset(document *Document, pageID, presetID string, x, y int) ([]stri
 	if page.Size.Width < definition.Width || page.Size.Height < definition.Height {
 		return nil, fmt.Errorf("a tela precisa comportar o conjunto %s (%d × %d)", definition.Name, definition.Width, definition.Height)
 	}
+	if presetID == "pageTitle" && titleStrip == nil {
+		return nil, fmt.Errorf("recurso de faixa de título ausente")
+	}
 	// origin mantém todo o conjunto dentro da tela sem deformar o espaçamento entre linhas.
 	origin := (screen.Bounds{X: x, Y: y, Width: definition.Width, Height: definition.Height}).Clamp(page.Size)
 	// lines contém apenas componentes de texto comuns e editáveis.
@@ -104,7 +107,7 @@ func InsertPreset(document *Document, pageID, presetID string, x, y int) ([]stri
 	if presetID == "pageTitle" {
 		lines = []presetLabel{{"tituloPagina", "Título da página", screen.Bounds{Width: page.Size.Width, Height: 28}}}
 	}
-	// ids permite selecionar o primeiro controle e aplicar decoração na camada adaptadora.
+	// ids conserva identidades da composição; a decoração é aplicada no mesmo caso de uso.
 	ids := []string{}
 	// line fornece conteúdo e geometria de cada componente independente.
 	for _, line := range lines {
@@ -132,6 +135,7 @@ func InsertPreset(document *Document, pageID, presetID string, x, y int) ([]stri
 			component.Style.FontSize = 18
 			component.Style.TextColor = "#FFFFFF"
 			component.Style.TextAlign = "right"
+			component.Style.BackgroundAssetID = titleStrip(document)
 		}
 		page.Components = append(page.Components, component)
 		ids = append(ids, component.ID)

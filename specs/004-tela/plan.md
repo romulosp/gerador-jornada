@@ -1,5 +1,9 @@
 # Implementation Plan: Domínio Tela
 
+## Integração planejada 038 — 2026-10-25
+
+Implementação futura deve reutilizar tipos/cópia/validação existentes para capturar seleção e expandir instância via aplicação comum, com IDs internos/FileIDs e referências remapeados. A mesma operação manual/MCP aplica recursos e default visual do legado; decoration de preset não fica exclusiva de widget. [Plano](../038-integracao-mcp-agentes/plan.md), [modelo](../038-integracao-mcp-agentes/data-model.md) e [DESIGN](../038-integracao-mcp-agentes/DESIGN.md) da 038 delimitam domínio/adaptadores. Trabalho ainda planejado, sem mudança do formato ou prova funcional nesta fase.
+
 ## Situação corrente — revisão 1.0.0.1
 
 Screen mantém ID/Name/FileID, Size, Background e Components em ordem de camadas. Component mantém ID/Name/FileID, Kind, Bounds, Style, Enabled, ParentID e Properties. Style tem FontFamily/FontSize/TextColor/FillColor/BorderColor/BackgroundAssetID/TextAlign/Skin; não possui FillAlpha nem appearance tipada.
@@ -132,3 +136,7 @@ Testes locais de identidade/cópia/ordem e comandos ficam em screen/application.
 FR-020/T017 consome 003/T021 em `internal/screen/model.go`, `internal/application/component_copy.go` e comandos existentes de edição/histórico. Factory recebe callback de identidade da composição; copiar snapshot conserva UUIDs, duplicação regenera nós e remapeia inicial por mapa old→new. Não converter itens em Screen.Components ou ParentID internos. Remapeio de destinos ao duplicar tela consulta a política explícita de Jornada em 005/T012; duplicar componente não cria tela de destino.
 
 Editar/remover/reordenar ramo e escolher menu inicial passam por uma transação existente, validação de catálogo e índice global de UUIDs; erro preserva documento/rascunho confirmado. Bounds/z-order/FileID/ParentID e referências não alteradas permanecem. Nenhum callback Fyne, runtime de navegação ou DTO ZIP entra em Tela. Registro central é serial com T015–T016; formulários/cena usam os comandos após contrato estável. Testes e aprovação pendentes.
+
+## Parcela instalada integrada à 038
+
+038/T021–T023 compartilham CreateScreen/ConfigureScreen/ComponentChanges/ValidateComponentEdit com as operações manuais, mantendo contexto de fundo e validação de nome/FileID/geometria. Configuração incompatível recusa sem mover controles. Texto novo usa pontos de código; histórico inalterado é preservado. Cópias de tela/seleção remapeiam opções/linhas/partes e selecionado do rádio, além dos IDs principais. O caso de uso de presets aplica decoração recebida do adaptador; não há pós-processamento exclusivo da GUI. Isso não fecha todo o backlog de Tela ou aprovação visual. Evidência em 038/quickstart.

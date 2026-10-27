@@ -14,6 +14,7 @@ import (
 	"fyne.io/fyne/v2/app"
 	"gerador-jornada.local/editor/internal/adapter/builtinassets"
 	"gerador-jornada.local/editor/internal/adapter/desktop"
+	mcplocal "gerador-jornada.local/editor/internal/adapter/mcp"
 	"gerador-jornada.local/editor/internal/adapter/pptx"
 	"gerador-jornada.local/editor/internal/adapter/projectzip"
 	"gerador-jornada.local/editor/internal/application"
@@ -21,6 +22,14 @@ import (
 
 // main compõe adaptadores; regras de negócio permanecem nos pacotes internos.
 func main() {
+	// mcpMode escolhe o transporte local antes de logger, splash, preferências ou GUI.
+	mcpMode := flag.Bool("mcp", false, "Inicia a interface MCP local por stdin/stdout, sem janela.")
+	// mcpWorkspace é a única raiz inicial autorizada explicitamente pelo operador.
+	mcpWorkspace := flag.String("workspace", "", "Diretório autorizado para a sessão MCP local.")
+	// legacyRoots/importRoots são concessões explícitas por finalidade, fixadas antes do transporte.
+	var legacyRoots, importRoots []string
+	flag.Func("legacy-root", "Pasta de evidências do legado autorizada para leitura MCP; pode repetir.", func(root string) error { legacyRoots = append(legacyRoots, root); return nil })
+	flag.Func("import-root", "Pasta de entrada da biblioteca autorizada para leitura MCP; pode repetir.", func(root string) error { importRoots = append(importRoots, root); return nil })
 	// examplePPT permite validar o exportador sem interação com a janela.
 	examplePPT := flag.String("export-example", "", "Gera um PPTX de exemplo no caminho indicado.")
 	// exampleProject permite abrir o conjunto de referência no editor.
@@ -36,6 +45,24 @@ func main() {
 	// smokeScreenshot captura uma janela real e encerra a prova de inicialização.
 	smokeScreenshot := flag.String("smoke-screenshot", "", "Captura a janela inicial em PNG e encerra.")
 	flag.Parse()
+	if *mcpMode {
+		// incompatible recusa inclusive flags GUI explicitamente enviadas com valor vazio.
+		incompatible := flag.NArg() != 0
+		// option percorre as flags fornecidas para impedir mistura de modalidades.
+		flag.Visit(func(option *flag.Flag) {
+			if option.Name != "mcp" && option.Name != "workspace" && option.Name != "legacy-root" && option.Name != "import-root" {
+				incompatible = true
+			}
+		})
+		if incompatible {
+			fail(fmt.Errorf("--mcp não aceita flags GUI ou utilitários de exportação"))
+		}
+		fail(mcplocal.Run(context.Background(), os.Stdin, os.Stdout, os.Stderr, mcplocal.Config{Workspace: *mcpWorkspace, LegacyRoots: legacyRoots, ImportRoots: importRoots}))
+		return
+	}
+	if *mcpWorkspace != "" || len(legacyRoots) != 0 || len(importRoots) != 0 {
+		fail(fmt.Errorf("--workspace, --legacy-root e --import-root exigem --mcp"))
+	}
 	// utility executa somente operações explicitamente solicitadas sem janela nem reprodução.
 	utility := *exampleProject != "" || *examplePPT != "" || *compoundsProject != "" || *compoundsPPT != ""
 	// O log de aplicação nasce antes do Fyne para registrar o startup real do processo.
@@ -97,6 +124,7 @@ func main() {
 	window = desktop.StartDesktop(desktopApp, func(current fyne.Window) fyne.Window {
 		if *openProject != "" {
 			editor = desktop.New(desktopApp, document)
+			editor.EnableGitHub()
 			editor.SetProjectPath(*openProject)
 			editor.ShowWindow()
 			window = editor.Window
@@ -109,6 +137,7 @@ func main() {
 		launcher = desktop.NewLauncherInWindow(desktopApp, current, func(opened application.Document, path string) {
 			desktop.LogApplication("editor_open_start", map[string]any{"source": "launcher"})
 			editor = desktop.New(desktopApp, opened)
+			editor.EnableGitHub()
 			editor.SetProjectPath(path)
 			editor.ShowWindow()
 			launcher.Window.Close()

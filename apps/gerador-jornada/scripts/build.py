@@ -13,6 +13,7 @@ import sys
 import tarfile
 import tempfile
 import zipfile
+from third_party import collect as collect_licenses
 
 # ROOT permite chamar o script de qualquer diretório do workspace.
 ROOT = Path(__file__).resolve().parents[1]
@@ -95,6 +96,7 @@ def mac_bundle(output, version, env):
 def package_output(output, target, arch, version, binary, env):
     """Gera inventário, hashes e arquivo de distribuição somente após validar o binário."""
     verify_binary(binary, target, arch)
+    collect_licenses(ROOT, output, env)
     # guide conserva o manual completo, identificando os links que pertencem ao repositório-fonte.
     guide = (ROOT / "README.md").read_text(encoding="utf-8").replace(
         'src="internal/adapter/builtinassets/assets/app-icon.png"', 'src="JornadaStudio.png"')

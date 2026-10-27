@@ -1,5 +1,9 @@
 # Feature Specification: Domínio Projeto
 
+## Integração planejada — 038, 2026-10-25
+
+A [038 v0.4](../038-integracao-mcp-agentes/spec.md) foi autorizada para planejamento sob constituição 1.4.0, sem autorização de implementação. Projeto conserva identidade, formato e recursos das jornadas instanciadas da biblioteca; sessão MCP, consentimento e biblioteca pessoal ficam fora do manifesto. Regras específicas e aceitação: 038/FR-014–FR-015/FR-024/FR-026, US4 e SC-005. Esta referência não declara novo formato ou código entregue. Detalhamento em [modelo 038](../038-integracao-mcp-agentes/data-model.md) e [contrato da biblioteca](../038-integracao-mcp-agentes/contracts/biblioteca.md); tarefas deste domínio serão definidas na fase própria, sem duplicar integração.
+
 **Feature Branch**: `002-projeto` (identificador; sem branch Git criada)
 **Created**: 2026-10-17
 **Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes

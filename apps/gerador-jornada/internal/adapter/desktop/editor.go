@@ -12,12 +12,42 @@ import (
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
 	"gerador-jornada.local/editor/internal/adapter/buildinfo"
+	"gerador-jornada.local/editor/internal/adapter/gitworkspace"
+	"gerador-jornada.local/editor/internal/adapter/syncdiag"
 	"gerador-jornada.local/editor/internal/application"
 	"gerador-jornada.local/editor/internal/screen"
 )
 
 // Editor conserva apenas sessão e seleção da interface.
 type Editor struct {
+	// GitDiagnostics reutiliza o log local para rastrear etapas sem material confidencial.
+	GitDiagnostics *syncdiag.Logger
+	// GitStatusText mantém detalhes em diálogo sem consumir a altura da árvore.
+	GitStatusText string
+	// GitVerifiedAt registra somente a última consulta remota bem-sucedida desta sessão.
+	GitVerifiedAt time.Time
+	// GitSync coordena casos de uso sem expor credenciais à interface.
+	GitSync *application.WorkspaceSync
+	// GitHub e GitWorkspace mantêm integração opcional fora dos documentos.
+	GitHub       *application.GitHubConnection
+	GitWorkspace *gitworkspace.Engine
+	// GitLabel e ações representam somente estado administrativo da conexão.
+	GitLabel              *widget.Label
+	GitConnectButton      *widget.Button
+	GitPublishButton      *widget.Button
+	GitRepositoriesButton *widget.Button
+	GitDisconnectButton   *widget.Button
+	GitRefreshButton      *widget.Button
+	// GitOpenButton abre apenas o destino já vinculado no navegador padrão.
+	GitOpenButton *widget.Button
+	// GitBusy e GitCancel protegem a operação assíncrona da janela atual.
+	GitBusy   bool
+	GitCancel func()
+	// GitRecoveredRoot evita recuperar/recarregar o mesmo documento em cada refresh.
+	GitRecoveredRoot string
+	GitRecoveryError error
+	// GitClosed impede atualizar widgets após fechar a janela.
+	GitClosed bool
 	// App controla eventos e janelas Fyne.
 	App fyne.App
 	// Window é a janela principal.
@@ -130,6 +160,10 @@ func New(app fyne.App, document application.Document) *Editor {
 
 // close encerra timers e libera a janela sem alterar dados persistidos.
 func (e *Editor) close() {
+	e.GitClosed = true
+	if e.GitCancel != nil {
+		e.GitCancel()
+	}
 	e.Mode.close()
 	if e.Autosave != nil {
 		e.Autosave.Stop()

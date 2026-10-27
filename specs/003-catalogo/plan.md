@@ -1,5 +1,9 @@
 # Implementation Plan: Domínio Catálogo
 
+## Integração planejada 038 — 2026-10-25
+
+O [plano 038](../038-integracao-mcp-agentes/plan.md) acrescenta definições/versões/parâmetros/capacidades tipados no Catálogo, sem IO/MCP/Fyne no domínio. Adaptador componentstore persiste pacote/índice; aplicação coordena validação/publicação e consentimento. Mesma disponibilidade/default legado orienta paleta e agente. Novos Kinds planejados aqui não são entregues apenas por registrar proposta na fábrica. Invariantes no [modelo 038](../038-integracao-mcp-agentes/data-model.md); tarefas deste domínio serão geradas após revisão do plano, sem declarar código/teste concluído.
+
 ## Situação corrente — revisão 1.0.0.1
 
 catalog.Definition contém Kind/Name/Width/Height. Properties é uma união tipada de dez Kinds; catalogVersion=4 não significa implementação das 16 famílias planejadas. As skins estáticas vêm de internal/skin e não são entidades persistidas de Catálogo.
@@ -140,3 +144,7 @@ A fábrica pura preserva Title ausente e referencia skins financeiras/digitais e
 ## Carregamento antecipado — integração 035/036
 
 A inicialização enumera os recursos operacionais por skin.Library.ResourcePaths, confere integridade e aquece caches de imagens/fontes consumidos por canvas/prévia. Os defaults dos dez Kinds são validados sem publicar um documento fictício. Nenhum atributo de domínio/catálogo ou número de versão muda por esse cache; núcleo do ciclo fica em internal/startup, adaptador de carga em desktop/startup_resources.go e tarefas em 036.
+
+## Parcela instalada integrada à 038
+
+038/T019 implementa catalog/capabilities.go: PropertyDefinition e enums puros das sete famílias I1, com DefaultProperties compartilhado por screen.NewComponent e descoberta. Dez Kinds existentes preservados; compostos não anunciam patch avançado MCP. InstanceIDs/RegenerateInstanceIDs incluem opções/linhas/partes para cópias independentes. Não implementa o metamodelo completo do inspector, famílias novas, ReusableDefinition ou homologação. T004 amplo permanece aberto. Evidência de testes em 038/quickstart.

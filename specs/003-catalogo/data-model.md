@@ -1,6 +1,12 @@
 # Data Model: Domínio Catálogo
 
+## Extensão planejada — definições reutilizáveis 038
+
+Definição, versão imutável, requisitos, parâmetros tipados e disponibilidade são conceitos deste domínio conforme [modelo 038](../038-integracao-mcp-agentes/data-model.md); wire/schema/arquivos ficam nos adaptadores. Oferta published/withdrawn é separada do conteúdo e da compatibilidade calculada. Classificações existentes de composição/variante/Kind são preservadas, com mesmo default legado nos dois modos. [Contrato biblioteca v1](../038-integracao-mcp-agentes/contracts/biblioteca.md) e [schema](../038-integracao-mcp-agentes/contracts/library.schema.json) detalham fronteira externa. Não há structs/capacidades novas implementadas nesta etapa; tarefas futuras qualificam domínio e integração sem duplicação.
+
 ## Situação corrente — revisão 1.0.0.1
+
+Para novos dados de parâmetros da biblioteca 038, limites textuais contam pontos de código Unicode válidos: texto/default até 65.536, nomes e campos específicos conforme schema, sem normalizar/truncar. Ambos os adaptadores usam a mesma validação; bytes UTF-8 de frame/pacote são orçamento independente. A regra não implica truncar conteúdo de documento histórico na leitura. Descritores de proposta/evidência e suas revisões são coordenação de aplicação, não novas propriedades persistidas do Catálogo.
 
 catalog.Definition contém Kind/Name/Width/Height. Properties é uma união tipada de dez Kinds; catalogVersion=4 não significa implementação das 16 famílias planejadas. As skins estáticas vêm de internal/skin e não são entidades persistidas de Catálogo.
 
@@ -87,3 +93,7 @@ Sem mudança da união ou versão: `MenuItem.Variant` guarda a chave XML para pr
 ## Ajuste dos defaults — 1.0.0.3
 
 Sem novos campos/versões. Submenu.Title conserva literalmente tituloPrincipal, inclusive vazio; Name não o preenche. Variant pode referenciar menu2/menu2_seta/menu_peq ou marca reutilizada no Bolão conforme Java. Os campos Movement* e Shortcut existentes passam a ter autoria no formulário, mantendo identidade, cópia e confirmação atômica. O cadastro XML de movimentos permanece indisponível; não é equivalente à árvore de MenuItem.
+
+## Parcela instalada integrada à 038
+
+038/T019 implementa catalog/capabilities.go: PropertyDefinition e enums puros das sete famílias I1, com DefaultProperties compartilhado por screen.NewComponent e descoberta. Dez Kinds existentes preservados; compostos não anunciam patch avançado MCP. InstanceIDs/RegenerateInstanceIDs incluem opções/linhas/partes para cópias independentes. Não implementa o metamodelo completo do inspector, famílias novas, ReusableDefinition ou homologação. T004 amplo permanece aberto. Evidência de testes em 038/quickstart.

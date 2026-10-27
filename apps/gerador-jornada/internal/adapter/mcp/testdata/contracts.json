@@ -1,0 +1,423 @@
+{
+  "schemaVersion": 1,
+  "schemas": [
+    "authorization.schema.json",
+    "library.schema.json",
+    "proposal.schema.json",
+    "library-operations.schema.json"
+  ],
+  "schemaCases": [
+    {
+      "name": "proposta válido",
+      "schema": "proposal.schema.json",
+      "definition": null,
+      "valid": true,
+      "instance": {
+        "schemaVersion": 1,
+        "proposalId": "11111111-1111-4111-8111-111111111111",
+        "revision": 1,
+        "name": "Cabeçalho",
+        "objective": "Reutilizar seleção",
+        "classification": "composition",
+        "materialization": null,
+        "evidence": [
+          {
+            "evidenceId": "e1",
+            "materialId": "11111111-1111-4111-8111-111111111111",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "locator": "trecho autorizado"
+          }
+        ],
+        "observations": [],
+        "hypotheses": [],
+        "properties": [
+          {
+            "name": "text",
+            "type": "string",
+            "description": "Legenda",
+            "default": {
+              "status": "unknown",
+              "reason": "Sem evidência"
+            }
+          }
+        ],
+        "visualStates": [],
+        "behaviors": [],
+        "dependencies": [],
+        "reusableCapabilities": [],
+        "missingCapabilities": [],
+        "differences": [],
+        "validationPlan": []
+      }
+    },
+    {
+      "name": "proposta campo extra",
+      "schema": "proposal.schema.json",
+      "definition": null,
+      "valid": false,
+      "instance": {
+        "schemaVersion": 1,
+        "proposalId": "11111111-1111-4111-8111-111111111111",
+        "revision": 1,
+        "name": "Cabeçalho",
+        "objective": "Reutilizar seleção",
+        "classification": "composition",
+        "materialization": null,
+        "evidence": [
+          {
+            "evidenceId": "e1",
+            "materialId": "11111111-1111-4111-8111-111111111111",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "locator": "trecho autorizado"
+          }
+        ],
+        "observations": [],
+        "hypotheses": [],
+        "properties": [
+          {
+            "name": "text",
+            "type": "string",
+            "description": "Legenda",
+            "default": {
+              "status": "unknown",
+              "reason": "Sem evidência"
+            }
+          }
+        ],
+        "visualStates": [],
+        "behaviors": [],
+        "dependencies": [],
+        "reusableCapabilities": [],
+        "missingCapabilities": [],
+        "differences": [],
+        "validationPlan": [],
+        "unexpected": true
+      }
+    },
+    {
+      "name": "biblioteca válido",
+      "schema": "library.schema.json",
+      "definition": null,
+      "valid": true,
+      "instance": {
+        "schemaVersion": 1,
+        "definitionId": "11111111-1111-4111-8111-111111111111",
+        "version": "1.0.0",
+        "name": "Cabeçalho",
+        "description": "",
+        "category": "composition",
+        "source": {
+          "description": "Teste sintético",
+          "files": []
+        },
+        "templateSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "requirements": {
+          "catalogVersions": [
+            4
+          ],
+          "kinds": [
+            "button"
+          ],
+          "installedResources": []
+        },
+        "parameters": []
+      }
+    },
+    {
+      "name": "biblioteca campo extra",
+      "schema": "library.schema.json",
+      "definition": null,
+      "valid": false,
+      "instance": {
+        "schemaVersion": 1,
+        "definitionId": "11111111-1111-4111-8111-111111111111",
+        "version": "1.0.0",
+        "name": "Cabeçalho",
+        "description": "",
+        "category": "composition",
+        "source": {
+          "description": "Teste sintético",
+          "files": []
+        },
+        "templateSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "requirements": {
+          "catalogVersions": [
+            4
+          ],
+          "kinds": [
+            "button"
+          ],
+          "installedResources": []
+        },
+        "parameters": [],
+        "unexpected": true
+      }
+    },
+    {
+      "name": "revisao válido",
+      "schema": "authorization.schema.json",
+      "definition": "Review",
+      "valid": true,
+      "instance": {
+        "profileVersion": 1,
+        "hostId": "harness",
+        "keyId": "test",
+        "serverInstanceId": "11111111-1111-4111-8111-111111111111",
+        "sessionId": "11111111-1111-4111-8111-111111111111",
+        "requestId": "11111111-1111-4111-8111-111111111111",
+        "reviewId": "11111111-1111-4111-8111-111111111111",
+        "operation": "createJourney",
+        "targetIdentity": "workspace/teste.jornada",
+        "baseExists": false,
+        "baseHash": null,
+        "contentHash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "expectedRevision": "0",
+        "controlGeneration": "1",
+        "proposal": null,
+        "materialization": null,
+        "expiresAt": 1790000100,
+        "challenge": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "summary": [],
+        "diagnostics": []
+      }
+    },
+    {
+      "name": "revisao campo extra",
+      "schema": "authorization.schema.json",
+      "definition": "Review",
+      "valid": false,
+      "instance": {
+        "profileVersion": 1,
+        "hostId": "harness",
+        "keyId": "test",
+        "serverInstanceId": "11111111-1111-4111-8111-111111111111",
+        "sessionId": "11111111-1111-4111-8111-111111111111",
+        "requestId": "11111111-1111-4111-8111-111111111111",
+        "reviewId": "11111111-1111-4111-8111-111111111111",
+        "operation": "createJourney",
+        "targetIdentity": "workspace/teste.jornada",
+        "baseExists": false,
+        "baseHash": null,
+        "contentHash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "expectedRevision": "0",
+        "controlGeneration": "1",
+        "proposal": null,
+        "materialization": null,
+        "expiresAt": 1790000100,
+        "challenge": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "summary": [],
+        "diagnostics": [],
+        "unexpected": true
+      }
+    },
+    {
+      "name": "preparo válido",
+      "schema": "library-operations.schema.json",
+      "definition": "ReviewRequest",
+      "valid": true,
+      "instance": {
+        "sessionId": "11111111-1111-4111-8111-111111111111",
+        "requestId": "11111111-1111-4111-8111-111111111111",
+        "expectedRevision": "0",
+        "controlGeneration": "0",
+        "operation": "publishDefinition",
+        "subject": {
+          "proposalId": "11111111-1111-4111-8111-111111111111",
+          "proposalRevision": 1
+        }
+      }
+    },
+    {
+      "name": "preparo campo extra",
+      "schema": "library-operations.schema.json",
+      "definition": "ReviewRequest",
+      "valid": false,
+      "instance": {
+        "sessionId": "11111111-1111-4111-8111-111111111111",
+        "requestId": "11111111-1111-4111-8111-111111111111",
+        "expectedRevision": "0",
+        "controlGeneration": "0",
+        "operation": "publishDefinition",
+        "subject": {
+          "proposalId": "11111111-1111-4111-8111-111111111111",
+          "proposalRevision": 1
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "newKind não admite captura",
+      "schema": "proposal.schema.json",
+      "definition": null,
+      "valid": false,
+      "instance": {
+        "schemaVersion": 1,
+        "proposalId": "11111111-1111-4111-8111-111111111111",
+        "revision": 1,
+        "name": "Cabeçalho",
+        "objective": "Reutilizar seleção",
+        "classification": "newKind",
+        "materialization": {
+          "captureProposalId": "11111111-1111-4111-8111-111111111111",
+          "captureRevision": 1,
+          "templateSha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "evidence": [
+          {
+            "evidenceId": "e1",
+            "materialId": "11111111-1111-4111-8111-111111111111",
+            "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "locator": "trecho autorizado"
+          }
+        ],
+        "observations": [],
+        "hypotheses": [],
+        "properties": [
+          {
+            "name": "text",
+            "type": "string",
+            "description": "Legenda",
+            "default": {
+              "status": "unknown",
+              "reason": "Sem evidência"
+            }
+          }
+        ],
+        "visualStates": [],
+        "behaviors": [],
+        "dependencies": [],
+        "reusableCapabilities": [],
+        "missingCapabilities": [],
+        "differences": [],
+        "validationPlan": []
+      }
+    },
+    {
+      "name": "default unknown",
+      "schema": "proposal.schema.json",
+      "definition": "PropertyDescriptor",
+      "valid": true,
+      "instance": {
+        "name": "text",
+        "type": "string",
+        "description": "",
+        "default": {
+          "status": "unknown",
+          "reason": "Não observado"
+        }
+      }
+    },
+    {
+      "name": "default observed",
+      "schema": "proposal.schema.json",
+      "definition": "PropertyDescriptor",
+      "valid": true,
+      "instance": {
+        "name": "text",
+        "type": "string",
+        "description": "",
+        "default": {
+          "status": "observed",
+          "value": "Texto",
+          "evidenceRefs": [
+            "e1"
+          ]
+        }
+      }
+    },
+    {
+      "name": "default proposed",
+      "schema": "proposal.schema.json",
+      "definition": "PropertyDescriptor",
+      "valid": true,
+      "instance": {
+        "name": "text",
+        "type": "string",
+        "description": "",
+        "default": {
+          "status": "proposed",
+          "value": "Texto",
+          "reason": "Sugestão do agente"
+        }
+      }
+    }
+  ],
+  "wireCases": [
+    {
+      "name": "chave duplicada",
+      "json": "{\"requestId\":\"11111111-1111-4111-8111-111111111111\",\"requestId\":\"11111111-1111-4111-8111-111111111111\"}",
+      "code": "invalidArgument"
+    },
+    {
+      "name": "surrogate isolado",
+      "json": "{\"name\":\"\\ud800\"}",
+      "code": "invalidArgument"
+    },
+    {
+      "name": "tipo de família desconhecido",
+      "json": "{\"kind\":\"comboBox\"}",
+      "code": "capabilityUnavailable"
+    }
+  ],
+  "semanticCases": [
+    {
+      "name": "uint64 máximo",
+      "value": "18446744073709551615",
+      "valid": true
+    },
+    {
+      "name": "uint64 excedido",
+      "value": "18446744073709551616",
+      "valid": false
+    },
+    {
+      "name": "base64 assinatura tamanho errado",
+      "value": "AA==",
+      "valid": false
+    },
+    {
+      "name": "aprovação declarada pelo agente",
+      "value": {
+        "approved": true
+      },
+      "valid": false
+    },
+    {
+      "name": "integridade não é consentimento",
+      "value": {
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "authorization": null
+      },
+      "valid": false
+    }
+  ],
+  "generatedPayloads": [
+    {
+      "name": "texto Unicode no limite",
+      "repeat": "😀",
+      "count": 65536,
+      "unit": "codepoint",
+      "valid": true
+    },
+    {
+      "name": "texto Unicode excedido",
+      "repeat": "😀",
+      "count": 65537,
+      "unit": "codepoint",
+      "valid": false
+    },
+    {
+      "name": "frame máximo",
+      "repeat": " ",
+      "count": 1048576,
+      "unit": "byte",
+      "note": "Envelope e LF contam; preencher o frame completo no teste, não apenas o conteúdo"
+    },
+    {
+      "name": "reviewBytes máximo",
+      "byteCount": 524288,
+      "unit": "byte",
+      "note": "A saída deve conter Content curto, sem duplicar StructuredContent"
+    }
+  ]
+}

@@ -8,6 +8,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
+	"gerador-jornada.local/editor/internal/adapter/builtinassets"
 	"gerador-jornada.local/editor/internal/application"
 	"gerador-jornada.local/editor/internal/catalog"
 	"gerador-jornada.local/editor/internal/screen"
@@ -81,12 +82,14 @@ func (e *Editor) screenInspector() {
 			return
 		}
 		if e.check(e.Session.Change(func(document *application.Document) error {
+			// Nome histórico inalterado não é truncado; nova entrada segue o limite comum.
+			if document.Project.Name != projectName.Text {
+				if err := application.ValidateAuthoringName(projectName.Text); err != nil {
+					return err
+				}
+			}
 			document.Project.Name = projectName.Text
-			document.Screen(e.PageID).Name = name.Text
-			document.Screen(e.PageID).FileID = fileID.Text
-			document.Screen(e.PageID).Size = screen.Size{Width: w, Height: h}
-			document.Screen(e.PageID).Background.Color = background.Text
-			return nil
+			return application.ConfigureScreen(document, e.PageID, application.ScreenChanges{Name: &name.Text, FileID: &fileID.Text, Width: &w, Height: &h, BackgroundColor: &background.Text})
 		})) {
 			e.changed()
 		}
@@ -96,7 +99,7 @@ func (e *Editor) screenInspector() {
 	e.Inspector.Add(form)
 	e.Inspector.Add(widget.NewLabel("ID do arquivo: Pnl + nome, até 40 caracteres.\nExemplo: PnlIdentificacao → PnlIdentificacao.java"))
 	e.Inspector.Add(widget.NewButton("Definir como tela inicial", func() {
-		e.check(e.Session.Change(func(document *application.Document) error { document.Journey.StartScreenID = e.PageID; return nil }))
+		e.check(e.Session.Change(func(document *application.Document) error { return application.SetJourneyStart(document, e.PageID) }))
 		e.changed()
 	}))
 	e.Inspector.Add(widget.NewButton("Fundo da tela…", e.configureBackground))
@@ -229,6 +232,9 @@ func (e *Editor) componentInspector(component screen.Component) {
 			if target == nil {
 				return fmt.Errorf("componente inexistente")
 			}
+			// before conserva propriedades anteriores para validar apenas conteúdo realmente alterado.
+			before := *target
+			before.Properties = target.Properties.Copy()
 			target.Name = name.Text
 			target.FileID = fileID.Text
 			target.Bounds = screen.Bounds{X: numbers[0], Y: numbers[1], Width: numbers[2], Height: numbers[3]}
@@ -248,6 +254,12 @@ func (e *Editor) componentInspector(component screen.Component) {
 			target.ParentID = parentIDs[parent.Selected]
 			// err registra uma falha da operação para interromper o fluxo sem publicar estado parcial.
 			if err := applyProperties(target); err != nil {
+				return err
+			}
+			if err := application.ValidateComponentEdit(document, page, before, *target); err != nil {
+				return err
+			}
+			if err := builtinassets.ValidateAppearanceEdit(before, *target); err != nil {
 				return err
 			}
 			switch mode.Selected {

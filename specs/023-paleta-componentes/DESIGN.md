@@ -1,5 +1,15 @@
 # DESIGN — Paleta — ComponentTab
 
+## Integração proposta — biblioteca manual da SPEC 038 v0.4
+
+**Estado:** somente desenho documental, sem UI implementada ou aprovação desta expansão. A paleta será a entrada da seção Biblioteca no modo manual; o autor abre o software e usa definições sem LLM/MCP. As mesmas definições/casos de uso são acessíveis ao agente externo via MCP, sem desativar ou substituir o modo manual.
+
+O desenho único dos estados vazios, listagem/detalhes, incompatibilidade, recursos ausentes, importação, revisão, publicação, versões e inserção pertence ao [DESIGN da 038](../038-integracao-mcp-agentes/DESIGN.md), especialmente FR-020–FR-026/FR-030/FR-032 e US3/US4. Esta feature mantém sua responsabilidade de clique/drop, rolagem e foco; não cria outra biblioteca nem replica o fluxo inteiro.
+
+Manter os padrões visuais do editor e a aparência do legado nas definições/miniaturas/componentes. Inserção manual e MCP devem resolver os mesmos defaults, recursos e estilos; nenhum item incompatível aparece como utilizável. Instanciar conjunto é ação integral e reversível, com identidades independentes, parâmetros válidos e motivo de bloqueio quando não houver tela ou compatibilidade.
+
+Plano e tarefas futuros devem referenciar esse desenho e verificar teclado, DPI, sem tela, biblioteca vazia, erro de importação, conflito e publicação cancelada/confirmada. Roteiro proposto em [038/quickstart](../038-integracao-mcp-agentes/quickstart.md), ainda sem revisão executável ou teste realizado. A implementação futura deve respeitar o [modelo de domínio](../038-integracao-mcp-agentes/data-model.md), sem regras de Catálogo/Tela nos widgets.
+
 ## Aplicação na revisão 1.0.0.1
 
 Paleta oferece sete famílias base, cinco presets e três compostos em ELEMENTOS DO LEGADO. Clique/drop usam as definições tipadas; imagens de skin são aplicadas na cena, não como novos itens inseríveis.

@@ -1,5 +1,9 @@
 # Data Model: Domínio Tela
 
+## Extensão planejada — template e instâncias 038
+
+TemplateSelection contém uma seleção válida de uma tela com geometria relativa e referências internas; biblioteca v1 recusa referências externas antes da captura. InstantiationResult é cópia independente com novos UUIDs/FileIDs/IDs internos, vínculos remapeados e recursos necessários, mantendo ordem, defaults/overrides do legado e propriedades editáveis. O modelo persistido Component não ganha estado de sessão ou vínculo vivo. Contratos detalhados no [modelo 038](../038-integracao-mcp-agentes/data-model.md) e [biblioteca](../038-integracao-mcp-agentes/contracts/biblioteca.md); proposta de desenho, não alteração implementada.
+
 ## Situação corrente — revisão 1.0.0.1
 
 Screen mantém ID/Name/FileID, Size, Background e Components em ordem de camadas. Component mantém ID/Name/FileID, Kind, Bounds, Style, Enabled, ParentID e Properties. Style tem FontFamily/FontSize/TextColor/FillColor/BorderColor/BackgroundAssetID/TextAlign/Skin; não possui FillAlpha nem appearance tipada.
@@ -91,3 +95,7 @@ Trocar `labelKind` ou `value` não altera geometria, camada ou outros valores. A
 FR-020 reutiliza Component com Kind/Properties canônicos em [003/data-model.md](../003-catalogo/data-model.md#modelo-menu-aplicacao-2026-10-23). Uma instância contém árvore, não novos componentes por item. Menu/submenu e MenuItem possuem UUIDs internos globalmente únicos, sem FileIDs. Estado de expansão/seleção do inspector e caminho runtime não pertencem a Screen.
 
 Snapshot mantém IDs, copia profundamente todos os slices/ponteiros. Duplicação cria novo Component.ID/FileID e novos IDs em Root, cada submenu e cada item; mapa de remapeio atualiza InitialMenuID, nunca label/name. TargetScreenID referencia tela real e não é remapeado pelo mapa de nós: duplicar componente conserva destinos; duplicar tela remapeia apenas destinos autorreferentes à tela duplicada para a nova tela, preservando destinos externos, conforme 005. Reordenação e edição de texto conservam identidade. Remover inicial sem substituição válida impede confirmação; remover ramo elimina descendentes sem deixar referência inicial pendurada.
+
+## Parcela instalada integrada à 038
+
+038/T021–T023 compartilham CreateScreen/ConfigureScreen/ComponentChanges/ValidateComponentEdit com as operações manuais, mantendo contexto de fundo e validação de nome/FileID/geometria. Configuração incompatível recusa sem mover controles. Texto novo usa pontos de código; histórico inalterado é preservado. Cópias de tela/seleção remapeiam opções/linhas/partes e selecionado do rádio, além dos IDs principais. O caso de uso de presets aplica decoração recebida do adaptador; não há pós-processamento exclusivo da GUI. Isso não fecha todo o backlog de Tela ou aprovação visual. Evidência em 038/quickstart.

@@ -1,18 +1,21 @@
 <!--
 Sync Impact Report
-Version change: 1.1.1 -> 1.2.0 (novo princípio de sincronização e rastreabilidade por domínio).
-Modified principles: nenhum princípio removido ou enfraquecido; preservados I a VI.
-Added sections: VII. Especificações sincronizadas e rastreabilidade por domínio.
-Updated sections: Restrições e evolução; Processo e critérios de conclusão; Governance.
+Version change: 1.3.0 -> 1.4.0 (expansão compatível: MCP local opcional).
+Modified principles: nenhum; preservados I a VII, inclusive distribuição e uso offline.
+Added sections: nenhuma.
+Updated sections: Restrições e evolução; exceção estreita para a feature 038,
+aprovada explicitamente pelo usuário em 2026-10-25 junto ao avanço do planejamento,
+sem autorização de implementação. MCP opt-in sem portas de rede, consentimento
+verificável e modos manual/MCP complementares com o mesmo domínio e estilo legado.
 Removed sections: nenhuma.
 Deferred placeholders: nenhum.
-Sync impact: somente a constituição alterada; templates e comandos leem as regras em runtime.
-Follow-up documental concluído em 2026-10-19, por autorização posterior do usuário:
-spec.md/plan.md/data-model.md/tasks.md da coordenadora e dos cinco domínios reconciliados,
-com contratos, evidências e gates manuais/externos pendentes explicitados.
-Corrigidas as menções a entrega somente documental, formato atual, toolchain e caminhos
-antigos; tarefas técnicas/pendentes reconciliadas sem renumeração. A emenda por si só
-não conclui implementação nem homologação; evidências ficam em quickstart.md.
+Sync impact: templates e comandos leem a constituição em runtime e não foram alterados.
+Spec/research/checklist da 038 devem refletir a aprovação; contratos, modelo e DESIGN
+preservam suas obrigações. Plano técnico autorizado em operação posterior; tarefas,
+implementação e homologação não são aprovadas por esta emenda.
+Histórico preservado: 1.2.0 -> 1.3.0 aprovou em 2026-10-24 a integração GitHub
+opcional da 037, com conexão voluntária e publicação explícita; limites mantidos.
+Não há alteração de formato .jornada, dependências ou código nesta etapa.
 Nota de revisão: este relatório é temporário e deve ser removido antes do commit da emenda.
 -->
 # Gerador de Jornada Constitution
@@ -119,7 +122,12 @@ atualização de texto sem implementação ou validação correspondente.
 - Escopo funcional planejado da primeira versão: sete famílias EFL, navegação explícita, roteiro finito, PPTX editável e Java fonte. Planejamento não comprova implementação ou homologação.
 - Entrega corrente: compilar somente Windows x64. Linux/macOS ficam como base de configuração e documentação para uso futuro, sem novos builds obrigatórios por incremento, conforme orientação do usuário em 2026-10-18.
 - Java/EFL permanece visível e temporariamente desabilitado por orientação do usuário. Preservar o código e as pendências de integração real; a existência do gerador não comprova compatibilidade EFL nem conclui sua homologação.
-- Fora da primeira versão: importação `.page`, integração externa, banco de negócio, colaboração simultânea, gravação de uso e compilação Java pelo editor.
+- Fora da primeira versão: importação `.page`, integrações externas além das exceções GitHub e MCP local explicitamente delimitadas nesta seção, banco de negócio, colaboração simultânea, gravação de uso e compilação Java pelo editor.
+- A integração GitHub da feature `037-integracao-github` é opcional e depende de conexão voluntária da conta e vínculo explícito do workspace. Salvar permanece local; somente a confirmação de publicação autoriza add, commit e push das jornadas elegíveis. Indisponibilidade da rede ou da autorização não deve impedir edição e salvamento local. Credenciais e vínculo Git ficam fora do formato `.jornada`; credenciais não podem ser versionadas. Esta exceção GitHub não autoriza telemetria nem outras integrações externas; a exceção MCP local possui limites próprios no parágrafo seguinte.
+- A feature `038-integracao-mcp-agentes` poderá implementar, após aprovação explícita de sua especificação e autorização de desenvolvimento, uma interface MCP local, opcional e iniciada explicitamente para agentes/LLMs externos por clientes compatíveis. A abertura normal do editor não inicia MCP. A primeira entrega usa comunicação local sem portas de rede, tendo `stdio` como transporte candidato sujeito à validação. Editor manual e MCP são modos independentes e complementares: a GUI continua integralmente utilizável offline e sem IA, e o MCP não exige abrir a GUI. Ambos utilizam o mesmo núcleo de Projeto, Catálogo, Tela, Jornada e Demonstração e o mesmo estilo legado definido pelo projeto.
+- O aplicativo e o servidor MCP local não dependem de internet e não enviam espontaneamente jornadas, fontes legadas, imagens, fontes tipográficas, logs ou outros dados a serviços remotos. Leituras, alterações e exportações restringem-se aos materiais, destinos e operações autorizados. Persistência exige validação, revisão, proteção contra conflitos e autorização verificável conforme o risco; o agente não pode produzir sua própria prova independente de consentimento. Interpretar linguagem natural e o legado é responsabilidade do agente externo, sem IA embutida obrigatória no executável.
+- Um cliente com IA hospedada na nuvem pode transmitir ao seu provedor informações recebidas conforme suas funcionalidades, permissões e políticas. A ausência de transmissão automática pelo Jornada Studio não garante execução local de qualquer cliente. O autor controla os materiais disponibilizados e escolhe o cliente; IA inteiramente local pode ser utilizada por cliente compatível, sem ser requisito inicial.
+- A exceção MCP não autoriza servidor HTTP, exposição em rede local/internet, serviço residente, telemetria, SaaS obrigatório, acesso irrestrito a arquivos, execução de conteúdo de projeto, alteração/compilação automática de Go, novos executáveis ou instaladores. Esses acréscimos exigem escopo e decisão próprios, análise de impacto e aprovação explícita. Decisões e evidências permanecem rastreáveis na 038 e nos domínios afetados; salvar localmente não autoriza publicação GitHub.
 - Conteúdo de projeto é dado, nunca código executável, template arbitrário ou caminho externo a resolver automaticamente.
 - Projeto inválido pode ser preservado como rascunho quando a estrutura for legível; exportação exige validação do alvo. Dados estruturalmente corrompidos não substituem a sessão ativa.
 - Logs e diagnósticos locais devem evitar transcrever os textos digitados no projeto. Telemetria e atualização automática pela rede não fazem parte da primeira versão.
@@ -157,4 +165,4 @@ Esta constituição prevalece sobre recomendações genéricas de skills. As dec
 
 Alterações exigem justificativa, atualização dos contratos afetados e análise de impacto nas tarefas. Mudança incompatível de princípio incrementa versão maior; novo princípio compatível, versão menor; esclarecimento, correção. A validação é feita por revisão e checks automatizados pertinentes, sem adicionar uma etapa de aprovação por alteração rotineira.
 
-**Version**: 1.2.0 | **Ratified**: 2026-10-17 | **Last Amended**: 2026-10-18
+**Version**: 1.4.0 | **Ratified**: 2026-10-17 | **Last Amended**: 2026-10-25

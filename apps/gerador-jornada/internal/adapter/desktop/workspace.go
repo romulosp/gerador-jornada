@@ -44,6 +44,7 @@ func (e *Editor) SetProjectPath(path string) {
 
 // refreshWorkspace atualiza a árvore somente em operações de arquivo, sem reler pacotes a cada pintura.
 func (e *Editor) refreshWorkspace() {
+	e.refreshGitLocal()
 	if e.WorkspaceTree == nil {
 		return
 	}
@@ -139,7 +140,7 @@ func (e *Editor) workspacePanel() fyne.CanvasObject {
 		widget.NewPopUpMenu(menu, e.Window.Canvas()).Show()
 	})
 	tree.OpenBranch("workspace")
-	return container.NewBorder(container.NewBorder(nil, nil, widget.NewLabel("Jornadas do projeto"), more), nil, nil, nil, tree)
+	return container.NewBorder(container.NewVBox(container.NewBorder(nil, nil, widget.NewLabel("Jornadas do projeto"), more), e.githubPanel()), nil, nil, nil, tree)
 }
 
 // chooseWorkspace altera somente a pasta de trabalho da árvore, sem publicar um manifesto novo.
@@ -159,6 +160,9 @@ func (e *Editor) chooseWorkspace() {
 
 // createWorkspaceJourney confirma nome e modo em branco antes de gravar na pasta atual.
 func (e *Editor) createWorkspaceJourney() {
+	if !e.gitCanWrite() {
+		return
+	}
 	// workspace é resolvido antes do diálogo para localizar erros de pasta.
 	workspace, err := e.workspace()
 	if !e.check(err) {
@@ -181,6 +185,9 @@ func (e *Editor) createWorkspaceJourney() {
 
 // importWorkspaceJourney valida e copia uma origem, sem pedir ao seletor que abra um arquivo para escrita.
 func (e *Editor) importWorkspaceJourney() {
+	if !e.gitCanWrite() {
+		return
+	}
 	// workspace preserva o destino escolhido antes da seleção de origem.
 	workspace, err := e.workspace()
 	if !e.check(err) {

@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -30,7 +32,7 @@ func (e *Editor) exportPPT() {
 	// transition permite um acabamento de apresentação sem alterar o roteiro de negócio.
 	transition := newSelect([]string{"Fade suave", "Deslizar", "Revelar", "Sem transição"}, nil)
 	transition.SetSelected("Fade suave")
-	dialog.ShowCustomConfirm("Exportar PowerPoint", "Escolher destino", "Cancelar", container.NewVBox(exploration, demonstration,
+	dialog.ShowCustomConfirm("Exportar PowerPoint", "Exportar", "Cancelar", container.NewVBox(exploration, demonstration,
 		widget.NewForm(widget.NewFormItem("Transição (300 ms)", transition)),
 		widget.NewLabel("Textos e controles permanecem editáveis.\nA digitação é simulada, sem entrada real no PPT.")), func(yes bool) {
 		if !yes {
@@ -41,11 +43,49 @@ func (e *Editor) exportPPT() {
 		if !demonstration.Checked {
 			options.ScenarioIDs = []string{}
 		}
-		e.chooseOutput("Salvar apresentação", ".pptx", func(path string) {
+		e.workspacePPTOutput(func(path string) {
 			e.startExport(path, func(ctx context.Context, document application.Document, progress func(float64)) error {
 				return pptx.Export(ctx, path, document, options, progress)
 			})
 		})
+	}, e.Window)
+}
+
+// workspacePPTOutput usa a pasta configurada e o nome do pacote atual, sem seletor de destino.
+// accept só recebe um caminho depois de validar a pasta e eventual substituição de arquivo.
+func (e *Editor) workspacePPTOutput(accept func(string)) {
+	// workspace é a raiz já escolhida ao abrir/criar o projeto; não depende da conexão GitHub.
+	workspace, err := e.workspace()
+	if !e.check(err) {
+		return
+	}
+	// filename conserva o nome real da jornada, inclusive acentos e sufixos de homônimos.
+	filename := filepath.Base(e.FilePath)
+	if e.FilePath == "" {
+		filename, err = JourneyFilename(e.Session.Document.Project.Name)
+		if !e.check(err) {
+			return
+		}
+	}
+	// path fica sempre diretamente na raiz, mudando apenas a extensão do pacote atual.
+	path := filepath.Join(workspace.Root, strings.TrimSuffix(filename, filepath.Ext(filename))+".pptx")
+	// existing impede substituir pastas ou links; uma apresentação anterior só muda após confirmação.
+	existing, err := os.Lstat(path)
+	if os.IsNotExist(err) {
+		accept(path)
+		return
+	}
+	if !e.check(err) {
+		return
+	}
+	if !existing.Mode().IsRegular() {
+		e.check(fmt.Errorf("O destino PowerPoint já existe e não é um arquivo regular: %s", path))
+		return
+	}
+	dialog.ShowConfirm("Atualizar apresentação?", "Já existe uma apresentação com esse nome no workspace. Substituir após concluir a exportação?", func(yes bool) {
+		if yes {
+			accept(path)
+		}
 	}, e.Window)
 }
 

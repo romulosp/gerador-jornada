@@ -40,12 +40,9 @@ func (e *Editor) insertPreset(presetID string, x, y int) {
 	if e.check(e.Session.Change(func(document *application.Document) error {
 		// err preserva a falha antes de publicar qualquer item do conjunto.
 		var err error
-		ids, err = application.InsertPreset(document, e.PageID, presetID, x, y)
+		ids, err = application.InsertPreset(document, e.PageID, presetID, x, y, builtinassets.TitleStrip)
 		if err != nil {
 			return err
-		}
-		if presetID == "pageTitle" {
-			document.Screen(e.PageID).ComponentByID(ids[0]).Style.BackgroundAssetID = builtinassets.TitleStrip(document)
 		}
 		return nil
 	})) {

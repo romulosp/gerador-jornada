@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:jornada:038:authorization:v1",
+  "title": "HostApproval-v1 e revisão congelada",
+  "oneOf": [{"$ref": "#/$defs/ReviewResponse"}, {"$ref": "#/$defs/Authorization"}],
+  "$defs": {
+    "UUID": {"type":"string","pattern":"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"},
+    "Hash": {"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "Challenge": {"type":"string","pattern":"^[A-Za-z0-9_-]{43}$"},
+    "Revision": {"type":"string","pattern":"^(0|[1-9][0-9]{0,19})$"},
+    "Operation": {"enum":["createJourney","replaceJourney","publishDefinition","withdrawDefinition","importDefinition","exportDefinition","importJourney","exportPptx"]},
+    "Review": {
+      "type":"object","additionalProperties":false,
+      "required":["profileVersion","hostId","keyId","serverInstanceId","sessionId","requestId","reviewId","operation","targetIdentity","baseExists","baseHash","contentHash","expectedRevision","controlGeneration","proposal","materialization","expiresAt","challenge","summary","diagnostics"],
+      "properties": {
+        "profileVersion":{"const":1},
+        "hostId":{"type":"string","pattern":"^[A-Za-z0-9._-]{1,64}$"},
+        "keyId":{"type":"string","pattern":"^[A-Za-z0-9._-]{1,64}$"},
+        "serverInstanceId":{"$ref":"#/$defs/UUID"},
+        "sessionId":{"$ref":"#/$defs/UUID"},
+        "requestId":{"$ref":"#/$defs/UUID"},
+        "reviewId":{"$ref":"#/$defs/UUID"},
+        "operation":{"$ref":"#/$defs/Operation"},
+        "targetIdentity":{"type":"string","minLength":1,"maxLength":512,"pattern":"^[^\\r\\n]+$"},
+        "baseExists":{"type":"boolean"},
+        "baseHash":{"oneOf":[{"$ref":"#/$defs/Hash"},{"type":"null"}]},
+        "contentHash":{"$ref":"#/$defs/Hash"},
+        "expectedRevision":{"$ref":"#/$defs/Revision"},
+        "controlGeneration":{"$ref":"#/$defs/Revision"},
+        "proposal":{"oneOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["proposalId","revision","baseRevision"],"properties":{"proposalId":{"$ref":"#/$defs/UUID"},"revision":{"type":"integer","minimum":1,"maximum":2147483647},"baseRevision":{"$ref":"#/$defs/Revision"}}}]},
+        "materialization":{"oneOf":[{"type":"null"},{"type":"object","additionalProperties":false,"required":["captureProposalId","captureRevision","templateSha256","analysisSha256"],"properties":{"captureProposalId":{"$ref":"#/$defs/UUID"},"captureRevision":{"type":"integer","minimum":1,"maximum":2147483647},"templateSha256":{"$ref":"#/$defs/Hash"},"analysisSha256":{"$ref":"#/$defs/Hash"}}}]},
+        "expiresAt":{"type":"integer","minimum":1,"maximum":253402300799},
+        "challenge":{"$ref":"#/$defs/Challenge"},
+        "summary":{"type":"array","maxItems":1000,"items":{"type":"string","maxLength":4096}},
+        "diagnostics":{"type":"array","maxItems":1000,"items":{"type":"object","additionalProperties":false,"required":["code","severity","message"],"properties":{"code":{"type":"string","maxLength":80},"severity":{"enum":["error","warning","info"]},"message":{"type":"string","maxLength":4096},"location":{"type":"string","maxLength":512}}}}
+      },
+      "allOf":[
+        {"if":{"properties":{"baseExists":{"const":false}}},"then":{"properties":{"baseHash":{"type":"null"}}},"else":{"properties":{"baseHash":{"$ref":"#/$defs/Hash"}}}},
+        {"if":{"properties":{"operation":{"enum":["publishDefinition","importDefinition"]}}},"then":{"properties":{"proposal":{"type":"object"}}}},
+        {"if":{"properties":{"operation":{"enum":["withdrawDefinition","exportDefinition"]}}},"then":{"properties":{"proposal":{"type":"null"}}}},
+        {"if":{"properties":{"operation":{"const":"publishDefinition"}}},"else":{"properties":{"materialization":{"type":"null"}}}}
+      ]
+    },
+    "ReviewResponse": {
+      "type":"object","additionalProperties":false,
+      "required":["reviewBytes","reviewHash"],
+      "properties":{"reviewBytes":{"type":"string","contentEncoding":"base64","maxLength":699052},"reviewHash":{"$ref":"#/$defs/Hash"}}
+    },
+    "Authorization": {
+      "type":"object","additionalProperties":false,
+      "required":["profileVersion","hostId","keyId","serverInstanceId","sessionId","requestId","reviewId","reviewHash","challenge","actorId","decision","issuedAt","expiresAt","signature"],
+      "properties": {
+        "profileVersion":{"const":1},
+        "hostId":{"type":"string","pattern":"^[A-Za-z0-9._-]{1,64}$"},
+        "keyId":{"type":"string","pattern":"^[A-Za-z0-9._-]{1,64}$"},
+        "serverInstanceId":{"$ref":"#/$defs/UUID"},
+        "sessionId":{"$ref":"#/$defs/UUID"},
+        "requestId":{"$ref":"#/$defs/UUID"},
+        "reviewId":{"$ref":"#/$defs/UUID"},
+        "reviewHash":{"$ref":"#/$defs/Hash"},
+        "challenge":{"$ref":"#/$defs/Challenge"},
+        "actorId":{"type":"string","pattern":"^[A-Za-z0-9._:@-]{1,128}$"},
+        "decision":{"enum":["accept","decline","cancel"]},
+        "issuedAt":{"type":"integer","minimum":1,"maximum":253402300799},
+        "expiresAt":{"type":"integer","minimum":1,"maximum":253402300799},
+        "signature":{"type":"string","contentEncoding":"base64","minLength":88,"maxLength":88,"pattern":"^[A-Za-z0-9+/]{86}==$"}
+      }
+    }
+  }
+}

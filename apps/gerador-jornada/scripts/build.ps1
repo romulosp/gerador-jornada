@@ -2,7 +2,11 @@
 param([switch]$Console, [string]$OutputDirectory = 'dist')
 . (Join-Path $PSScriptRoot 'env.ps1')
 Push-Location $appRoot
+$githubConfigurationReady = $false
 try {
+    python -X utf8 (Join-Path $PSScriptRoot 'configure_github.py')
+    if ($LASTEXITCODE -ne 0) { throw 'Falha ao preparar configuração OAuth GitHub.' }
+    $githubConfigurationReady = $true
     New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
     & (Join-Path $PSScriptRoot 'windows-icon.ps1')
     $linkFlags = '-s -w -extldflags=-static'
@@ -12,5 +16,6 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Falha na compilação Go/Fyne.' }
     Get-FileHash -Algorithm SHA256 -LiteralPath $executablePath
 } finally {
+    if ($githubConfigurationReady) { python -X utf8 (Join-Path $PSScriptRoot 'configure_github.py') --clean }
     Pop-Location
 }

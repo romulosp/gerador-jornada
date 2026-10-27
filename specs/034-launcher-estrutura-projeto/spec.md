@@ -87,6 +87,7 @@ Como autor, quando um item do Menu aplicação sem destino é clicado na prévia
 ### Key Entities *(include if feature involves data)*
 
 - **Workspace/Projeto**: pasta do sistema em uso que agrupa as jornadas; o nó raiz da árvore representa essa pasta, sem criar um arquivo de workspace novo.
+- Correção integrada com 037/FR-020 em 2026-10-25: criar projeto salva o pacote diretamente na pasta escolhida. O nome define o `.jornada`, sem acrescentar subpasta; homônimos anteriores permanecem preservados.
 - **Jornada**: documento `.jornada` (telas, roteiro e roteiros de demonstração), descendente do workspace na árvore.
 - **Projeto recente**: entrada da tela inicial que referencia um workspace/jornada aberto anteriormente.
 - **Item de menu (folha)**: origem do atalho de criação; pode passar a apontar para uma jornada como destino.

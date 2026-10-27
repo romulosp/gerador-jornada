@@ -1,10 +1,10 @@
-<!-- Cópia do README da aplicação; links de código/specs referem-se ao repositório. -->
+> Pacote de distribuicao: os links de codigo e specs deste guia sao relativos ao repositorio-fonte.
 
 # Jornada Studio — Gerador de Jornada
 
 <img src="JornadaStudio.png" alt="Ícone do Jornada Studio" width="112">
 
-**Software 1.0.0.11 · Go 1.27.2 · Fyne 2.8.2 · Desktop · Português**
+**Software 1.0.0.12 · Go 1.27.2 · Fyne 2.8.2 · Desktop · Português**
 
 O Jornada Studio permite desenhar telas, conectar etapas de atendimento e apresentar uma jornada antes de integrar o sistema definitivo. O autor posiciona componentes, configura suas propriedades, testa a navegação e gera uma apresentação PowerPoint com telas editáveis e demonstração guiada.
 
@@ -51,6 +51,20 @@ Em uma jornada salva, a Prévia sugere criar o destino de uma folha de menu sem 
 O campo editável **Jornada destino** aceita apenas um nome de arquivo `.jornada` da mesma pasta. `Submenu`, `TargetScreenID` e `TargetJourney` são exclusivos. Catálogo 4 torna esse campo obrigatório no wire, inclusive vazio. Abrir catálogos antigos não regrava os arquivos; salvar solicita confirmação e conserva backup integral. Desfazer/refazer restaura o vínculo no documento; o arquivo criado permanece na pasta. A nova navegação está restrita à prévia, sem gerar fluxo entre arquivos no PPT ou Java.
 
 A implementação exigiu separar launcher/sessão, criar recentes atômicos, resolver arquivos por nome relativo, validar importações antes de publicar e coordenar criação/vínculo com rollback caso a origem não possa ser salva. [Detalhes e evidências C1/C2/C3](../../specs/034-launcher-estrutura-projeto/quickstart.md). A regra de gerar apenas o EXE permanece vigente.
+
+### GitHub opcional no workspace — código 1.0.0.13 / feature 037
+
+Na aba **Estrutura projeto**, **Conectar GitHub** abre o navegador padrão para autorização. Depois do retorno à mesma janela, selecione um repositório acessível com escrita e confirme a pasta/destino digitando seu proprietário/nome completo. A lista autorizada completa é carregada em background antes da busca, incluindo páginas adicionais, repositórios privados e organizações permitidas pela autorização. Alterar a busca invalida a seleção anterior.
+
+O painel usa uma linha de estado com reticências e o menu **⋮ → Detalhes da conexão** para o texto completo, preservando o espaço da árvore. Depois da autenticação, a ação principal permite selecionar o repositório; com vínculo concluído, passa a **Publicar no GitHub**. O menu também oferece atualizar estado, abrir o repositório no navegador, trocar conta e desconectar.
+
+**Salvar continua local.** Publicar exige salvar a edição pendente, revisar inclusões/alterações/exclusões das `.jornada` da raiz e confirmar a mensagem do commit. As jornadas são enviadas em conjunto, preservando os nomes usados nos vínculos. A conclusão mostra repositório, branch e link do commit confirmado no GitHub. O programa incorpora go-git v5.19.3 (Apache-2.0), sem exigir Git instalado. Repositório vazio recebe o primeiro commit sem pais; somente `.jornada` da raiz são integrados no disco. Código-fonte, README e demais pastas remotas permanecem preservados no histórico, sem cópia para o workspace. Colisões entre jornadas bloqueiam a operação sem escolher automaticamente uma versão do pacote.
+
+O arquivo `.jornada` contém o projeto e recursos incorporados para restaurar os dados ao reabrir; não exige pastas do software. Novo projeto salva o pacote diretamente na pasta escolhida, sem acrescentar outra pasta com o mesmo nome. `.git` é metadado local de versionamento e não é publicado como arquivo do projeto. A versão 1.0.0.13 preserva pastas/histórico de tentativas anteriores: para corrigir um vínculo em outro repositório, copie todos os `.jornada` com seus nomes originais para uma pasta limpa, abra a jornada dessa pasta e conecte o destino correto.
+
+Falha no push mantém o commit no computador para verificação/reenvio, sem recriá-lo a cada tentativa. O estado de última publicação é histórico, não garantia permanente de sincronismo. Desconectar remove a credencial da aplicação e preserva jornadas, `.git`, vínculo e pendências. Tokens pessoais ficam no cofre do Windows; preferências e recuperação ficam na configuração local, fora do `.jornada`.
+
+Os testes técnicos usam Git bare local, callback OAuth simulado, WinCred com credencial sintética, navegação ZIP e encerramento de subprocesso. **Esses testes não homologam o navegador e o GitHub real.** O cadastro externo foi fornecido, mas build/checks globais, matriz visual e aceite da revisão devem ser conferidos no [roteiro e estado da feature 037](../../specs/037-integracao-github/quickstart.md).
 
 ### Projeto de teste dos compostos 031–033
 
@@ -283,6 +297,18 @@ python -X utf8 scripts/bootstrap.py
 
 O bootstrap baixa Go/MinGW para `.tools` usando versões e SHA-256 de [`toolchains-windows.json`](scripts/toolchains-windows.json). A preparação inicial exige rede. `go.mod`/`go.sum` fixam as dependências. A compilação incorpora ícone multirresolução, FileVersion/ProductVersion e suporte C ligado estaticamente no Windows.
 
+### Cadastro OAuth no build Windows
+
+A integração precisa do cadastro OAuth do Jornada Studio. `scripts/configure_github.py`, chamado por `build.ps1`, lê `JORNADA_GITHUB_PROPERTIES` como caminho de um arquivo externo com os atributos `CLI_ID_GITHUB_OAUTH` e `SECRET_GITHUB_OAUTH`. O arquivo original não é copiado para o repositório. Para informar o caminho sem incluir valores neste documento:
+
+```powershell
+$env:JORNADA_GITHUB_PROPERTIES = Read-Host "Caminho do arquivo externo de cadastro OAuth"
+.\scripts\build.ps1 -OutputDirectory dist\windows-amd64
+```
+
+Automação também pode fornecer o par completo `JORNADA_GITHUB_CLIENT_ID`/`JORNADA_GITHUB_CLIENT_SECRET` ao processo. O build gera `internal/adapter/github/config_generated.go` ignorado pelo Git e o remove em `finally`; valores não devem aparecer em logs, comandos ou inventários. Sem configuração, o build mantém o editor offline e informa que a conexão está indisponível. O client_secret do cadastro nativo é distribuído e recuperável; isso não autoriza expor tokens pessoais, que permanecem no cofre Windows. Presença dos dois atributos não substitui teste do callback/autorização real.
+
+
 [`scripts/build.ps1`](scripts/build.ps1) gera somente o EXE no diretório indicado, sem ZIP, inventário ou pacote adicional. A tarefa padrão do VS Code usa esse mesmo caminho. `-Console` fica reservado a diagnóstico solicitado. **Não usar `scripts/build.py` na rotina**, pois ele também chama o empacotador; usá-lo somente quando o usuário solicitar explicitamente a distribuição correspondente.
 
 ### Referência opcional: Linux x64 usando Docker — somente sob solicitação explícita
@@ -364,9 +390,15 @@ Para contribuir, atualize primeiro a spec do domínio afetado, mantenha a regra 
 
 O editor, persistência, prévias e exportador PPT têm implementação e verificações automáticas. As specs também descrevem evoluções que ainda não estão implementadas; uma caixa documental ou um build concluído não comprova todos os comportamentos.
 
-Permanecem separados: homologação do PowerPoint, EFL real, DPI/driver gráficos, teste nativo em máquina limpa e aprovação humana por plataforma. Não há importação `.page`, colaboração simultânea, banco de negócio, integração externa, gravação automática do roteiro ou compilação Java dentro do editor nesta versão.
+Permanecem separados: homologação do PowerPoint, EFL real, DPI/driver gráficos, teste nativo em máquina limpa e aprovação humana por plataforma. Não há importação `.page`, colaboração simultânea, banco de negócio, integrações externas além do GitHub opcional, gravação automática do roteiro ou compilação Java dentro do editor nesta versão.
 
 ## Responsáveis e licença
+
+### Diagnóstico da integração GitHub
+
+Use o botão **Log de aplicação** no topo da janela. Em uma falha GitHub, a mensagem apresenta um **código de diagnóstico**; procure o mesmo `operation_id` nos eventos `github.*`. O arquivo JSONL fica em `%LOCALAPPDATA%\GeradorJornada\logs`, com rotação e retenção locais.
+
+O log inclui etapas do navegador/callback/troca OAuth, HTTP e request ID validado, DNS/TCP/TLS, limites/SSO, cofre e checkpoints Git. Client ID, Client Secret, tokens, código OAuth, state, PKCE, URLs com query, corpos HTTP livres, conteúdo de jornadas e mensagens de commit são excluídos. Erros na página externa antes do retorno não são visíveis ao aplicativo: nesse caso, os registros mostram abertura do navegador sem callback e eventual cancelamento/timeout.
 
 O repositório concentra o conhecimento do projeto e as decisões discutidas com seus mantenedores. A aplicação ainda não possui um arquivo LICENSE próprio definido neste repositório. Recursos visuais do legado, marcas e dependências mantêm suas condições de origem; este README não define uma licença para eles.
 

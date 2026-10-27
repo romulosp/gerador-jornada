@@ -1,5 +1,9 @@
 # Implementation Plan: Domínio Projeto
 
+## Integração planejada 038 — 2026-10-25
+
+Seguir [plano 038](../038-integracao-mcp-agentes/plan.md) e [biblioteca](../038-integracao-mcp-agentes/contracts/biblioteca.md): reutilizar codec `.jornada` 3/4 e pares históricos, manter imagens portáteis e validar inner/outer ZIP com limites cumulativos. Sem novos campos transitórios no manifesto. Casos de recursos/round-trip são trabalho deste domínio na futura fase tasks; 038 coordena somente integração. Emenda/planejamento autorizados, implementação ainda não.
+
 ## Situação corrente — revisão 1.0.0.1
 
 Project contém ID, Name, Revision, CatalogVersion e Assets; Document agrega telas, jornada, roteiros, JavaOptions e Resources. Writer 3/3; pares de leitura reconhecidos: 1/1, 2/1, 3/2 e 3/3. Campos desconhecidos são recusados. Perfis visuais privados por documento não foram implementados.

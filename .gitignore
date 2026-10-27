@@ -9,6 +9,8 @@
 *.exe
 *.exe~
 *.test
+*.out
+vendor/
 *.dll
 *.o
 *.obj
@@ -26,6 +28,7 @@
 
 # Cache Python das ferramentas auxiliares.
 __pycache__/
+/apps/gerador-jornada/internal/adapter/github/config_generated.go
 *.py[cod]
 .pytest_cache/
 .venv/
@@ -42,6 +45,8 @@ node_modules/
 Thumbs.db
 Desktop.ini
 .DS_Store
+.idea/
+.vscode/
 
 # Configuração local com possíveis credenciais; modelos continuam versionáveis.
 .env

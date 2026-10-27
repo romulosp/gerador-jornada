@@ -1,5 +1,15 @@
 # DESIGN — Formulários de propriedades — Properties
 
+## Integração proposta — biblioteca manual da SPEC 038 v0.4
+
+**Estado:** revisão documental, sem controles novos implementados ou homologados. Este inspector continua responsável pelas propriedades tipadas das instâncias e pelos parâmetros suportados; criação/revisão/publicação de definições é fluxo do [DESIGN da 038](../038-integracao-mcp-agentes/DESIGN.md), sem formulário paralelo de regras de negócio.
+
+Uma composição inserida expande em componentes independentes e editáveis. Não mostrar vínculo vivo ou botão de atualização automática da biblioteca. Propriedades, defaults do legado, fontes reais, cores/alpha e recursos confirmados devem produzir o mesmo resultado por edição manual e MCP. A validação compartilhada deve recusar propriedades não suportadas; o inspector apresenta o motivo e conserva os dados anteriores.
+
+Nos detalhes/rascunhos de definição, informar categoria, versão, dependências e estado; parâmetros incompatíveis ou recursos ausentes têm diagnóstico e ação de correção. Conteúdo de versão publicada é imutável: editar exige nova versão em rascunho, seguida da revisão/publicação definida na 038. Cancelar não publica nem altera a origem. Rótulos, foco, mensagens e estados desabilitados seguem os padrões existentes e são verificáveis por teclado e DPI.
+
+Referências: 038/FR-002/FR-004/FR-020–FR-032, [modelo por domínio](../038-integracao-mcp-agentes/data-model.md) e [roteiro futuro](../038-integracao-mcp-agentes/quickstart.md). Plano/tarefas deverão cobrir propriedades, paridade visual e integração manual/MCP; nenhum teste funcional desta expansão foi executado nesta etapa.
+
 ## Aplicação na revisão 1.0.0.1
 
 Inspector atual edita identidade, geometria, conteúdo tipado, skin compatível, família física, tamanho/cor de texto, fundo/borda, alinhamento, habilitação, pai e sobreposição. Salvar publica uma transação; Descartar não publica.

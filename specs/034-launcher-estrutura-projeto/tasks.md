@@ -173,3 +173,17 @@ T001: baseline em `apps/gerador-jornada/build/034-baseline.log`. T002–T019: c�
 
 - [X] T024 Implementar FR-014: checkbox “Mostrar splash screen ao iniciar” abaixo de abrir projeto, padrão desmarcado, restaurar/salvar escolha imediatamente e reverter em falha. Regressões em desktop/startup_preferences_test.go; política e armazenamento separados em 035/036.
 - [ ] T025 Homologar opção da splash com o usuário (marcar, reabrir com vídeo, desmarcar, reabrir direto), junto de 036/T009. Checks e smoke não constituem aceite.
+
+Correção de pasta em 2026-10-25: implementação e regressão pertencem a `037-integracao-github/T072–T073`; este domínio mantém spec/plan/contrato sincronizados sem duplicar tarefa. A criação usa diretamente a pasta escolhida e preserva homônimos.
+
+## Extração planejada para a 038 — 2026-10-25
+
+Estado atual: extração implementada durante a execução autorizada da 038; evidências abaixo. A geração inicial de tarefas foi somente documental. A integração 038/T012 utiliza este resultado; a coordenação de writers está em 038/T011 e a adaptação Git em 037/T080–T081, sem duplicação de implementação.
+
+- [X] T026 Criar regressões de extração em `apps/gerador-jornada/internal/adapter/workspace/store_test.go`, cobrindo as operações reais de `desktop/workspace_store.go`: pasta existente, raiz sem descendentes, nome Windows, links, homônimo, criação/importação exclusiva, exemplo/default de fundo e arquivo ilegível sem omissão silenciosa. Dep.: 038/T005. Refs.: 038/FR-002/FR-005/FR-015/FR-036.
+- [X] T027 Extrair somente armazenamento/resolução/criação/importação reutilizáveis para `apps/gerador-jornada/internal/adapter/workspace/store.go`, mantendo regras de domínio fora do IO, codec existente e configuração por raiz autorizada; não adotar restrição Git de repositório ancestral para workspaces locais em geral. Dep.: T026. Refs.: 038/FR-005/FR-013/FR-036.
+- [X] T028 Adaptar `apps/gerador-jornada/internal/adapter/desktop/workspace_store.go` e launcher/workspace existentes para o adaptador extraído, com aliases/fachada mínima quando necessário à compatibilidade e testes de regressão em `desktop/workspace_test.go`; preservar modo manual, recentes, tema, defaults e operações sem Git/LLM. Dep.: T027. Refs.: 038/FR-001/FR-002/FR-005; integração 038/T012.
+
+Homologação do modo MCP/EXE é gate da 038. Não marcar tarefas antigas do launcher como aprovadas pela existência desta extração.
+
+Evidência da extração 038: store_test/scope_test e guard_windows_test PASS -race; regressões desktop TestWorkspace/TestLauncher PASS; go vet dos pacotes extraídos/desktop PASS. Fachada mantém chamadas internas e defaults do launcher. A criação/importação novas usam gate/handle; a coordenação de todas as substituições GUI/Git continua em 038/T040 e 037/T080–T081. Nenhum aceite humano ou alteração de tema é inferido desses testes.

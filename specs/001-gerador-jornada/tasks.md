@@ -577,3 +577,7 @@ Escopo solicitado: aplicar o estilo real aos componentes existentes do app Go. N
 ## Vídeo em janela normal — 1.0.0.11
 
 - [X] T161 Integrar 036/T014–T015: remover fullscreen da splash por solicitação do usuário, validar imagem/cliente/moldura em janela normal, manter política e áudio, entregar somente EXE com README/evidências. Não encerrar T159/036-T009 por testes locais.
+
+## Arquivos no workspace — 1.0.0.15
+
+- [X] T162 Implementar FR-062 em `desktop/export.go` e `desktop/files.go`: salvar `.pptx` automaticamente ao lado da jornada, sem seletor, confirmar apenas substituição e preservar saída em cancelamento; primeiro save com workspace definido usa essa pasta sem selecionar novamente. Testar geração PPTX real, caminho e preservação; executar checks e entregar EXE/hash/roteiro na seção 31 do quickstart. Sem suporte `.ppt` antigo neste incremento; aceite manual posterior.

@@ -185,7 +185,7 @@ func (p Properties) Validate(kind Kind) error {
 	}
 	switch kind {
 	case Button:
-		if p.Button != nil && contains(p.Button.Variant, "confirm", "cancel", "yes", "no") {
+		if p.Button != nil && contains(p.Button.Variant, ButtonVariants()...) {
 			return nil
 		}
 	case Label:
@@ -197,11 +197,11 @@ func (p Properties) Validate(kind Kind) error {
 			return nil
 		}
 	case TextField:
-		if p.Field != nil && contains(p.Field.Format, "text", "number", "cellular", "cep", "cpf", "date", "ddd", "nis") {
+		if p.Field != nil && contains(p.Field.Format, FieldFormats()...) {
 			return nil
 		}
 	case Radio:
-		if p.Radio != nil && len(p.Radio.Options) > 0 && contains(p.Radio.Orientation, "vertical", "horizontal") {
+		if p.Radio != nil && len(p.Radio.Options) > 0 && contains(p.Radio.Orientation, RadioOrientations()...) {
 			// seen detecta identidades ou nomes repetidos, inclusive diferenças de caixa em caminhos Windows.
 			seen := map[string]bool{}
 			// selected registra a validade da escolha inicial.

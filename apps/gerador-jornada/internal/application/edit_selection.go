@@ -73,7 +73,7 @@ func (s *Session) DuplicateComponents(pageID string, ids []string) ([]string, er
 			clone := *page.ComponentByID(id)
 			clone.Properties = clone.Properties.Copy()
 			// compostos recebem identidades internas novas para não colidirem com o original.
-			clone.Properties.RegenerateCompoundIDs(project.NewID)
+			clone.Properties.RegenerateInstanceIDs(project.NewID)
 			clone.ID = project.NewID()
 			clone.Name = UniqueName(*page, clone.Name+"_copia")
 			clone.FileID = UniqueComponentFileID(*page, clone.FileID)

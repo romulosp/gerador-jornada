@@ -1,5 +1,9 @@
 # Feature Specification: Domínio Tela
 
+## Integração planejada — instanciação da biblioteca 038, 2026-10-25
+
+A [038 v0.4](../038-integracao-mcp-agentes/spec.md) prevê criação manual/MCP sobre os mesmos casos de uso e estilo legado. Tela é dona das instâncias expandidas, geometria, ordem e remapeamento UUID/FileID/IDs internos; não recebe vínculo vivo com biblioteca ou dados do agente. Referências: 038/FR-002/FR-007/FR-022–FR-024/FR-032, US3 e SC-004/SC-009/SC-013. [Modelo](../038-integracao-mcp-agentes/data-model.md) e [plano](../038-integracao-mcp-agentes/plan.md) detalham a divisão. Escopo apenas planejado; nenhuma alteração de código, teste ou homologação foi realizada por este registro.
+
 **Feature Branch**: `004-tela` (identificador; sem branch Git criada)
 **Created**: 2026-10-17
 **Status**: Implementação parcial na revisão 1.0.0.1; requisitos remanescentes e homologação/aceite pendentes
@@ -152,3 +156,7 @@ Implementação em [layer.go](../../apps/gerador-jornada/internal/screen/layer.g
 - **FR-020**: Compor [033](../033-menu-aplicacao-efl/spec.md) como uma única instância com árvore tipada do Catálogo. Confirmar alterações da árvore e escolha inicial atomicamente, com Undo/Redo, mantendo IDs dos nós conservados; aceitar menus vazios. Snapshot preserva identidades por cópia profunda; duplicar componente/tela gera novos UUIDs para instância, todos os submenus e itens e remapeia InitialMenuID. Destinos explícitos entre telas seguem política de Jornada, não são inferidos da categoria.
 
 **Aceitação**: mover/redimensionar/reordenar não separa botões internos nem muda árvore. Descartar/erro não publica fragmentos; duplicação não compartilha dados nem reaproveita UUIDs. Remoção do submenu inicial requer substituto autorado válido na mesma transação. Bounds/estilo/ParentID/FileID continuam comuns; caminho local/foco ficam fora de Screen. [T017](tasks.md#tarefas-menu-aplicacao-2026-10-23) é backlog único, sem repetir 004/T015–T016 de barcode.
+
+## Parcela instalada integrada à 038
+
+038/T021–T023 compartilham CreateScreen/ConfigureScreen/ComponentChanges/ValidateComponentEdit com as operações manuais, mantendo contexto de fundo e validação de nome/FileID/geometria. Configuração incompatível recusa sem mover controles. Texto novo usa pontos de código; histórico inalterado é preservado. Cópias de tela/seleção remapeiam opções/linhas/partes e selecionado do rádio, além dos IDs principais. O caso de uso de presets aplica decoração recebida do adaptador; não há pós-processamento exclusivo da GUI. Isso não fecha todo o backlog de Tela ou aprovação visual. Evidência em 038/quickstart.

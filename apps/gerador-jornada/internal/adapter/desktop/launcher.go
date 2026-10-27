@@ -152,15 +152,16 @@ func (l *Launcher) finishOpen(document application.Document, path string) {
 
 // createProject grava a jornada inicial em sua pasta, sem sobrescrever arquivos existentes.
 func (l *Launcher) createProject(name, base string, example bool) error {
-	// filename normaliza apenas a pasta e o arquivo, preservando o nome exibido.
-	filename, err := JourneyFilename(name)
+	// err valida o nome antes de criar a pasta escolhida, preservando o nome exibido.
+	_, err := JourneyFilename(name)
 	if err != nil {
 		return err
 	}
 	if strings.TrimSpace(base) == "" {
 		return fmt.Errorf("Escolha a pasta do projeto.")
 	}
-	root := filepath.Join(base, strings.TrimSuffix(filename, ".jornada"))
+	// root é exatamente o destino escolhido, inclusive quando já tem o nome do projeto.
+	root := filepath.Clean(base)
 	if err := os.MkdirAll(root, 0755); err != nil {
 		return err
 	}
@@ -194,7 +195,7 @@ func (l *Launcher) newProject(example bool) {
 	if example {
 		title = "Novo projeto com exemplo"
 	}
-	dialog.ShowCustomConfirm(title, "Criar", "Cancelar", container.NewVBox(widget.NewForm(widget.NewFormItem("Nome", name), widget.NewFormItem("Pasta base", folder)), browse, widget.NewLabel("Será criada uma pasta com o nome do projeto.")), func(yes bool) {
+	dialog.ShowCustomConfirm(title, "Criar", "Cancelar", container.NewVBox(widget.NewForm(widget.NewFormItem("Nome", name), widget.NewFormItem("Pasta do projeto", folder)), browse, widget.NewLabel("O arquivo .jornada será salvo diretamente na pasta escolhida.")), func(yes bool) {
 		if !yes {
 			return
 		}
